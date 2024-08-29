@@ -2,4 +2,4 @@
 .env
 
 # Ignore pycache
-./__pycache__
+Frontend/__pycache__
