@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{{data}}
+
+<form method="post" action="/post_api" enctype="multipart/form-data"> 
+    {{ form.csrf_token }} 
+    <p>{{ form.user_input.label }} {{ form.user_input() }}</p> 
+    <p><input type="submit" value="Submit"></p> 
+</form> 
+
+{% endblock %}
