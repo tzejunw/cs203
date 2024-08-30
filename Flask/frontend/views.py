@@ -1,0 +1,2 @@
+@frontend.route('/')
+def index():

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Basic -->
+        <meta charset="utf-8">
+        <title>{% block title %}{% endblock %}</title>
+        <meta name="keywords" content="HTML5 Template" />
+        <meta name="author" content="iwthemes.com">
+
+        <!-- Mobile Metas -->
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Theme CSS -->
+        <link href="static/css/main.css" rel="stylesheet" media="screen">
+
+        <!-- Favicons -->
+        <link rel="shortcut icon" href="static/img/icons/favicon.ico">
+        <link rel="apple-touch-icon" href="static/img/icons/apple-touch-icon.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="static/img/icons/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="static/img/icons/apple-touch-icon-114x114.png">
+    </head>
+
+    <body>
+        <div id="layout">
+            {% block navbar %}
+                {% include 'includes/_navbar.html' %}
+            {% endblock %}
+
+            {% block content %}
+            {% endblock %}
+
+            {% block footer %}
+                {% include 'includes/_footer.html' %}
+            {% endblock %}
+        </div>
+    </body>
+
+</html>
+
