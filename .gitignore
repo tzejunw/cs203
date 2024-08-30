@@ -2,4 +2,4 @@
 .env
 
 # Ignore pycache
-Frontend/__pycache__
+Flask/__pycache__
