@@ -1,3 +1,5 @@
+from frontend import frontend
+
 from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField ,SubmitField 
@@ -7,12 +9,10 @@ import requests
 
 # instance of flask application
 app = Flask(__name__)
+app.register_blueprint(frontend, url_prefix='/frontend')
 app.config['SECRET_KEY'] = 'secretkey'
 
-# home route that returns below text when root url is accessed
-@app.route("/")
-def home():
-    return render_template('index.html')
+
 
 @app.route("/fetch_api")
 def api_fetch_example():
