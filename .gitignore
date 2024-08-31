@@ -3,3 +3,6 @@
 
 # Ignore pycache
 Flask/__pycache__
+Flask/frontend/__pycache__
+Flask/user/__pycache__
+Flask/tournament/__pycache__

@@ -1,25 +1,33 @@
 <!-- layout-->
 <div id="layout">
-  <!-- Header-->
-  <header>
-      <!-- End headerbox-->
-      <div class="headerbox">
-          <div class="container">
-              <div class="row justify-content-between align-items-center">
-                  <!-- Logo-->
-                  <div class="col">
-                     <div class="logo">
-                         <a href="/" title="Return Home">
-                              <img src="{{url_for('static',filename='/img/logo.png')}}" alt="Logo" class="logo_img">
-                          </a>
-                     </div>
-                  </div>
-                  <!-- End Logo-->
-              </div>
-          </div>
-      </div>
-      <!-- End headerbox-->
-  </header>
+    <!-- Header-->
+    <header>
+        <!-- End headerbox-->
+        <div class="headerbox">
+            <div class="container">
+                <div class="row justify-content-between align-items-center">
+                    <!-- Logo-->
+                    <div class="col">
+                       <div class="logo">
+                           <a href="/" title="Return Home">
+                                <img src="{{url_for('static',filename='img/logo.png')}}" alt="Logo" class="logo_img">
+                            </a>
+                       </div>
+                    </div>
+                    <!-- End Logo-->
+
+                    <!-- Adds Header-->
+                    <div class="col">
+                        <!-- Call Nav Menu-->
+                        <a class="mobile-nav" href="#mobile-nav"><i class="fa fa-bars"></i></a>
+                        <!-- End Call Nav Menu-->
+                    </div>
+                    <!-- End Adds Header-->
+                </div>
+            </div>
+        </div>
+        <!-- End headerbox-->
+    </header>
   <!-- End Header-->
 </div>
 
@@ -50,7 +58,7 @@
                       <div class="col-md-3">
                         <h5><i class="fa fa-users" aria-hidden="true"></i> Teams List</h5>
                         <div class="img-hover">
-                           <img src="{{url_for('static',filename='/img/blog/1.jpg')}}" alt="" class="img-responsive">
+                           <img src="{{url_for('static',filename='img/blog/1.jpg')}}" alt="" class="img-responsive">
                            <div class="overlay"><a href="teams.html">+</a></div>
                         </div>
                       </div>
@@ -58,7 +66,7 @@
                       <div class="col-md-3">
                         <h5><i class="fa fa-futbol-o" aria-hidden="true"></i> Players List</h5>
                         <div class="img-hover">
-                           <img src="{{url_for('static',filename='/img/blog/2.jpg')}}" alt="" class="img-responsive">
+                           <img src="{{url_for('static',filename='img/blog/2.jpg')}}" alt="" class="img-responsive">
                            <div class="overlay"><a href="players.html">+</a></div>
                         </div>
                       </div>
@@ -66,7 +74,7 @@
                       <div class="col-md-3">
                         <h5><i class="fa fa-gamepad" aria-hidden="true"></i> Results Info</h5>
                         <div class="img-hover">
-                           <img src="{{url_for('static',filename='/img/blog/3.jpg')}}" alt="" class="img-responsive">
+                           <img src="{{url_for('static',filename='img/blog/3.jpg')}}" alt="" class="img-responsive">
                            <div class="overlay"><a href="results.html">+</a></div>
                         </div>
                       </div>

@@ -1,4 +1,4 @@
-from . import frontend
+from . import user
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import FlaskForm 
@@ -7,7 +7,6 @@ from wtforms.validators import InputRequired
 from werkzeug.security import generate_password_hash 
 import requests
 
-# home route that returns below text when root url is accessed
-@frontend.route('/')
-def index():
-    return render_template('frontend/index.html')
+@user.route('/register')
+def register():
+    return render_template('user/register.html')

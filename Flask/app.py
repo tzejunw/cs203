@@ -1,4 +1,6 @@
 from frontend import frontend
+from user import user
+from tournament import tournament
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import FlaskForm 
@@ -9,9 +11,10 @@ import requests
 
 # instance of flask application
 app = Flask(__name__)
-app.register_blueprint(frontend, url_prefix='/frontend')
+app.register_blueprint(frontend) 
+app.register_blueprint(user, url_prefix='/user') 
+app.register_blueprint(tournament, url_prefix='/tournament') 
 app.config['SECRET_KEY'] = 'secretkey'
-
 
 
 @app.route("/fetch_api")
