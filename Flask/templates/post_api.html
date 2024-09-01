@@ -1,13 +1,65 @@
 {% extends "layouts/base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}POST API Test{% endblock %}
 
 {% block content %}
-{{data}}
+<!-- Section Area - Content Central -->
+<section class="content-info">
 
-<form method="post" action="/post_api" enctype="multipart/form-data"> 
-    {{ form.csrf_token }} 
-    <p>{{ form.user_input.label }} {{ form.user_input() }}</p> 
-    <p><input type="submit" value="Submit"></p> 
-</form> 
+    <!-- Content Central -->
+     <section class="container">
+         <div class="row">
+             <div class="page-error">
+                {{data}}
+                <!-- we likely need to create template for the form elements on our end cos it's nt syncing... -->
+                <form method="post" action="/post_api" enctype="multipart/form-data"> 
+                    {{ form.csrf_token }} 
+                    <p>{{ form.user_input.label }} {{ form.user_input() }}</p> 
+                    <p><input type="submit" value="Submit"></p> 
+                </form> 
+             </div>
+         </div>
+     </section>
+     <!-- End Content Central -->
+
+     <!-- Newsletter -->
+     <div class="section-newsletter">
+         <div class="container">
+             <div class="row">
+                 <div class="col-md-12">
+                     <div class="text-center">
+                         <h2>Enter your e-mail and <span class="text-resalt">subscribe</span> to our newsletter.</h2>
+                         <p>Duis non lorem porta,  eros sit amet, tempor sem. Donec nunc arcu, semper a tempus et, consequat.</p>
+                     </div>
+                     <form id="newsletterForm" action="php/mailchip/newsletter-subscribe.php">
+                         <div class="row">
+                             <div class="col-md-6">
+                                 <div class="input-group">
+                                     <span class="input-group-addon">
+                                         <i class="fa fa-envelope"></i>
+                                     </span>
+                                     <input class="form-control" placeholder="Your Name" name="name"  type="text" required="required">
+                                 </div>
+                             </div>
+                             <div class="col-md-6">
+                                 <div class="input-group">
+                                     <span class="input-group-addon">
+                                         <i class="fa fa-envelope"></i>
+                                     </span>
+                                     <input class="form-control" placeholder="Your  Email" name="email"  type="email" required="required">
+                                     <span class="input-group-btn">
+                                         <button class="btn btn-primary" type="submit" name="subscribe" >SIGN UP</button>
+                                      </span>
+                                 </div>
+                             </div>
+                         </div>
+                     </form>
+                     <div id="result-newsletter"></div>
+                 </div>
+             </div>
+         </div>
+     </div>
+     <!-- End Newsletter -->
+ </section>
+ <!-- End Section Area -  Content Central -->
 
 {% endblock %}
