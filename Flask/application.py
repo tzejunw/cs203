@@ -10,14 +10,14 @@ from werkzeug.security import generate_password_hash
 import requests
 
 # instance of flask application
-app = Flask(__name__)
-app.register_blueprint(frontend) 
-app.register_blueprint(user, url_prefix='/user') 
-app.register_blueprint(tournament, url_prefix='/tournament') 
-app.config['SECRET_KEY'] = 'secretkey'
+application = Flask(__name__)
+application.register_blueprint(frontend) 
+application.register_blueprint(user, url_prefix='/user') 
+application.register_blueprint(tournament, url_prefix='/tournament') 
+application.config['SECRET_KEY'] = 'secretkey'
 
 
-@app.route("/fetch_api")
+@application.route("/fetch_api")
 def api_fetch_example():
     url = "https://api.openweathermap.org/data/2.5/weather?lat=1.295895&lon=103.8474269&appid=0e0816d27fe6cc9cba94aa06cf871e94"
     res = requests.get(url)
@@ -36,7 +36,7 @@ class MyForm(FlaskForm):
     # message = TextAreaField('Message', validators=[InputRequired()]) 
     # photo = FileField('Photo') 
 
-@app.route("/post_api", methods=['GET', 'POST'])
+@application.route("/post_api", methods=['GET', 'POST'])
 def api_post_example():
     form = MyForm()
     data = "Type something first and submit."
@@ -51,9 +51,9 @@ def api_post_example():
         # return redirect(url_for('post_output'))
     return render_template('post_api.html', form=form, data=data)
 
-@app.errorhandler(404)
+@application.errorhandler(404)
 def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 if __name__ == '__main__':  
-   app.run(debug=True) # remove debug=True for production
+   application.run(debug=True) # remove debug=True for production

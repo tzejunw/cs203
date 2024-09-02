@@ -10,3 +10,7 @@ import requests
 @user.route('/register')
 def register():
     return render_template('user/register.html')
+
+@user.route('/login')
+def login():
+    return render_template('user/login.html')
