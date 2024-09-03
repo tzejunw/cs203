@@ -1,0 +1,82 @@
+
+Pre tournament 
+
+assign number of rounds based on number of participants
+
+Tournament algo
+
+Rd 1
+
+Randomly map 1 number to each participating player
+pair each player to the player mapped with the number that would add up to the total number of players + 1
+
+Rd 2-n onwards
+
+Match results points are determined by the following
+
+W - 3 pt
+UID - 1 pt
+ID - 1 pt
+L - 0 pt
+
+Game result points are determined by the following
+
+GW - 3 pt
+GL - 0 pt
+
+Byes are considered Match wins and 2 GWs
+
+
+Calculate each player's score
+---------
+MW % 
+---------
+total number of match points / rounds played
+
+if MW% < 0.33, MW = 0.33
+----------
+GW %
+----------
+Byes + 
+
+Total number of game points (match points)  / games played
+
+if GW% < 0.33, GW = 0.33
+
+--------------
+Opp MW%
+--------------
+summation of Opp MW% / Opps faced
+
+
+--------------
+Opp GW%
+--------------
+
+summation Opp GW% / Opps faced
+
+-------------------------------
+
+Ranking will then be determined by following priority
+
+1 Match points
+2 Opp MW%
+3 GW%
+4 Opp GW%
+
+
+After ranking, If total odd number, assign bye randomly among those with lowest scores
+
+starting at the bottom bracket ( players with lowest scores )
+
+1. if there are an odd number of players within the bracket, randomly select a player to be up paired to the next point bracket
+
+2. go to the next bracket randomly select and remove a player from that bracket to pair with the previous player to be uppaired
+2.5 if both players have played against each other, randomly pick another player from that bracket to replace
+
+3. if even number of players remaining in the bracket, move onto the next bracket and start at 1., else start at 1. at this bracket
+
+
+
+ 
+
