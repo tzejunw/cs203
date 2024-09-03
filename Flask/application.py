@@ -28,13 +28,6 @@ class MyForm(FlaskForm):
     user_input = StringField('Name', validators=[InputRequired()]) 
     # password = PasswordField('Password', validators=[InputRequired()]) 
     # remember_me = BooleanField('Remember me') 
-    # salary = DecimalField('Salary', validators=[InputRequired()]) 
-    # gender = RadioField('Gender', choices=[ 
-    #                     ('male', 'Male'), ('female', 'Female')]) 
-    # country = SelectField('Country', choices=[('IN', 'India'), ('US', 'United States'), 
-    #                                           ('UK', 'United Kingdom')]) 
-    # message = TextAreaField('Message', validators=[InputRequired()]) 
-    # photo = FileField('Photo') 
 
 @application.route("/post_api", methods=['GET', 'POST'])
 def api_post_example():
