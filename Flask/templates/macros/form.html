@@ -136,10 +136,14 @@
         for="{{ field.id }}">
         {{ field.label }}
     </label>
+    {% if field.data -%}
+    {{ field(class_="form-control", value=field.data) }}
+    {% else -%}
     {{ field(class_="form-control") }}
+    {%- endif %}
     <span class="help-inline">{{ field.description }}</span>
     {% if field.errors -%}
-    <ul class="help-block">
+    <ul class="help-block" style="color: red;">
         {% for error in field.errors -%}
     	<li>{{ error }}</li>
         {%- endfor %}
@@ -156,7 +160,7 @@
         <span class="help-inline">{{ field.description }}</span>
     </label>
     <div class="">
-        {{ field(class_="form-control", type="date") }}
+        {{ field(class_="form-control", type="date", value=field.data) }}
         {% if field.errors -%}
         <ul class="help-block">
             {% for error in field.errors -%}
@@ -175,7 +179,7 @@
     <div class="">
         <select class="form-control" name={{ field.name }}>
             {% for subfield in field %}
-            {{ subfield}}
+            <option value="{{ subfield.data }}" {% if subfield.checked %}selected{% endif %}>{{ subfield.label.text }}</option>
             {% endfor %}
         </select>
         {% if field.errors -%}

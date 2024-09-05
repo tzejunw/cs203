@@ -8,13 +8,42 @@ from wtforms import ValidationError, StringField, PasswordField, SubmitField, \
 from wtforms.validators import DataRequired, Length, EqualTo, Email, URL, AnyOf, Optional
 from werkzeug.security import generate_password_hash 
 import requests
+import json
 
-@user.route('/register')
+# /user/register
+@user.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm();
+    if request.method == 'POST' and form.validate_on_submit():
+        form.email.errors = ["Email is not valid"]
+        form.name.errors = ["Name is not valid"]
     return render_template('user/register.html', form=form)
 
+# /user/login
 @user.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm();
+    if request.method == 'POST' and form.validate_on_submit():
+        form.email.errors = ["User is not valid"]
+        print(form.email.data)
     return render_template('user/login.html', form=form)
+
+@user.route('/update_account', methods=['GET', 'PUT'])
+def update_account():
+    ### Sample Data ###
+    json_data = '{ "email":"example@example.com", "name":"John Doe", "gender":"M", "birthdate":"2000-01-18", "profile_pic":"https://i.pinimg.com/236x/6c/9e/ee/6c9eee49ffdd7a940e3164f424bba803.jpg"}'
+    data = json.loads(json_data)
+    form = RegisterForm()
+
+    form.email.data = data.get('email')
+    form.name.data = data.get('name')
+    form.gender.data = data.get('gender')
+    form.birthdate.data = data.get('birthdate')
+
+    if request.method == 'PUT' and form.validate_on_submit():
+        print("do some processing")
+    return render_template('user/update_account.html', form=form)
+
+@user.route('/<string:id>/', methods=['GET', 'POST'])
+def view_player_profile(id):
+    return render_template('user/view_player_profile.html')

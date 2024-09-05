@@ -1,5 +1,5 @@
 {% extends "layouts/base.html" %}
-{% block title %}Page Not Found{% endblock %}
+{% block title %}Unauthorized{% endblock %}
 
 {% block content %}
 <!-- Section Area - Content Central -->
@@ -9,10 +9,10 @@
      <section class="container">
          <div class="row">
              <div class="page-error">
-                 <h1>404 <i class="fa fa-unlink"></i></h1>
+                 <h1>401 <i class="fa fa-unlink"></i></h1>
                   <hr class="tall">
-                 <p class="lead">We're sorry, but the page you were looking for doesn't exist.</p>
-                 <a href="/" class="btn btn-lg btn-primary">Return Home</a>
+                 <p class="lead">Please login to view this page.</p>
+                 <a href="{{url_for('user.login')}}" class="btn btn-lg btn-primary">Login</a>
              </div>
          </div>
      </section>
