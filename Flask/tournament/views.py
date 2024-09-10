@@ -22,3 +22,7 @@ def view_players():
 @tournament.route('/matches')
 def tournament_matches():
     return render_template('tournament/matches.html')
+
+@tournament.route('/view')
+def view_tournament():
+    return render_template('tournament/test.html')
