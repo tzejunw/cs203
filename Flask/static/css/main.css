@@ -4355,9 +4355,13 @@ tbody.collapse.show {
 /* line 120, ../sass/bootstrap/_card.scss */
 .card-img-top {
   width: 100%;
+  height: 200px; /* Adjust to the height that suits your design */
+  object-fit: cover; /* Ensures images cover the specified height without distortion */
+  
   border-top-left-radius: calc(0.25rem - 1px);
   border-top-right-radius: calc(0.25rem - 1px);
 }
+
 
 /* line 125, ../sass/bootstrap/_card.scss */
 .card-img-bottom {
@@ -11652,7 +11656,7 @@ footer.footer-2 .links-footer ul li a:hover,
 .mainmenu,
 .sf-menu .sub-current,
 .header-2 {
-  border-bottom: 3px solid #01d099;
+  border-bottom: 3px solid #DC5743;
 }
 
 /* line 112, ../sass/_partials/_skins.scss */
@@ -11664,7 +11668,7 @@ footer.footer-2 .links-footer ul li a:hover,
 header,
 .overlay-player,
 .crumbs {
-  border-top: 3px solid #01d099;
+  border-top: 3px solid black;
 }
 
 /* line 120, ../sass/_partials/_skins.scss */
@@ -15422,8 +15426,8 @@ header {
 }
 /* line 388, ../sass/main.scss */
 header .logo img {
-  max-width: 50%;
-  max-height: 40px;
+  max-width: 60%;
+  max-height: 50px;
 }
 /* line 393, ../sass/main.scss */
 header .adds img {
@@ -19181,5 +19185,14 @@ table.career tr td img {
 }
 .modal-content {
   margin: auto;
+}
+
+/* CSS for HOME PAGE */
+.home-hero-text {
+  margin-left: 40px;
+}
+
+.home-hero-header {
+  font-weight: 600;
 }
 

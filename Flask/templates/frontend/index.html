@@ -3,12 +3,12 @@
 
 {% block content %}
 <!-- Main banner -->
-<div class="section-title" style="background:url({{url_for('static',filename='img/tournament/banner.png')}})">
+<div class="section-title" style="background:url({{url_for('static',filename='img/home/banner.png')}})">
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
-                <h1>Welcome to Magic</h1>
-                <p style="color: white;">Find and Join a Tournament</p>
+            <div class="col-md-12 home-hero-text">
+                <h1 class="home-hero-header">Welcome to Magic</h1>
+                <p class="home-hero-desc" style="color: white;">Find and Join a Tournament</p>
             </div>
         </div>
     </div>
@@ -17,23 +17,25 @@
 <div class="container-fluid p-5">
     <div class="row">
         <div class="col-md-7">
-          <img src="{{url_for('static',filename='img/tournament/tournament-1.jpg')}}" alt="Magic Character" class="img-fluid">
+          <img src="{{url_for('static',filename='img/home/tournament-1.jpg')}}" alt="Magic Character" class="img-fluid">
         </div>
         <div class="col-md-5 bg-light p-3">
           <h2>Tournament 1</h2>
           <p>Join the upcoming tournament</p>
-          <button type="button" class="btn btn-warning">Join</button>
+          <button type="button" class="btn btn-warning" style="color: ">Join</button>
         </div>
     </div>
 
     <!-- Ongoing Tournaments Section -->
     <br>
+    <br>
     <h3>Ongoing Tournaments</h3>
+    <br>
     <div class="row">
         <!-- Tournament 1 -->
         <div class="col-md-3">
             <div class="card">
-                <img src="tournament1.jpg" class="card-img-top" alt="Tournament 1">
+                <img src="{{url_for('static',filename='img/home/tournament-1.jpg')}}" class="card-img-top" alt="Tournament 1">
                 <div class="card-body">
                     <h5 class="card-title">Tournament 1</h5>
                     <p class="card-text">Brief description of Tournament 1.</p>
@@ -43,7 +45,7 @@
         <!-- Tournament 2 -->
         <div class="col-md-3">
             <div class="card">
-                <img src="tournament2.jpg" class="card-img-top" alt="Tournament 2">
+                <img src="{{url_for('static',filename='img/home/tournament-2.jpg')}}" class="card-img-top" alt="Tournament 2">
                 <div class="card-body">
                     <h5 class="card-title">Tournament 2</h5>
                     <p class="card-text">Brief description of Tournament 2.</p>
@@ -53,7 +55,7 @@
         <!-- Tournament 3 -->
         <div class="col-md-3">
             <div class="card">
-                <img src="tournament3.jpg" class="card-img-top" alt="Tournament 3">
+                <img src="{{url_for('static',filename='img/home/tournament-3.jpg')}}" class="card-img-top" alt="Tournament 3">
                 <div class="card-body">
                     <h5 class="card-title">Tournament 3</h5>
                     <p class="card-text">Brief description of Tournament 3.</p>
@@ -63,7 +65,7 @@
         <!-- Tournament 4 -->
         <div class="col-md-3">
             <div class="card">
-                <img src="tournament4.jpg" class="card-img-top" alt="Tournament 4">
+                <img src="{{url_for('static',filename='img/home/tournament-4.jpg')}}" class="card-img-top" alt="Tournament 4">
                 <div class="card-body">
                     <h5 class="card-title">Tournament 4</h5>
                     <p class="card-text">Brief description of Tournament 4.</p>
