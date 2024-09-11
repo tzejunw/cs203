@@ -15,6 +15,7 @@
             </div>
 
             <div class="info-panel">
+                Username: {{userDetails.get('username')}}<br>
                 {{ render_form(url_for('user.update_account'), form) }}
                 <br><br><br><hr>
 
