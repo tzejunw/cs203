@@ -21,8 +21,7 @@ public class CRUDRunner {
 		ClassLoader classLoader = CRUDRunner.class.getClassLoader(); 
 
 		File file = new File(Objects.requireNonNull(classLoader.getResource("serviceAccountKey.json")).getFile());
-		FileInputStream serviceAccount = 
-				new FileInputStream(file.getAbsolutePath());
+		FileInputStream serviceAccount = new FileInputStream(file.getAbsolutePath());
 
 				
 		FirebaseOptions options = new FirebaseOptions.Builder()
