@@ -1,5 +1,5 @@
 from . import user
-from user.forms import LoginForm, RegisterForm
+from user.forms import LoginForm, RegisterForm, UpdateAccountForm
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import Form, FlaskForm 
@@ -31,18 +31,27 @@ def login():
 @user.route('/update_account', methods=['GET', 'PUT'])
 def update_account():
     ### Sample Data ###
-    json_data = '{ "email":"example@example.com", "name":"John Doe", "gender":"M", "birthdate":"2000-01-18", "profile_pic":"https://i.pinimg.com/236x/6c/9e/ee/6c9eee49ffdd7a940e3164f424bba803.jpg"}'
+    json_data = '{"username":"scrubdaddy", "email":"example@example.com", "name":"John Doe", "gender":"M", "birthdate":"2000-01-18", "profile_pic":"https://i.pinimg.com/236x/6c/9e/ee/6c9eee49ffdd7a940e3164f424bba803.jpg"}'
     data = json.loads(json_data)
-    form = RegisterForm()
+    form = UpdateAccountForm()
 
     form.email.data = data.get('email')
     form.name.data = data.get('name')
     form.gender.data = data.get('gender')
     form.birthdate.data = data.get('birthdate')
+    print(data.get('username'))
 
     if request.method == 'PUT' and form.validate_on_submit():
         print("do some processing")
-    return render_template('user/update_account.html', form=form)
+    return render_template('user/update_account.html', form=form, userDetails=data)
+
+# DELETE method is somehow (device) restricted in HTML, so lets just use POST.
+@user.route('/delete_user', methods=['GET', 'POST'])
+def delete_user():
+    if request.method == 'POST':
+        return redirect(url_for('user.login'))
+    else:
+        return render_template('errors/403.html')
 
 @user.route('/<string:id>/', methods=['GET', 'POST'])
 def view_player_profile(id):

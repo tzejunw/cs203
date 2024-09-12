@@ -11,6 +11,10 @@ import requests
 def index():
     return render_template('frontend/index.html')
 
+@tournament.route('/view')
+def view_tournaments():
+    return render_template('tournament/tournaments.html')
+
 @tournament.route('/results')
 def view_results():
     return render_template('tournament/results.html')
@@ -22,3 +26,4 @@ def view_players():
 @tournament.route('/matches')
 def tournament_matches():
     return render_template('tournament/matches.html')
+

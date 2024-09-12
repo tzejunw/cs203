@@ -1,0 +1,53 @@
+{% extends "layouts/base.html" %}
+{% block title %}Register Account{% endblock %}
+{% from "macros/form.html" import render_form %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Main banner -->
+  <div class="row mb-4">
+    <div class="col-12 p-0">
+      <img src="banner-image.jpg" alt="Welcome to Magic" class="img-fluid w-100">
+    </div>
+  </div>
+
+  <!-- Featured Tournament -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6 col-sm-12 p-0 pr-md-2 mb-sm-2 mb-md-0">
+      <img src="featured-tournament.jpg" alt="Tournament 1" class="img-fluid w-100 h-auto rounded shadow-sm">
+    </div>
+    <div class="col-md-6 col-sm-12 pl-md-2 text-center text-md-left">
+      <h2>Tournament 1</h2>
+      <p>Short description of the tournament goes here.</p>
+      <button type="button" class="btn btn-primary mr-2">Info</button>
+      <button type="button" class="btn btn-danger">Join</button>
+    </div>
+  </div>
+
+  <!-- Ongoing Tournaments -->
+  <h3>Ongoing Tournaments</h3>
+  <div class="row">
+    <div class="col-md-3 col-sm-6 mb-4">
+      <img src="tournament1.jpg" alt="Tournament 1" class="img-fluid rounded shadow-sm">
+      <h4>Tournament 1</h4>
+      <p>Short description of Tournament 1.</p>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-4">
+      <img src="tournament2.jpg" alt="Tournament 2" class="img-fluid rounded shadow-sm">
+      <h4>Tournament 2</h4>
+      <p>Short description of Tournament 2.</p>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-4">
+      <img src="tournament3.jpg" alt="Tournament 3" class="img-fluid rounded shadow-sm">
+      <h4>Tournament 3</h4>
+      <p>Short description of Tournament 3.</p>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-4">
+      <img src="tournament4.jpg" alt="Tournament 4" class="img-fluid rounded shadow-sm">
+      <h4>Tournament 4</h4>
+      <p>Short description of Tournament 4.</p>
+    </div>
+  </div>
+</div>
+
+    {% endblock %}

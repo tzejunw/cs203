@@ -37,4 +37,4 @@ class UpdateAccountForm(FlaskForm):
     gender = RadioField('Gender', choices=[('M', 'Male'), ('F', 'Female')], validators=[DataRequired()])
     birthdate = DateField('Birthdate', format='%Y-%m-%d')
     profile_pic = FileField('Profile Picture')
-    register = SubmitField('Register')
+    register = SubmitField('Update')

@@ -15,8 +15,14 @@
             </div>
 
             <div class="info-panel">
-                {{ render_form(url_for('user.register'), form) }}
-                <br><br>    
+                Username: {{userDetails.get('username')}}<br>
+                {{ render_form(url_for('user.update_account'), form) }}
+                <br><br><br><hr>
+
+                <b>Account Removal</b><br>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAccountModal">
+                    Delete Account
+                </button>
             </div>
 
         </div>
@@ -25,4 +31,31 @@
 </section>
 <!-- End Section Area -  Content Central -->
 
+<!-- Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Deletion</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="{{url_for('user.delete_user')}}" method="POST" id="deleteConfirmationForm">
+            <div class="form-group">
+              <label for="password">You cannot recover your account after deleting. Are you sure you want to proceed?</label>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+            
+          </form>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  <!-- Modal -->
 {% endblock %}
