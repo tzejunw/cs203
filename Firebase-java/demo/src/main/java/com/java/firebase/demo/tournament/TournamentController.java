@@ -20,7 +20,7 @@ public class TournamentController {
         return tournamentService.createTournament(tournament);
     }
 
-    @GetMapping("/tournament/get") 
+    @GetMapping("/tournament/get") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
     public Tournament getTournament(@RequestParam String documentId) throws InterruptedException, ExecutionException {
         return tournamentService.getTournament(documentId);
     }
@@ -30,7 +30,7 @@ public class TournamentController {
         return tournamentService.updateTournament(tournament);
     }
 
-    @DeleteMapping("/tournament/delete")
+    @DeleteMapping("/tournament/delete") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
     public String deleteTournament(@RequestParam String documentId) throws InterruptedException, ExecutionException {
         return tournamentService.deleteTournament(documentId);
     }
