@@ -6,7 +6,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class User {
-    private String documentId;
     private String userName;
     private String name;
     private String birthday;

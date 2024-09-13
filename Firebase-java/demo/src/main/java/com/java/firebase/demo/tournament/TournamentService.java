@@ -15,20 +15,20 @@ import com.google.cloud.firestore.WriteResult;
 public class TournamentService {
 
     // CRUD for Tournaments
+    // This takes one of the specified json fields, here .getTournamentName(),  and sets it as the documentId (document identifier)
+    // if you want firebase to generate documentId for us, leave .document() blank
     public String createTournament(Tournament tournament) throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore(); 
-        // documentId (identifier)is based on what we gave, .getEmail(). 
-        //if you want firebase to generate for us, leave .document() blank
-        // if you submit another create req with the same "documentId" now, it will overwrite
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("tournament").document(tournament.getTournamentName()).set(tournament);
         
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
-    public Tournament getTournament(String tournamentName) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        // we are using email as the documentId. the key in the GET request must be "documentid", and the value is the email
-        DocumentReference documentReference = dbFirestore.collection("tournament").document(tournamentName); // get the doc
+    // For this Firebase doc, the tournamentName is the documentId.
+    // The key in the GET request must be "documentid", and the value is the tournamentName
+    public Tournament getTournament(String documentId) throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        DocumentReference documentReference = dbFirestore.collection("tournament").document(documentId); 
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         Tournament tournament;
@@ -39,14 +39,16 @@ public class TournamentService {
         return null;
     }
 
-        // this is exact same as POST route!! should we input validate?
+    // this is exact same as POST route!! should we input validate?
     // TODO input validate that the json has "documentId" and that its value pair exisits in the database!
     public String updateTournament(Tournament tournament) throws ExecutionException, InterruptedException{ 
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("tournament").document(tournament.getDocumentId()).set(tournament); // takes name to be primary key
+        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("tournament").document(tournament.getTournamentName()).set(tournament); // takes name to be primary key
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
+    // For this Firebase doc, the tournamentName is the documentId.
+    // The key in the GET request must be "documentid", and the value is the tournamentName
     public String deleteTournament(String documentId) throws ExecutionException, InterruptedException {
         // we are using email as the documentId. the key in the DELETE request must be "documentid", and the value is the email
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
@@ -55,39 +57,11 @@ public class TournamentService {
     }
 
     // // CRUD for Rounds (nested under Tournament)
-    // public void addRound(String tournamentId, Round round) {
-    //     CollectionReference rounds = db.collection("tournaments").document(tournamentId).collection("rounds");
-    //     rounds.document(round.getDocumentId()).set(round);
-    // }
 
-    // public List<Round> getRounds(String tournamentId) throws Exception {
-    //     return db.collection("tournaments").document(tournamentId).collection("rounds")
-    //              .get().get().toObjects(Round.class);
-    // }
 
     // // CRUD for Matches (nested under Round -> Tournament)
-    // public void addMatch(String tournamentId, String roundId, Match match) {
-    //     CollectionReference matches = db.collection("tournaments").document(tournamentId)
-    //                                     .collection("rounds").document(roundId).collection("matches");
-    //     matches.document(match.getDocumentId()).set(match);
-    // }
 
-    // public List<Match> getMatches(String tournamentId, String roundId) throws Exception {
-    //     return db.collection("tournaments").document(tournamentId)
-    //              .collection("rounds").document(roundId).collection("matches")
-    //              .get().get().toObjects(Match.class);
-    // }
 
     // // CRUD for Standings (nested under Round -> Tournament)
-    // public void addStanding(String tournamentId, String roundId, Standings standing) {
-    //     CollectionReference standings = db.collection("tournaments").document(tournamentId)
-    //                                       .collection("rounds").document(roundId).collection("standings");
-    //     standings.document(standing.getDocumentId()).set(standing);
-    // }
 
-    // public List<Standings> getStandings(String tournamentId, String roundId) throws Exception {
-    //     return db.collection("tournaments").document(tournamentId)
-    //              .collection("rounds").document(roundId).collection("standings")
-    //              .get().get().toObjects(Standings.class);
-    // }
 }

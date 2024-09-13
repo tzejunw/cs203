@@ -15,22 +15,22 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/user/create")
+    @PostMapping("/user/create") // expects a User object in body raw JSON
     public String createUser(@RequestBody User user) throws InterruptedException, ExecutionException {
         return userService.createUser(user);
     }
 
-    @GetMapping("/user/get") // get single data??
+    @GetMapping("/user/get") // documentId is the user's email. The argument here determines what it expects as the key in Postman
     public User getUser(@RequestParam String documentId) throws InterruptedException, ExecutionException {
         return userService.getUser(documentId);
     }
 
-    @PutMapping("/user/update") // takes another user json
+    @PutMapping("/user/update") // expects a User object in body raw JSON
     public String updateUser(@RequestBody User user) throws InterruptedException, ExecutionException {
         return userService.updateUser(user);
     }
 
-    @DeleteMapping("/user/delete")
+    @DeleteMapping("/user/delete") // documentId is the user's email. The argument here determines what it expects as the key in Postman
     public String deleteUser(@RequestParam String documentId) throws InterruptedException, ExecutionException {
         return userService.deleteUser(documentId);
     }

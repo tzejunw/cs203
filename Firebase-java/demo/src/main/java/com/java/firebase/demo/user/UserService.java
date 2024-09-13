@@ -13,21 +13,20 @@ import com.google.firebase.cloud.FirestoreClient;
 
 @Service
 public class UserService {
+    // This takes one of the specified json fields, here .getEmail(),  and sets it as the documentId (document identifier)
+    // if you want firebase to generate documentId for us, leave .document() blank
     public String createUser(User user) throws ExecutionException, InterruptedException{
         Firestore dbFirestore = FirestoreClient.getFirestore(); 
-        // documentId (identifier)is based on what we gave, .getEmail(). 
-        //if you want firebase to generate for us, leave .document() blank
-        // if you submit another create req with the same "documentId" now, it will overwrite
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(user.getEmail()).set(user); 
         
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
-
-    public User getUser(String email) throws ExecutionException, InterruptedException{
+    // For this Firebase doc, the email is the documentId. 
+    // The key in the GET request must be "documentid", and the value is the email
+    public User getUser(String documentId) throws ExecutionException, InterruptedException{
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        // we are using email as the documentId. the key in the GET request must be "documentid", and the value is the email
-        DocumentReference documentReference = dbFirestore.collection("user").document(email); // get the doc
+        DocumentReference documentReference = dbFirestore.collection("user").document(documentId); // get the doc
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         User user;
@@ -41,14 +40,15 @@ public class UserService {
     // TODO input validate that the json has "documentId" and that its value pair exisits in the database!
     public String updateUser(User user) throws ExecutionException, InterruptedException{ 
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(user.getDocumentId()).set(user); // takes name to be primary key
+        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(user.getEmail()).set(user);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
+    // For this Firebase doc, the email is the documentId. 
+    // The key in the GET request must be "documentid", and the value is the email
     public String deleteUser(String documentId) throws ExecutionException, InterruptedException {
-        // we are using email as the documentId. the key in the DELETE request must be "documentid", and the value is the email
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> writeResult = dbFirestore.collection("user").document(documentId).delete(); // get the doc
+        ApiFuture<WriteResult> writeResult = dbFirestore.collection("user").document(documentId).delete();
         return "Successfully deleted " + documentId;
     }
 

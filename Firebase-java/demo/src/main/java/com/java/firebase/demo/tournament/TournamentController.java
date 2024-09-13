@@ -20,7 +20,7 @@ public class TournamentController {
         return tournamentService.createTournament(tournament);
     }
 
-    @GetMapping("/tournament/get") // get single data??
+    @GetMapping("/tournament/get") 
     public Tournament getTournament(@RequestParam String documentId) throws InterruptedException, ExecutionException {
         return tournamentService.getTournament(documentId);
     }
