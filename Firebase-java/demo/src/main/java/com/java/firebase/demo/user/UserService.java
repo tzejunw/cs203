@@ -3,8 +3,19 @@ package com.java.firebase.demo.user;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -12,6 +23,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
 
@@ -70,6 +82,92 @@ public class UserService {
         // ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(user.getEmail()).set(user);
 
         // return collectionsApiFuture.get().getUpdateTime().toString();
+    }
+
+    // Verify the JWT (Firebase ID token) and decode it
+    public String getIdToken(String idToken) throws FirebaseAuthException {
+        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+        return decodedToken.getUid();
+    }
+
+    public FirebaseToken verifyIdToken(String idToken) throws FirebaseAuthException {
+        try {
+            return FirebaseAuth.getInstance().verifyIdToken(idToken);
+        } catch (FirebaseAuthException e) {
+            throw e;
+        }
+    }
+
+    private static final String FIREBASE_API_KEY = "AIzaSyBItH-UkQG9U1UfRILfioF7K_VeEw_Zbjo"; 
+
+    // Retrieves the idToken on login (email & password) 
+    // @TODO: store it as users' cookies on spring boot (for internal testing) & frontend.
+    public String login(Login login) throws ExecutionException, InterruptedException, JsonProcessingException {
+        // Creates a JSON template to send to Firebase Auth Client
+        String requestPayload = String.format("{\"email\":\"%s\",\"password\":\"%s\",\"returnSecureToken\":true}", login.getEmail(), login.getPassword());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Create the request entity
+        HttpEntity<String> entity = new HttpEntity<>(requestPayload, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + FIREBASE_API_KEY, 
+                HttpMethod.POST, 
+                entity, 
+                String.class
+        );
+
+        // Parse the response
+        if (response.getStatusCode() == HttpStatus.OK) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonResponse;
+            try {
+                jsonResponse = mapper.readTree(response.getBody());
+                String idToken = "Token: " + jsonResponse.get("idToken").asText();
+                return idToken;
+            } catch (JsonMappingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            return "JSON creation error";
+        } 
+        if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
+            return "Invalid_login_credential";
+        }
+        return "Failed to authenticate user";
+    }
+
+    // Token expires every hour, hence we need to refresh it when it expires.
+    public String refreshToken(String refreshToken) throws Exception {
+        // Prepare the request payload
+        String requestPayload = String.format("{\"grant_type\":\"refresh_token\",\"refresh_token\":\"%s\"}", refreshToken);
+
+        // Create the headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Create the request entity
+        HttpEntity<String> entity = new HttpEntity<>(requestPayload, headers);
+
+        // Make the HTTP request using RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://securetoken.googleapis.com/v1/token?key=" + FIREBASE_API_KEY,
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
+
+        // Parse the response
+        if (response.getStatusCode() == HttpStatus.OK) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonResponse = mapper.readTree(response.getBody());
+            String newIdToken = jsonResponse.get("id_token").asText();
+            return newIdToken;
+        } else {
+            throw new Exception("Failed to refresh token");
+        }
     }
 
     // For this Firebase doc, the email is the documentId.
