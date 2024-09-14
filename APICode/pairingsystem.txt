@@ -24,7 +24,7 @@ Game result points are determined by the following
 GW - 3 pt
 GL - 0 pt
 
-Byes are considered Match wins and 2 GWs
+Byes are considered Match wins and 2 GWs, but are ignored when calculating OGW & OMW
 
 
 Calculate each player's score
@@ -37,7 +37,6 @@ if MW% < 0.33, MW = 0.33
 ----------
 GW %
 ----------
-Byes + 
 
 Total number of game points (match points)  / games played
 

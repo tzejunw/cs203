@@ -1,0 +1,63 @@
+
+
+Tournament 
++total-rounds
++cur-round
++roundinprogress?
++tournamentinprogress?
++tournament_matches
+Create tournament ( number of players, name, date, duration)
+Add player
+Pair players
+
+Player(name, ID)
+following have their own updater
+	prev matches list
+	score
+	MW%
+	GW%
+	OMW% 
+	OGW%
+
+Rankings( list of players)
+update rank (sort after match updates)
+comparator between players
+
+
+Match( p1, p2)
+	+result
+	+game wins
+	+game losses
+	+isbye
+	+isdraw
+	+isupdated
+	
+
+
+						   ------------------
+						   |				|
+						   |   Tournament	|
+						   |				|
+						   ------------------
+									^
+									|
+						   ------------------
+						   |				|
+						   |      Round   	|
+						   |				|
+						   ------------------
+									^
+									|
+						   ------------------
+						   |				|
+						   |      Match   	|
+						   |				|
+						   ------------------	
+
+
+Player service - CRUD profile, view past history
+viewing service - access past records
+Tournament component - runs tournament
+Admin service - CRUD for tournament
+
+
