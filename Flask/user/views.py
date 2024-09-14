@@ -1,5 +1,5 @@
 from . import user
-from user.forms import LoginForm, RegisterForm, UpdateAccountForm
+from user.forms import LoginForm, RegisterForm, UpdateAccountForm, LoginOTPForm
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import Form, FlaskForm 
@@ -15,8 +15,35 @@ import json
 def register():
     form = RegisterForm();
     if request.method == 'POST' and form.validate_on_submit():
-        form.email.errors = ["Email is not valid"]
-        form.name.errors = ["Name is not valid"]
+        # form.email.errors = ["Email is not valid"]
+        # form.name.errors = ["Name is not valid"]
+
+        data = {
+            "userName": form.userName.data,
+            "name": form.name.data,
+            "birthday": "10/10/2010",
+            "email": form.email.data,
+            "gender": form.gender.data,
+            "password": form.password.data
+        }
+
+        response = requests.post(
+            "http://localhost:8080/user/create", 
+            json=data,
+            headers={"Content-Type": "application/json"}
+        )
+        # response_dict = json.loads(response.json())
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                print(response_data)
+                return redirect(url_for('user.login'))
+            except ValueError:
+                print("Received a non-JSON response from the server.")
+        else:
+            print(f"Failed to register user. Status code: {response.status_code}")
+        return redirect(url_for('user.login'))
+        
     return render_template('user/register.html', form=form)
 
 # /user/login
@@ -24,9 +51,17 @@ def register():
 def login():
     form = LoginForm();
     if request.method == 'POST' and form.validate_on_submit():
-        form.email.errors = ["User is not valid"]
+        # form.email.errors = ["User is not valid"]
         print(form.email.data)
     return render_template('user/login.html', form=form)
+
+@user.route('/login_otp', methods=['GET', 'POST'])
+def login_otp():
+    form = LoginOTPForm();
+    if request.method == 'POST' and form.validate_on_submit():
+        form.email.errors = ["User is not valid"]
+        print(form.email.data)
+    return render_template('user/login_otp.html', form=form)
 
 @user.route('/update_account', methods=['GET', 'PUT'])
 def update_account():

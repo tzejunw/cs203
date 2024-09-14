@@ -1,4 +1,4 @@
-package com.example.firebase.common;
+package com.java.firebase.demo.common;
 
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;

@@ -41,7 +41,7 @@ def api_post_example():
             headers={"Content-Type": "application/json"},
         )
         # response_dict = json.loads(response.json())
-        print(response_dict)
+        # print(response_dict)
         data = str(response.json())
         # return redirect(url_for('post_output'))
     return render_template('post_api.html', form=form, data=data)

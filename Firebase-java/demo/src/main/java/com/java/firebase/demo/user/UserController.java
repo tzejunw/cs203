@@ -1,10 +1,15 @@
 package com.java.firebase.demo.user;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.ExecutionException;
-import com.google.rpc.context.AttributeContext;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UserController {
@@ -16,8 +21,8 @@ public class UserController {
     }
 
     @PostMapping("/user/create") // expects a User object in body raw JSON
-    public String createUser(@RequestBody User user) throws InterruptedException, ExecutionException {
-        return userService.createUser(user);
+    public String createUser(@RequestBody Register register) throws InterruptedException, ExecutionException {
+        return userService.createUser(register);
     }
 
     @GetMapping("/user/get") // documentId is the user's email. The argument here determines what it expects as the key in Postman

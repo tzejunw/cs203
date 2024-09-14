@@ -18,23 +18,31 @@ class LoginForm(FlaskForm):
     email = StringField('Email Address', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     login = SubmitField('Login')
+
+class LoginOTPForm(FlaskForm):
+    otp = StringField('OTP', validators=[DataRequired()])
+    login = SubmitField('Login')
     
 class RegisterForm(FlaskForm):
+    userName = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     name = StringField('Full Name', validators=[DataRequired()])
     gender = RadioField('Gender', choices=[('M', 'Male'), ('F', 'Female')], validators=[DataRequired()])
-    birthdate = DateField('Birthdate', format='%Y-%m-%d')
-    profile_pic = FileField('Profile Picture')
+    birthday = DateField('Birthday', format='%Y-%m-%d')
+    # profile_pic = FileField('Profile Picture')
     register = SubmitField('Register')
 
 # Update account form is the same as register form, 
 # just that birthdate is different & password and profile_pic is not mandatory.
 class UpdateAccountForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired()])
     password = PasswordField('Password (Leave blank to not change it)', validators=[])
     name = StringField('Full Name', validators=[DataRequired()])
     gender = RadioField('Gender', choices=[('M', 'Male'), ('F', 'Female')], validators=[DataRequired()])
     birthdate = DateField('Birthdate', format='%Y-%m-%d')
     profile_pic = FileField('Profile Picture')
     register = SubmitField('Update')
+
+# Seperated because need to reconfirm OTP later
+class UpdateEmail(FlaskForm):
+    email = StringField('Email', validators=[DataRequired()])
