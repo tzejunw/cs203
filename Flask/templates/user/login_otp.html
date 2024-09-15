@@ -1,0 +1,14 @@
+{% extends "layouts/base.html" %}
+{% block title %}Login - One Time Password{% endblock %}
+{% from "macros/form.html" import render_form %}
+
+{% block content %}
+<div class="login-card">
+    <h2 style="text-align: center;"><span class="text-resalt">2-step Verification</span></h2>
+        To help keep your account safe, we want to make sure it's really you.
+        {{ render_form(url_for('user.login_otp'), form) }}
+        Please enter your password within x minutes
+    <p class="login-signup-text"><a href="{{url_for('user.register')}}">Resend OTP</a></p>
+</div>
+
+{% endblock %}
