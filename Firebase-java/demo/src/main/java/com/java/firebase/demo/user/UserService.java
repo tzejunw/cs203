@@ -34,12 +34,14 @@ public class UserService {
     public String createUser(Register register) throws ExecutionException, InterruptedException {
         // Step 1: Validate if registration details fits our business requirements
         // Email validations is done by Firebase Auth
+        if (!isPasswordValid(register.getPassword()))
+            return "Error: Password should be between 8-32 characters, at least 1 uppercase and lowercase letter, 1 digit and 1 special character.";
+        if (!isBirthdayValid(register.getBirthday()))
+            return "Error: Incorrect birthday format.";
         if (!isUsernameValid(register.getUserName()))
             return "Error: Username should be between 3-32 characters long";
         if (!isUsernameUnique(register.getUserName()))
             return "Error: Username exists, please choose another username";
-        if (!isPasswordValid(register.getPassword()))
-            return "Error: Password should be between 8-32 characters, at least 1 uppercase and lowercase letter, 1 digit and 1 special character.";
         
         // Step 2: Create an account in Firebase Authentication
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
@@ -203,6 +205,12 @@ public class UserService {
         return "Successfully deleted " + documentId;
     }
 
+    // Birthday date format checks DD/MM/YYYY
+    // @TODO
+    public static boolean isBirthdayValid(String birthday) {
+        return true;
+    }
+
     // Password length & complexity check
     private static final int PASSWORD_MIN_LENGTH = 8;
     private static final int PASSWORD_MAX_LENGTH = 32;
@@ -231,7 +239,7 @@ public class UserService {
     }
 
     // Username checks
-    private static final int USERNAME_MIN_LENGTH = 8;
+    private static final int USERNAME_MIN_LENGTH = 3;
     private static final int USERNAME_MAX_LENGTH = 32;
     public static boolean isUsernameValid(String username) {
         if (username.length() < USERNAME_MIN_LENGTH || username.length() > USERNAME_MAX_LENGTH) {

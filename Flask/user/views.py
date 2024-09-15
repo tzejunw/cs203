@@ -9,6 +9,7 @@ from wtforms.validators import DataRequired, Length, EqualTo, Email, URL, AnyOf,
 from werkzeug.security import generate_password_hash 
 import requests
 import json
+from datetime import datetime, date
 
 # /user/register
 @user.route('/register', methods=['GET', 'POST'])
@@ -18,10 +19,14 @@ def register():
         # form.email.errors = ["Email is not valid"]
         # form.name.errors = ["Name is not valid"]
 
+        date_str = form.birthday.data.strftime('%Y-%m-%d')
+        # The backend only accepts DD/MM/YYYY
+        birthday_str = datetime.strptime(date_str, '%Y-%m-%d').strftime('%d/%m/%Y')
+
         data = {
             "userName": form.userName.data,
             "name": form.name.data,
-            "birthday": "10/10/2010",
+            "birthday": birthday_str,
             "email": form.email.data,
             "gender": form.gender.data,
             "password": form.password.data
@@ -32,13 +37,14 @@ def register():
             json=data,
             headers={"Content-Type": "application/json"}
         )
-        # response_dict = json.loads(response.json())
+        
         if response.status_code == 200:
             try:
                 response_data = response.json()
                 print(response_data)
                 return redirect(url_for('user.login'))
             except ValueError:
+                print(response.text)
                 print("Received a non-JSON response from the server.")
         else:
             print(f"Failed to register user. Status code: {response.status_code}")
@@ -52,7 +58,29 @@ def login():
     form = LoginForm();
     if request.method == 'POST' and form.validate_on_submit():
         # form.email.errors = ["User is not valid"]
-        print(form.email.data)
+        data = {
+            "email": form.email.data,
+            "password": form.password.data
+        }
+
+        response = requests.post(
+            "http://localhost:8080/user/login", 
+            json=data,
+            headers={"Content-Type": "application/json"}
+        )
+        
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                print(response_data)
+                return redirect(url_for('frontend.index'))
+            except ValueError:
+                print(response.text)
+                return redirect(url_for('frontend.index'))
+        else:
+            print(f"Failed to register user. Status code: {response.status_code}")
+
+        
     return render_template('user/login.html', form=form)
 
 @user.route('/login_otp', methods=['GET', 'POST'])

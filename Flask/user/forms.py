@@ -29,7 +29,7 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     name = StringField('Full Name', validators=[DataRequired()])
     gender = RadioField('Gender', choices=[('M', 'Male'), ('F', 'Female')], validators=[DataRequired()])
-    birthday = DateField('Birthday', format='%Y-%m-%d')
+    birthday = DateField('Birthday', format='%Y-%m-%d') 
     # profile_pic = FileField('Profile Picture')
     register = SubmitField('Register')
 
