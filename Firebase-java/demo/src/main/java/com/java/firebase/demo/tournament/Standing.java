@@ -6,7 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 
-public class Standings {
+public class Standing {
     private String standingsId;
     private String name;
     private String matchRecord;

@@ -48,6 +48,22 @@ public class TournamentController {
     //     tournamentService.addRound(tournamentId, round);
     // }
 
+    @PostMapping("/tournament/round/create")
+    public String createRound(@RequestParam String tournamentName, @RequestBody Round round) throws InterruptedException, ExecutionException{
+        return tournamentService.createRound(tournamentName, round);
+    }
+
+    @GetMapping("/tournament/round/get") // The argument here determines what it expects as the key in Postman
+    public Round getRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
+        return tournamentService.getRound(tournamentName, roundName);
+    }
+
+    @DeleteMapping("/tournament/round/delete")
+    public String deleteRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteRound(tournamentName, roundName);
+}
+
+
     // @GetMapping("/{tournamentId}/rounds")
     // public List<Round> getRounds(@PathVariable String tournamentId) throws Exception {
     //     return tournamentService.getRounds(tournamentId);
