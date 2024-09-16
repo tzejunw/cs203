@@ -19196,3 +19196,9 @@ table.career tr td img {
   font-weight: 600;
 }
 
+/* CSS for TOURNAMENT PAGE */
+
+.tournament-join-btn {
+  color: white;
+  background-color: #DC5743;
+}

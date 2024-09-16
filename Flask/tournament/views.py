@@ -11,9 +11,15 @@ import requests
 def index():
     return render_template('frontend/index.html')
 
+# to view all tournaments
 @tournament.route('/view')
 def view_tournaments():
     return render_template('tournament/tournaments.html')
+
+# to view an individual tournament
+@tournament.route('/tournament')
+def view_tournament():
+    return render_template('tournament/tournament.html')
 
 @tournament.route('/results')
 def view_results():
