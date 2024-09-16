@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.ExecutionException;
 
-
 @RestController
 public class TournamentController {
 
@@ -40,14 +39,7 @@ public class TournamentController {
         return ResponseEntity.ok("Test Get Endpoint is Working");
     }
 
-
-
     // // Rounds
-    // @PostMapping("/{tournamentId}/rounds")
-    // public void addRound(@PathVariable String tournamentId, @RequestBody Round round) {
-    //     tournamentService.addRound(tournamentId, round);
-    // }
-
     @PostMapping("/tournament/round/create")
     public String createRound(@RequestParam String tournamentName, @RequestBody Round round) throws InterruptedException, ExecutionException{
         return tournamentService.createRound(tournamentName, round);
@@ -62,6 +54,16 @@ public class TournamentController {
     public String deleteRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
         return tournamentService.deleteRound(tournamentName, roundName);
 }
+
+    @PostMapping("/tournament/round/match/create")
+    public String createMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Match match) throws InterruptedException, ExecutionException{
+        return tournamentService.createMatch(tournamentName, roundName, match);
+    }
+
+    @GetMapping("/tournament/round/match/get") // The argument here determines what it expects as the key in Postman
+    public Match getMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player1, @RequestParam String player2) throws InterruptedException, ExecutionException {
+        return tournamentService.getMatch(tournamentName, roundName, player1, player2);
+    }
 
 
     // @GetMapping("/{tournamentId}/rounds")

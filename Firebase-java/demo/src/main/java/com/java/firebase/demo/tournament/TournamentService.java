@@ -13,12 +13,7 @@ import java.util.concurrent.ExecutionException;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.WriteResult;
-
- 
 import com.google.cloud.firestore.QuerySnapshot;
-
-
-
 import java.util.stream.Collectors;
 
 @Service
@@ -101,17 +96,20 @@ public class TournamentService {
         // add some field to Round x
         ApiFuture<WriteResult> roundResult = roundDocRef.set(new HashMap<>()); // Creating with an empty map
         roundResult.get(); // Wait for completion
-        // iteratively create matches and to firestore
+        // iteratively create matches and to firestore. A round may or may not contain matches
+        ApiFuture<WriteResult> matchUpdate =  roundDocRef.collection("match").document("emptyMatchDoc").set(new HashMap<>());
         List<Match> matches = round.getMatches();
         int matchCounter = 0;
         for (Match match : matches) {
-            ApiFuture<WriteResult> matchUpdate =  roundDocRef.collection("match").document().set(match);
+            String documentId = (tournamentName.trim() + "_" + round.getRoundName().trim() + "_" 
+            + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
+            matchUpdate = roundDocRef.collection("match").document(documentId).set(match);
             matchCounter++;
             matchUpdate.get();
         }
         
         // Add an empty document to "standings"
-        ApiFuture<WriteResult> standingsUpdate =  roundDocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());        
+        ApiFuture<WriteResult> standingsUpdate =  roundDocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
         
         return round.getRoundName() + ", "+ matchCounter +  " matches, empty standings collection, created at " + standingsUpdate.get().getUpdateTime().toString();
     }
@@ -204,8 +202,54 @@ public class TournamentService {
     }
     
     // // CRUD for Matches (nested under Round -> Tournament)
+    // TODO some input validation for match?
     // now for matches, i want to be able to update winner wins losses isDraw isBye
+    public String createMatch(String tournamentName, String roundName, Match match) throws ExecutionException, InterruptedException{
+        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+        + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
+        Firestore dbFirestore = FirestoreClient.getFirestore(); 
+        DocumentReference matchDocRef = dbFirestore.collection("tournament")
+                                                                 .document(tournamentName)
+                                                                 .collection("round")
+                                                                 .document(roundName)
+                                                                 .collection("match")
+                                                                 .document(documentId); // concated Id
+                                                                 
+        // put in the object into the created document
+        ApiFuture<WriteResult> matchResult = matchDocRef.set(match); 
+        matchResult.get(); // Wait for completion
 
+        return "One match created in " + tournamentName + ", " + roundName + " at " + matchResult.get().getUpdateTime().toString();
+    }
+
+    public Match getMatch(String tournamentName, String roundName, String player1, String player2) throws ExecutionException, InterruptedException {
+        System.out.println("getMatch starting");
+        // Generate the same documentId used in createMatch
+        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
+        System.out.println("DocumentId to be searched: " + documentId);
+        Firestore dbFirestore = FirestoreClient.getFirestore(); 
+        DocumentReference matchDocRef = dbFirestore.collection("tournament")
+                                                   .document(tournamentName)
+                                                   .collection("round")
+                                                   .document(roundName)
+                                                   .collection("match")
+                                                   .document(documentId);
+    
+        // Fetch the match document
+        ApiFuture<DocumentSnapshot> future = matchDocRef.get();
+        DocumentSnapshot document = future.get();
+    
+        if (document.exists()) {
+            System.out.println("Document exists");
+            // Convert the document back to a Match object
+            return document.toObject(Match.class);
+        } else {
+            System.out.println("Match not found for: " + documentId);
+            return null; // Or throw an exception depending on how you want to handle it
+        }
+    }
+    
 
     // // CRUD for Standings (nested under Round -> Tournament)
 
