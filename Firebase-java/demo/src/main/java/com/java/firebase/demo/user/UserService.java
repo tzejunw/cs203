@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.google.firebase.auth.UserRecord.UpdateRequest;
 import com.google.firebase.cloud.FirestoreClient;
 
 @Service
@@ -183,6 +184,14 @@ public class UserService {
         }
     }
 
+    public Boolean userExists(String uid) throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
+        DocumentReference documentReference = dbFirestore.collection("user").document(uid); 
+        ApiFuture<DocumentSnapshot> future = documentReference.get();
+        DocumentSnapshot document = future.get();
+        return document.exists();
+    }
+
     // For this Firebase doc, the uid is the documentId.
     public User getUser(String uid) throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
@@ -206,9 +215,24 @@ public class UserService {
     // @TODO: Disable setting of userStatus
     // exisits in the database!
     public String updateUser(User user, String uid) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(uid).set(user);
-        return collectionsApiFuture.get().getUpdateTime().toString();
+        if (userExists(uid)){
+            Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
+            ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(uid).set(user);
+            return collectionsApiFuture.get().getUpdateTime().toString();
+        }
+        return "Error: User does not exists.";
+    }
+
+    public String updateEmail(String newEmail, String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        UpdateRequest request = new UserRecord.UpdateRequest(uid).setEmail(newEmail);
+        UserRecord userRecord = FirebaseAuth.getInstance().updateUser(request);
+        return "Successfully updated user: " + newEmail;
+    }
+
+    public String updatePassword(String newPassword, String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        UpdateRequest request = new UserRecord.UpdateRequest(uid).setPassword(newPassword);
+        UserRecord userRecord = FirebaseAuth.getInstance().updateUser(request);
+        return "Successfully updated password";
     }
 
     // For this Firebase doc, the uid is the documentId.

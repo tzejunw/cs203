@@ -48,7 +48,7 @@ public class UserController {
     }
 
     // Email is seperated as further email verification (when updated) is necessary later
-    @GetMapping("/user/getemail") 
+    @GetMapping("/user/getEmail") 
     public String getUserEmail(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         try {
             String uid = userService.getIdToken(request.getHeader("Authorization"));
@@ -63,6 +63,28 @@ public class UserController {
     public String updateUser(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
         return userService.updateUser(user, uid);
+    }
+
+    // Segregated for backend simplicity
+    @PutMapping("/user/updateEmail")
+    public String updateEmail(@RequestBody UpdateEmail updateEmail, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
+        String uid = userService.getIdToken(request.getHeader("Authorization"));
+        try {
+            return userService.updateEmail(updateEmail.getEmail(), uid);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
+    // Segregated for frontend simplicity
+    @PutMapping("/user/updatePassword")
+    public String updatePassword(@RequestBody UpdatePassword updatePassword, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
+        String uid = userService.getIdToken(request.getHeader("Authorization"));
+        try {
+            return userService.updatePassword(updatePassword.getPassword(), uid);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @DeleteMapping("/user/delete") // documentId is the user's email. The argument here determines what it expects as the key in Postman
