@@ -58,9 +58,9 @@ public class TournamentService {
     
     // For this Firebase doc, the tournamentName is the documentId.
     // The key in the GET request must be "documentid", and the value is the tournamentName
-    public Tournament getTournament(String documentId) throws ExecutionException, InterruptedException {
+    public Tournament getTournament(String tournamentName) throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference documentReference = dbFirestore.collection("tournament").document(documentId); 
+        DocumentReference documentReference = dbFirestore.collection("tournament").document(tournamentName); 
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         Tournament tournament;
@@ -71,21 +71,30 @@ public class TournamentService {
         return null;
     }
 
-    // this is exact same as POST route!! should we input validate?
-    // TODO input validate that the json has "documentId" and that its value pair exisits in the database!
-    public String updateTournament(Tournament tournament) throws ExecutionException, InterruptedException{ 
-        Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("tournament").document(tournament.getTournamentName()).set(tournament); // takes name to be primary key
-        return collectionsApiFuture.get().getUpdateTime().toString();
+    public String updateTournament(Tournament tournament) throws ExecutionException, InterruptedException { 
+        Firestore dbFirestore = FirestoreClient.getFirestore(); 
+        
+        // Check if the document exists
+        DocumentReference tournamentDocRef = dbFirestore.collection("tournament").document(tournament.getTournamentName());
+        ApiFuture<DocumentSnapshot> future = tournamentDocRef.get();
+        DocumentSnapshot document = future.get();
+        
+        if (document.exists()) {
+            // Document exists, proceed with the update
+            ApiFuture<WriteResult> collectionsApiFuture = tournamentDocRef.set(tournament, SetOptions.merge()); // Update only new values
+            return "Tournament updated at: " + collectionsApiFuture.get().getUpdateTime().toString();
+        } else {
+            return "Tournament not found with name: " + tournament.getTournamentName();
+        }
     }
+    
 
     // For this Firebase doc, the tournamentName is the documentId.
-    // The key in the GET request must be "documentid", and the value is the tournamentName
-    public String deleteTournament(String documentId) throws ExecutionException, InterruptedException {
+    public String deleteTournament(String tournamentName) throws ExecutionException, InterruptedException {
         // we are using email as the documentId. the key in the DELETE request must be "documentid", and the value is the email
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> writeResult = dbFirestore.collection("tournament").document(documentId).delete(); // get the doc
-        return "Successfully deleted " + documentId;
+        ApiFuture<WriteResult> writeResult = dbFirestore.collection("tournament").document(tournamentName).delete(); // get the doc
+        return "Successfully deleted " + tournamentName;
     }
 
     // // CRUD for Rounds (nested under Tournament)
@@ -205,7 +214,7 @@ public class TournamentService {
     }
     
     // // CRUD for Matches (nested under Round -> Tournament)
-    // TODO some input validation for match?
+    // TODO some input validation for match? we have to make sure that match is created with two valid user emails
     // now for matches, i want to be able to update winner wins losses isDraw isBye
     public String createMatch(String tournamentName, String roundName, Match match) throws ExecutionException, InterruptedException{
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
@@ -265,13 +274,22 @@ public class TournamentService {
                                                    .document(roundName)
                                                    .collection("match")
                                                    .document(documentId);
-    
-        // Update the match document
-        ApiFuture<WriteResult> matchResult = matchDocRef.set(updatedMatch, SetOptions.merge()); // Only update the provided fields
-        matchResult.get(); // Wait for completion
-    
-        return "Match updated for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundName;
+        
+        // Check if the match document exists
+        ApiFuture<DocumentSnapshot> future = matchDocRef.get();
+        DocumentSnapshot document = future.get();
+        
+        if (document.exists()) {
+            // Document exists, proceed with the update
+            ApiFuture<WriteResult> matchResult = matchDocRef.set(updatedMatch, SetOptions.merge()); // Update only provided fields
+            matchResult.get(); // Wait for completion
+            return "Match updated for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundName;
+        } else {
+            // Document does not exist, return a message
+            return "Match not found for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundName;
+        }
     }
+    
 
     public String deleteMatch(String tournamentName, String roundName, String player1, String player2) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and player names
