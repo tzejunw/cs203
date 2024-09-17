@@ -87,9 +87,20 @@ public class UserService {
     }
 
     // Verify the JWT (Firebase ID token) and decode it
-    public String getIdToken(String idToken) throws FirebaseAuthException {
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-        return decodedToken.getUid();
+    public String getIdToken(String bearerToken) throws FirebaseAuthException {
+        try {
+            // Extract the token (assuming it's in the format "Bearer <JWT>")
+            if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+                throw new IllegalArgumentException("Invalid bearer token");
+            }
+            String idToken = bearerToken.substring(7);  // Remove "Bearer " from the header
+
+            // Verify the token and get the user's UID
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+            return decodedToken.getUid();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     public FirebaseToken verifyIdToken(String idToken) throws FirebaseAuthException {
@@ -172,11 +183,10 @@ public class UserService {
         }
     }
 
-    // For this Firebase doc, the email is the documentId.
-    // The key in the GET request must be "documentid", and the value is the email
-    public User getUser(String documentId) throws ExecutionException, InterruptedException {
+    // For this Firebase doc, the uid is the documentId.
+    public User getUser(String uid) throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        DocumentReference documentReference = dbFirestore.collection("user").document(documentId); // get the doc
+        DocumentReference documentReference = dbFirestore.collection("user").document(uid); // get the doc
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         User user;
@@ -187,22 +197,26 @@ public class UserService {
         return null;
     }
 
+    public String getUserEmail(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
+        return userRecord.getEmail();
+    }
+
     // this is exact same as POST route!! should we input validate?
-    // TODO input validate that the json has "documentId" and that its value pair
+    // @TODO: Disable setting of userStatus
     // exisits in the database!
-    public String updateUser(User user) throws ExecutionException, InterruptedException {
+    public String updateUser(User user, String uid) throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(user.getEmail())
-                .set(user);
+        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(uid).set(user);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
-    // For this Firebase doc, the email is the documentId.
-    // The key in the GET request must be "documentid", and the value is the email
-    public String deleteUser(String documentId) throws ExecutionException, InterruptedException {
+    // For this Firebase doc, the uid is the documentId.
+    public String deleteUser(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        FirebaseAuth.getInstance().deleteUser(uid);
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> writeResult = dbFirestore.collection("user").document(documentId).delete();
-        return "Successfully deleted " + documentId;
+        ApiFuture<WriteResult> writeResult = dbFirestore.collection("user").document(uid).delete();
+        return "Successfully deleted " + uid;
     }
 
     // Birthday date format checks DD/MM/YYYY
