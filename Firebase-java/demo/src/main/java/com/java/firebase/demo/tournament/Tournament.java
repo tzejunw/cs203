@@ -13,6 +13,8 @@ public class Tournament {
     private String startDate; 
     private String endDate;
     private int numberOfPlayers;
+    private String tournamentDesc;
+    private String location;
     
     // List of participating players (e.g., could be just player IDs, or Player objects)
     // i think this isnt how were supposed to do it

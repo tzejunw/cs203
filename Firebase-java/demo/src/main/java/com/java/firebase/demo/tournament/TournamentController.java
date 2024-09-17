@@ -49,7 +49,7 @@ public class TournamentController {
     public Round getRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
         return tournamentService.getRound(tournamentName, roundName);
     }
-
+    // no put mapping for rounds, no fields
     @DeleteMapping("/tournament/round/delete")
     public String deleteRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
         return tournamentService.deleteRound(tournamentName, roundName);
@@ -64,6 +64,11 @@ public class TournamentController {
     public Match getMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player1, @RequestParam String player2) throws InterruptedException, ExecutionException {
         return tournamentService.getMatch(tournamentName, roundName, player1, player2);
     }
+
+    // updateMatch
+    // delete match
+
+    // CRUD STANDINGS
 
 
     // @GetMapping("/{tournamentId}/rounds")
