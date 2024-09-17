@@ -65,36 +65,40 @@ public class TournamentController {
         return tournamentService.getMatch(tournamentName, roundName, player1, player2);
     }
 
-    // updateMatch
-    // delete match
-
-    // CRUD STANDINGS
-
-
-    // @GetMapping("/{tournamentId}/rounds")
-    // public List<Round> getRounds(@PathVariable String tournamentId) throws Exception {
-    //     return tournamentService.getRounds(tournamentId);
-    // }
-
-    // // Matches
-    // @PostMapping("/{tournamentId}/rounds/{roundId}/matches")
-    // public void addMatch(@PathVariable String tournamentId, @PathVariable String roundId, @RequestBody Match match) {
-    //     tournamentService.addMatch(tournamentId, roundId, match);
-    // }
-
-    // @GetMapping("/{tournamentId}/rounds/{roundId}/matches")
-    // public List<Match> getMatches(@PathVariable String tournamentId, @PathVariable String roundId) throws Exception {
-    //     return tournamentService.getMatches(tournamentId, roundId);
-    // }
-
-    // // Standings
-    // @PostMapping("/{tournamentId}/rounds/{roundId}/standings")
-    // public void addStanding(@PathVariable String tournamentId, @PathVariable String roundId, @RequestBody Standings standing) {
-    //     tournamentService.addStanding(tournamentId, roundId, standing);
-    // }
-
-    // @GetMapping("/{tournamentId}/rounds/{roundId}/standings")
-    // public List<Standings> getStandings(@PathVariable String tournamentId, @PathVariable String roundId) throws Exception {
-    //     return tournamentService.getStandings(tournamentId, roundId);
-    // }
+    @PutMapping("/tournament/round/match/update")
+    public String updateMatch(@RequestParam String tournamentName, 
+                              @RequestParam String roundName, 
+                              @RequestParam String player1, 
+                              @RequestParam String player2, 
+                              @RequestBody Match match) throws InterruptedException, ExecutionException {
+        return tournamentService.updateMatch(tournamentName, roundName, player1, player2, match);
+    }
+        
+    @DeleteMapping("/tournament/round/match/delete")
+    public String deleteMatch(@RequestParam String tournamentName, 
+                              @RequestParam String roundName, 
+                              @RequestParam String player1, 
+                              @RequestParam String player2) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteMatch(tournamentName, roundName, player1, player2);
+    }
+    
+    @PostMapping("/tournament/round/standing/create")
+    public String createStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Standing standing) throws InterruptedException, ExecutionException {
+        return tournamentService.createStanding(tournamentName, roundName, standing);
+    }
+    
+    @GetMapping("/tournament/round/standing/get")
+    public Standing getStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
+        return tournamentService.getStanding(tournamentName, roundName, rank);
+    }
+    
+    @PutMapping("/tournament/round/standing/update")
+    public String updateStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Standing standing) throws InterruptedException, ExecutionException {
+        return tournamentService.updateStanding(tournamentName, roundName, standing);
+    }
+    
+    @DeleteMapping("/tournament/round/standing/delete")
+    public String deleteStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteStanding(tournamentName, roundName, rank);
+    }
 }

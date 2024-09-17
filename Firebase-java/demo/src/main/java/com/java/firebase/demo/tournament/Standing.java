@@ -7,12 +7,10 @@ import lombok.Setter;
 @Getter
 
 public class Standing {
-    private String standingsId;
+    private int rank;
     private String name;
     private String matchRecord;
     private long omw;
     private int points;
-    private int rank;
     private long gw;
-    
 }

@@ -14,6 +14,8 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.SetOptions;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +24,7 @@ public class TournamentService {
     // CRUD for Tournaments
     // This takes one of the specified json fields, here .getTournamentName(),  and sets it as the documentId (document identifier)
     // if you want firebase to generate documentId for us, leave .document() blank
+    // generates a tournament with an empty Round 1
     public String createTournament(Tournament tournament) throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         
@@ -111,7 +114,7 @@ public class TournamentService {
         // Add an empty document to "standings"
         ApiFuture<WriteResult> standingsUpdate =  roundDocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
         
-        return round.getRoundName() + ", "+ matchCounter +  " matches, empty standings collection, created at " + standingsUpdate.get().getUpdateTime().toString();
+        return round.getRoundName() + "," + matchCounter +  " matches, empty standings collection, created in " + tournamentName + "at " + standingsUpdate.get().getUpdateTime().toString();
     }
 
     public Round getRound(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
@@ -249,8 +252,122 @@ public class TournamentService {
             return null; // Or throw an exception depending on how you want to handle it
         }
     }
+
+    public String updateMatch(String tournamentName, String roundName, String player1, String player2, Match updatedMatch) throws ExecutionException, InterruptedException {
+        // Generate the documentId based on tournament, round, and player names
+        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
+        
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        DocumentReference matchDocRef = dbFirestore.collection("tournament")
+                                                   .document(tournamentName)
+                                                   .collection("round")
+                                                   .document(roundName)
+                                                   .collection("match")
+                                                   .document(documentId);
     
+        // Update the match document
+        ApiFuture<WriteResult> matchResult = matchDocRef.set(updatedMatch, SetOptions.merge()); // Only update the provided fields
+        matchResult.get(); // Wait for completion
+    
+        return "Match updated for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundName;
+    }
+
+    public String deleteMatch(String tournamentName, String roundName, String player1, String player2) throws ExecutionException, InterruptedException {
+        // Generate the documentId based on tournament, round, and player names
+        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
+    
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        DocumentReference matchDocRef = dbFirestore.collection("tournament")
+                                                   .document(tournamentName)
+                                                   .collection("round")
+                                                   .document(roundName)
+                                                   .collection("match")
+                                                   .document(documentId);
+    
+        // Delete the match document
+        ApiFuture<WriteResult> deleteResult = matchDocRef.delete();
+        deleteResult.get(); // Wait for completion
+    
+        return "Match deleted for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundName;
+    }
+    
+
+
 
     // // CRUD for Standings (nested under Round -> Tournament)
 
+    public String createStanding(String tournamentName, String roundName, Standing standing) throws ExecutionException, InterruptedException {
+        String documentId = String.valueOf(standing.getRank()); // Using rank as the document ID
+        Firestore dbFirestore = FirestoreClient.getFirestore(); 
+        DocumentReference standingDocRef = dbFirestore.collection("tournament")
+                                                      .document(tournamentName)
+                                                      .collection("round")
+                                                      .document(roundName)
+                                                      .collection("standing")
+                                                      .document(documentId);
+    
+        ApiFuture<WriteResult> standingResult = standingDocRef.set(standing);
+        standingResult.get(); // Wait for completion
+    
+        return "One standing created in " + tournamentName + ", " + roundName + " at " + standingResult.get().getUpdateTime().toString();
+    }
+
+    public Standing getStanding(String tournamentName, String roundName, int rank) throws ExecutionException, InterruptedException {
+        String documentId = String.valueOf(rank); // Use rank as the document ID
+        Firestore dbFirestore = FirestoreClient.getFirestore(); 
+        DocumentReference standingDocRef = dbFirestore.collection("tournament")
+                                                      .document(tournamentName)
+                                                      .collection("round")
+                                                      .document(roundName)
+                                                      .collection("standing")
+                                                      .document(documentId);
+    
+        ApiFuture<DocumentSnapshot> future = standingDocRef.get();
+        DocumentSnapshot document = future.get();
+    
+        if (document.exists()) {
+            return document.toObject(Standing.class);
+        } else {
+            return null; // Or handle error
+        }
+    }
+        
+    public String updateStanding(String tournamentName, String roundName, Standing updatedStanding) throws ExecutionException, InterruptedException {
+        // Generate the documentId based on tournament, round, and rank
+        String documentId = updatedStanding.getRank() + "";
+        
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        DocumentReference standingDocRef = dbFirestore.collection("tournament")
+                                                      .document(tournamentName)
+                                                      .collection("round")
+                                                      .document(roundName)
+                                                      .collection("standing")
+                                                      .document(documentId);
+    
+        // Update the standing document only for the fields that are provided (merge operation)
+        ApiFuture<WriteResult> standingResult = standingDocRef.set(updatedStanding, SetOptions.merge()); // Only update the provided fields
+        standingResult.get(); // Wait for completion
+    
+        return "Standing updated for rank " + documentId + " in " + tournamentName + " at " + roundName;
+    }
+    
+    
+    public String deleteStanding(String tournamentName, String roundName, int rank) throws ExecutionException, InterruptedException {
+        String documentId = String.valueOf(rank); // Use rank as the document ID
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        DocumentReference standingDocRef = dbFirestore.collection("tournament")
+                                                      .document(tournamentName)
+                                                      .collection("round")
+                                                      .document(roundName)
+                                                      .collection("standing")
+                                                      .document(documentId);
+    
+        ApiFuture<WriteResult> deleteResult = standingDocRef.delete();
+        deleteResult.get(); // Wait for completion
+    
+        return "Standing with rank " + rank + " deleted from " + tournamentName + ", " + roundName;
+    }
+    
 }
