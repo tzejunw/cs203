@@ -21,6 +21,11 @@ def view_tournaments():
 def view_tournament():
     return render_template('tournament/tournament.html')
 
+# to view rankings
+@tournament.route('/rankings')
+def view_rankings():
+    return render_template('tournament/rankings.html')
+
 @tournament.route('/results')
 def view_results():
     return render_template('tournament/results.html')
