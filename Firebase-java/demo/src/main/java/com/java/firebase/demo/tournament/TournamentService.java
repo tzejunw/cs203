@@ -67,6 +67,34 @@ public class TournamentService {
         Tournament tournament;
         if (document.exists()) {
             tournament = document.toObject(Tournament.class); // convert to object
+            // go get the round objects in its subcollection.
+            // Fetch the "round" subcollection
+            CollectionReference roundsCollection = documentReference.collection("round");
+            ApiFuture<QuerySnapshot> roundsFuture = roundsCollection.get();
+            QuerySnapshot roundsSnapshot = roundsFuture.get();
+
+            if (!roundsSnapshot.isEmpty()) {
+                System.out.println("Found " + roundsSnapshot.size() + " round documents");
+
+                // Get the IDs of the round documents
+                List<String> roundIds = roundsSnapshot.getDocuments().stream()
+                    .map(doc -> doc.getId()) // Get the document ID
+                    .collect(Collectors.toList());
+
+                // call getRound() on each roundId
+                List<Round> rounds = new ArrayList<>();
+                for (String roundName : roundIds) {
+                    Round round = getRound(tournamentName, roundName);
+                    rounds.add(round);
+                }
+
+                // Assuming the Tournament class has a method to set the list of round IDs
+                tournament.setRounds(rounds); // or tournament.roundIds = roundIds;
+            } else {
+                System.out.println("No round documents found");
+                tournament.setRounds(new ArrayList<>()); // Set empty list if no rounds found
+            }
+
             return tournament;
         }
         return null;
