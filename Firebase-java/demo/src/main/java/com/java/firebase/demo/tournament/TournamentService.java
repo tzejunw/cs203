@@ -1,22 +1,23 @@
 package com.java.firebase.demo.tournament;
 
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.firebase.cloud.FirestoreClient;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
-
-import java.util.stream.Collectors;
+import com.google.cloud.firestore.WriteResult;
+import com.google.firebase.cloud.FirestoreClient;
 
 @Service
 public class TournamentService {
@@ -70,6 +71,28 @@ public class TournamentService {
         }
         return null;
     }
+
+    public List<Tournament> getAllTournaments() throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        
+        // Retrieve all documents from the "tournament" collection
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection("tournament").get();
+        
+        // QuerySnapshot contains all documents in the collection
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        
+        // Create a list to hold the Tournament objects
+        List<Tournament> tournaments = new ArrayList<>();
+        
+        // Convert each document to a Tournament object and add it to the list
+        for (DocumentSnapshot document : documents) {
+            Tournament tournament = document.toObject(Tournament.class);
+            tournaments.add(tournament);
+        }
+        
+        return tournaments;
+    }
+    
 
     public String updateTournament(Tournament tournament) throws ExecutionException, InterruptedException { 
         Firestore dbFirestore = FirestoreClient.getFirestore(); 

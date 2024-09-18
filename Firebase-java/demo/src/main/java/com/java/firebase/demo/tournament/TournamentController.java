@@ -1,9 +1,15 @@
 package com.java.firebase.demo.tournament;
-import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.ExecutionException;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TournamentController {
@@ -23,6 +29,12 @@ public class TournamentController {
     public Tournament getTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
         return tournamentService.getTournament(tournamentName);
     }
+
+    @GetMapping("/tournament/get/all") // Adjust the route path as needed
+    public List<Tournament> getAllTournaments() throws InterruptedException, ExecutionException {
+        return tournamentService.getAllTournaments();
+    }
+
 
     @PutMapping("/tournament/update") // takes another tournament json
     public String updateTournament(@RequestBody Tournament tournament) throws InterruptedException, ExecutionException {
