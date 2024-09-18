@@ -7,8 +7,11 @@
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Tournament.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/TournamentController.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/TournamentService.java
+/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Exceptions/TooManyRequestsException.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Login.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Register.java
+/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/UpdateEmail.java
+/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/UpdatePassword.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/User.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/UserController.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/UserService.java
