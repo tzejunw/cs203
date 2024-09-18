@@ -1,6 +1,7 @@
 package com.java.firebase.demo.user;
 
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.http.HttpEntity;
@@ -10,16 +11,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -27,22 +30,25 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.UpdateRequest;
 import com.google.firebase.cloud.FirestoreClient;
+import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
 
 @Service
 public class UserService {
     // This takes one of the specified json fields, here .getEmail(), and sets it as
     // the documentId (document identifier) if you want firebase to generate documentId for us, leave .document() blank
-    public String createUser(Register register) throws ExecutionException, InterruptedException {
+    public String createUser(Register register) throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
         // Step 1: Validate if registration details fits our business requirements
-        // Email validations is done by Firebase Auth
+        // Email validations is conducted by Firebase Auth
+        if (!(register.getGender().equals("Male") || register.getGender().equals("Female")))
+            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'"); 
         if (!isPasswordValid(register.getPassword()))
-            return "Error: Password should be between 8-32 characters, at least 1 uppercase and lowercase letter, 1 digit and 1 special character.";
+            throw new IllegalArgumentException("Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
         if (!isBirthdayValid(register.getBirthday()))
-            return "Error: Incorrect birthday format.";
+            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
         if (!isUsernameValid(register.getUserName()))
-            return "Error: Username should be between 3-32 characters long";
+            throw new IllegalArgumentException("Username should be between 3-32 characters long");
         if (!isUsernameUnique(register.getUserName()))
-            return "Error: Username exists, please choose another username";
+            throw new IllegalArgumentException("Username exists, please choose another username");
         
         // Step 2: Create an account in Firebase Authentication
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
@@ -50,13 +56,7 @@ public class UserService {
                 .setPassword(register.getPassword())
                 .setEmailVerified(false);
                 // .setDisabled(false);
-
-        UserRecord userRecord;
-        try {
-            userRecord = FirebaseAuth.getInstance().createUser(request);
-        } catch (FirebaseAuthException e) {
-            return "Account creation failed: " + e.getMessage();
-        }
+        UserRecord userAuthRecord = FirebaseAuth.getInstance().createUser(request);
 
         // Step 3: Store user data in Firestore once the user record is created
         // Need to recreate user class to exclude storing password into firestore ><
@@ -66,28 +66,15 @@ public class UserService {
         user.setName(register.getName());
         user.setBirthday(register.getBirthday());
         user.setUserStatus("player");
-        user.setEmail(register.getEmail());
+        user.setEmail(register.getEmail()); // Should we exclude email being added to Firestore?
         user.setGender(register.getGender());
 
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(userRecord.getUid())
-                .set(user);
-
-        try {
-            // Wait for the Firestore write operation to complete
-            WriteResult writeResult = collectionsApiFuture.get();
-            return "User data successfully written at: " + writeResult.getUpdateTime();
-        } catch (Exception e) {
-            return "Failed to store user data: " + e.getMessage();
-        }
-
-        // Firestore dbFirestore = FirestoreClient.getFirestore();
-        // ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(user.getEmail()).set(user);
-
-        // return collectionsApiFuture.get().getUpdateTime().toString();
+        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(userAuthRecord.getUid()).set(user);
+        return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
-    // Verify the JWT (Firebase ID token) and decode it
+    // Verify the Firebase ID token and decode it
     public String getIdToken(String bearerToken) throws FirebaseAuthException {
         try {
             // Extract the token (assuming it's in the format "Bearer <JWT>")
@@ -114,9 +101,24 @@ public class UserService {
 
     private static final String FIREBASE_API_KEY = "AIzaSyBItH-UkQG9U1UfRILfioF7K_VeEw_Zbjo"; 
 
+    public String parseJSON(ResponseEntity<String> response, String fieldName) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonResponse = mapper.readTree(response.getBody());
+        String field = jsonResponse.get(fieldName).asText();
+        return field;
+    }
+
     // Retrieves the idToken on login (email & password) 
     // @TODO: store it as users' cookies on spring boot (for internal testing) & frontend.
-    public String login(Login login) throws ExecutionException, InterruptedException, JsonProcessingException {
+    public String login(Login login) throws ExecutionException, InterruptedException, JsonProcessingException, Exception {
+        // Basic Validation
+        if (login.getEmail() == null || !login.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+        if (login.getPassword() == null || login.getPassword().length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long");
+        }
+        
         // Creates a JSON template to send to Firebase Auth Client
         String requestPayload = String.format("{\"email\":\"%s\",\"password\":\"%s\",\"returnSecureToken\":true}", login.getEmail(), login.getPassword());
         HttpHeaders headers = new HttpHeaders();
@@ -125,31 +127,32 @@ public class UserService {
         // Create the request entity
         HttpEntity<String> entity = new HttpEntity<>(requestPayload, headers);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
                 "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + FIREBASE_API_KEY, 
                 HttpMethod.POST, 
                 entity, 
                 String.class
-        );
+            );
 
-        // Parse the response
-        if (response.getStatusCode() == HttpStatus.OK) {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonResponse;
-            try {
-                jsonResponse = mapper.readTree(response.getBody());
-                String idToken = "Token: " + jsonResponse.get("idToken").asText();
-                return idToken;
-            } catch (JsonMappingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            // Parse the response
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return parseJSON(response, "idToken");
             } 
-            return "JSON creation error";
-        } 
-        if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
-            return "Invalid_login_credential";
+            throw new Exception("Something went wrong");
+        } catch (HttpClientErrorException e) {
+            // Handle HTTP client errors (4xx)
+            if (e.getMessage().contains("too-many-requests")){
+                throw new TooManyRequestsException("Too many requests detected. Please try again later, or reset your password to continue.");
+            }
+            throw new IllegalArgumentException("Email or password is incorrect.");
+        } catch (HttpServerErrorException e) {
+            // Handle HTTP server errors (5xx)
+            throw new HttpServerErrorException(e.getStatusCode(), e.getMessage());
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        return "Failed to authenticate user";
     }
 
     // Token expires every hour, hence we need to refresh it when it expires.
@@ -193,7 +196,7 @@ public class UserService {
     }
 
     // For this Firebase doc, the uid is the documentId.
-    public User getUser(String uid) throws ExecutionException, InterruptedException {
+    public User getUser(String uid) throws ExecutionException, InterruptedException, Exception {
         Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
         DocumentReference documentReference = dbFirestore.collection("user").document(uid); // get the doc
         ApiFuture<DocumentSnapshot> future = documentReference.get();
@@ -203,7 +206,7 @@ public class UserService {
             user = document.toObject(User.class); // convert to object
             return user;
         }
-        return null;
+        throw new IllegalArgumentException("User not found.");
     }
 
     public String getUserEmail(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
@@ -220,18 +223,22 @@ public class UserService {
             ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(uid).set(user);
             return collectionsApiFuture.get().getUpdateTime().toString();
         }
-        return "Error: User does not exists.";
+        throw new IllegalArgumentException("User not found.");
     }
 
     public String updateEmail(String newEmail, String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        if (!newEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$"))
+            throw new IllegalArgumentException("Invalid email format");
         UpdateRequest request = new UserRecord.UpdateRequest(uid).setEmail(newEmail);
-        UserRecord userRecord = FirebaseAuth.getInstance().updateUser(request);
-        return "Successfully updated user: " + newEmail;
+        FirebaseAuth.getInstance().updateUser(request);
+        return "Successfully updated user";
     }
 
     public String updatePassword(String newPassword, String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        if (!isPasswordValid(newPassword))
+            throw new IllegalArgumentException("Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
         UpdateRequest request = new UserRecord.UpdateRequest(uid).setPassword(newPassword);
-        UserRecord userRecord = FirebaseAuth.getInstance().updateUser(request);
+        FirebaseAuth.getInstance().updateUser(request);
         return "Successfully updated password";
     }
 
@@ -244,9 +251,11 @@ public class UserService {
     }
 
     // Birthday date format checks DD/MM/YYYY
-    // @TODO
     public static boolean isBirthdayValid(String birthday) {
-        return true;
+        String regex = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher birthdayMatcher = pattern.matcher(birthday);
+        return birthdayMatcher.matches();
     }
 
     // Password length & complexity check

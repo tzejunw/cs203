@@ -25,77 +25,110 @@ public class UserController {
     }
 
     @PostMapping("/user/create") // expects a User object in body raw JSON
-    public String createUser(@RequestBody Register register) throws InterruptedException, ExecutionException {
-        return userService.createUser(register);
+    public ResponseEntity<String> createUser(@RequestBody Register register) throws InterruptedException, ExecutionException {
+        try {
+            userService.createUser(register);
+            return ResponseEntity.ok().body("Welcome " + register.getName() + ", to Magic Arena. Login to continue.");
+        } catch (IllegalArgumentException | FirebaseAuthException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @PostMapping("/user/login") // expects a User object in body raw JSON
-    public String login(@RequestBody Login login) throws InterruptedException, ExecutionException, JsonProcessingException {
-        return userService.login(login);
+    public ResponseEntity<String> login(@RequestBody Login login) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
+        try {
+            String bearerToken = userService.login(login);
+            return ResponseEntity.ok().body("Token: " + bearerToken);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     // Uses the token ID from login > convert it to uid > get user data from firestore
     // To test in postman: Authorization > Under Auth Type: Bearer Token > Token (put the respective token ID from login)
     @GetMapping("/user/get") 
-    public User getUser(HttpServletRequest request) throws InterruptedException, ExecutionException {
+    public ResponseEntity<?> getUser(HttpServletRequest request) throws InterruptedException, ExecutionException {
         try {
             String uid = userService.getIdToken(request.getHeader("Authorization"));
-            return userService.getUser(uid);
+            User user = userService.getUser(uid);
+            return ResponseEntity.ok(user);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // @TODO: Some proper error handling lmao
-            return new User();
+            return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
         }
     }
 
     // Email is seperated as further email verification (when updated) is necessary later
     @GetMapping("/user/getEmail") 
-    public String getUserEmail(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
+    public ResponseEntity<String> getUserEmail(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         try {
             String uid = userService.getIdToken(request.getHeader("Authorization"));
-            return userService.getUserEmail(uid);
+            return ResponseEntity.ok().body(userService.getUserEmail(uid));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // @TODO: Some proper error handling lmao
-            return "Error: " + e.getMessage();
+            return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
         }
     }
 
     @PutMapping("/user/update") // expects a User object in body raw JSON
-    public String updateUser(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
-        String uid = userService.getIdToken(request.getHeader("Authorization"));
-        return userService.updateUser(user, uid);
+    public ResponseEntity<String> updateUser(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
+        try {
+            String uid = userService.getIdToken(request.getHeader("Authorization"));
+            userService.updateUser(user, uid);
+            return ResponseEntity.ok().body("Profile successfully updated!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
+        }
     }
 
     // Segregated for backend simplicity
     @PutMapping("/user/updateEmail")
-    public String updateEmail(@RequestBody UpdateEmail updateEmail, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
-        String uid = userService.getIdToken(request.getHeader("Authorization"));
+    public ResponseEntity<String> updateEmail(@RequestBody UpdateEmail updateEmail, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         try {
-            return userService.updateEmail(updateEmail.getEmail(), uid);
+            String uid = userService.getIdToken(request.getHeader("Authorization"));
+            userService.updateEmail(updateEmail.getEmail(), uid);
+            return ResponseEntity.ok().body("Email successfully updated!");
+        } catch (IllegalArgumentException | FirebaseAuthException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
         }
     }
 
     // Segregated for frontend simplicity
     @PutMapping("/user/updatePassword")
-    public String updatePassword(@RequestBody UpdatePassword updatePassword, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
-        String uid = userService.getIdToken(request.getHeader("Authorization"));
+    public ResponseEntity<String> updatePassword(@RequestBody UpdatePassword updatePassword, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         try {
-            return userService.updatePassword(updatePassword.getPassword(), uid);
+            String uid = userService.getIdToken(request.getHeader("Authorization"));
+            userService.updatePassword(updatePassword.getPassword(), uid);
+            return ResponseEntity.ok().body("Password successfully updated!");
+        } catch (IllegalArgumentException | FirebaseAuthException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
         }
     }
 
     @DeleteMapping("/user/delete") // documentId is the user's email. The argument here determines what it expects as the key in Postman
-    public String deleteUser(HttpServletRequest request) throws InterruptedException, ExecutionException {
+    public ResponseEntity<String> deleteUser(HttpServletRequest request) throws InterruptedException, ExecutionException {
         try {
             String uid = userService.getIdToken(request.getHeader("Authorization"));
-            return userService.deleteUser(uid);
+            userService.deleteUser(uid);
+            return ResponseEntity.ok().body("Successfully deleted user!");
+        } catch (IllegalArgumentException | FirebaseAuthException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // @TODO: Some proper error handling lmao
-            return e.getMessage();
+            return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
         }
+        
     }
 
     @GetMapping("/user/test")
