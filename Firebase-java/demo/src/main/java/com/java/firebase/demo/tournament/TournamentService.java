@@ -203,7 +203,7 @@ public class TournamentService {
             
             // Check if "matches" contains documents
             if (!matchQuerySnapshot.isEmpty()) {
-                System.out.println("Found " + matchQuerySnapshot.size() + " match documents");
+                System.out.println("Found " + matchQuerySnapshot.size() + " match documents, one of which is a empty placeholder");
                 
                 // Map documents to Match objects
                 List<Match> matches = matchQuerySnapshot.getDocuments().stream()
