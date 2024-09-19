@@ -23,78 +23,32 @@
         </div>
     </div>
 
-    <!-- Tournament List -->
-   
-    <div class="row">
-        <!-- Tournament 1 -->
+     <!-- Tournament List -->
+     <div class="row">
+        {% for tournament in tournaments %}
         <div class="col-md-12 mb-4">
             <div class="card">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img src="{{url_for('static',filename='img/home/tournament-1.jpg')}}" class="img-fluid rounded-start" alt="Tournament 1">
+                        <!-- Use a placeholder image if imageUrl is not provided -->
+                        <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="img-fluid rounded-start" alt="{{ tournament.tournamentName }}">
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
-                            <h5 class="card-title">Tournament 1</h5>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...</p>
+                            <h5 class="card-title">{{ tournament.tournamentName }}</h5>
+                            <p class="card-text">
+                                <strong>Start Date:</strong> {{ tournament.startDate }}<br>
+                                <strong>End Date:</strong> {{ tournament.endDate }}<br>
+                                <strong>Number of Players:</strong> {{ tournament.numberOfPlayers }}<br>
+                                <strong>Description:</strong> {{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}<br>
+                                <strong>Location:</strong> {{ tournament.location if tournament.location else 'Location not specified.' }}
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Tournament 2 -->
-        <div class="col-md-12 mb-4">
-            <div class="card">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="{{url_for('static',filename='img/home/tournament-2.jpg')}}" class="img-fluid rounded-start" alt="Tournament 2">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Tournament 2</h5>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tournament 3 -->
-        <div class="col-md-12 mb-4">
-            <div class="card">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="{{url_for('static',filename='img/home/tournament-3.jpg')}}" class="img-fluid rounded-start" alt="Tournament 3">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Tournament 3</h5>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tournament 4 -->
-        <div class="col-md-12 mb-4">
-            <div class="card">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="{{url_for('static',filename='img/home/tournament-4.jpg')}}" class="img-fluid rounded-start" alt="Tournament 4">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Tournament 4</h5>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-
+        {% endfor %}
     </div>
 </div>
- {% endblock %} 
+{% endblock %}

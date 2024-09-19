@@ -14,7 +14,11 @@ def index():
 # to view all tournaments
 @tournament.route('/view') #/<int:id>
 def view_tournaments():
-    return render_template('tournament/tournaments.html')
+    api_url = 'http://localhost:8080/tournament/get/all'
+    response = requests.get(api_url) 
+    tournaments = response.json() 
+
+    return render_template('tournament/tournaments.html', tournaments = tournaments)
 
 # to view an individual tournament
 @tournament.route('/tournament')
@@ -37,4 +41,3 @@ def view_players():
 @tournament.route('/matches')
 def tournament_matches():
     return render_template('tournament/matches.html')
-
