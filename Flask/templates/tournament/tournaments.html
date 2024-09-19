@@ -23,11 +23,12 @@
         </div>
     </div>
 
-     <!-- Tournament List -->
-     <div class="row">
+    <!-- Tournament List -->
+    <div class="row">
         {% for tournament in tournaments %}
         <div class="col-md-12 mb-4">
-            <div class="card">
+            <div class="card tournaments-card">
+                <a href="{{ url_for('tournament.view_tournament', tournament_name=tournament.tournamentName) }}" class="stretched-link"></a>
                 <div class="row g-0">
                     <div class="col-md-4">
                         <!-- Use a placeholder image if imageUrl is not provided -->

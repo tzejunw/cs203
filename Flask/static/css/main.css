@@ -19202,3 +19202,24 @@ table.career tr td img {
   color: white;
   background-color: #DC5743;
 }
+
+/* CSS for TOURNAMENTS PAGE*/
+.tournaments-card {
+  position: relative;
+  overflow: hidden;
+  /* Other card styling here */
+  transition: transform 0.5s ease; /* Smooth transition for scaling */
+}
+
+.tournaments-card:hover {
+  transform: scale(1.01);
+}
+
+.stretched-link {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+}
