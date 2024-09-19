@@ -1,7 +1,7 @@
 from . import user
 from user.forms import LoginForm, RegisterForm, UpdateAccountForm, LoginOTPForm
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_wtf import Form, FlaskForm 
 from wtforms import ValidationError, StringField, PasswordField, SubmitField, \
     TextAreaField, BooleanField, RadioField, FileField, DateField, SelectField
@@ -37,18 +37,22 @@ def register():
             json=data,
             headers={"Content-Type": "application/json"}
         )
-        
+
+        response_text = ""
         if response.status_code == 200:
             try:
-                response_data = response.json()
-                print(response_data)
+                response_text = response.json()
                 return redirect(url_for('user.login'))
             except ValueError:
-                print(response.text)
+                response_text = response.text
                 print("Received a non-JSON response from the server.")
+            flash(response_text, 'success')
+            return redirect(url_for('user.login'))
         else:
+            response_text = response.text
             print(f"Failed to register user. Status code: {response.status_code}")
-        return redirect(url_for('user.login'))
+        print(response_text)
+        flash(response_text, 'danger')
         
     return render_template('user/register.html', form=form)
 

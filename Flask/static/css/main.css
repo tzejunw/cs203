@@ -10128,7 +10128,7 @@ a.text-dark:focus, a.text-dark:hover {
 .sf-menu .sf-mega ul li {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   line-height: 40px;
-  z-index: 9999;
+  z-index: 9998;
 }
 
 /* line 146, ../sass/_partials/_main_nav.scss */
@@ -10195,7 +10195,7 @@ ul.sub-current .current .sf-with-ul:after {
   min-height: 65px;
   background-color: #fff;
   border-top: 1px solid #dedede;
-  z-index: 9999;
+  z-index: 9998;
 }
 
 /*  Main Navigation ---------------------------------------------------*/

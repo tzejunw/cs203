@@ -12,7 +12,7 @@ def index():
     return render_template('frontend/index.html')
 
 # to view all tournaments
-@tournament.route('/view')
+@tournament.route('/view') #/<int:id>
 def view_tournaments():
     return render_template('tournament/tournaments.html')
 

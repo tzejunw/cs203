@@ -28,7 +28,7 @@ class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     name = StringField('Full Name', validators=[DataRequired()])
-    gender = RadioField('Gender', choices=[('M', 'Male'), ('F', 'Female')], validators=[DataRequired()])
+    gender = RadioField('Gender', choices=[('Male', 'Male'), ('Female', 'Female')], validators=[DataRequired()])
     birthday = DateField('Birthday', format='%Y-%m-%d') 
     # profile_pic = FileField('Profile Picture')
     register = SubmitField('Register')
@@ -38,7 +38,7 @@ class RegisterForm(FlaskForm):
 class UpdateAccountForm(FlaskForm):
     password = PasswordField('Password (Leave blank to not change it)', validators=[])
     name = StringField('Full Name', validators=[DataRequired()])
-    gender = RadioField('Gender', choices=[('M', 'Male'), ('F', 'Female')], validators=[DataRequired()])
+    gender = RadioField('Gender', choices=[('Male', 'Male'), ('Female', 'Female')], validators=[DataRequired()])
     birthdate = DateField('Birthdate', format='%Y-%m-%d')
     profile_pic = FileField('Profile Picture')
     register = SubmitField('Update')

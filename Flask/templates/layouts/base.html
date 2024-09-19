@@ -1,39 +1,61 @@
 <!-- AVOID TOUCHING THIS ENTIRE HTML -->
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <!-- Basic -->
-        <meta charset="utf-8">
-        <title>{% block title %}{% endblock %}</title>
-        <meta name="keywords" content="HTML5 Template" />
-        <meta name="author" content="iwthemes.com">
 
-        <!-- Mobile Metas -->
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <!-- Theme CSS -->
-        <link href="{{url_for('static',filename='css/main.css')}}" rel="stylesheet" media="screen">
+<head>
+    <!-- Basic -->
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="keywords" content="HTML5 Template" />
+    <meta name="author" content="iwthemes.com">
 
-        <!-- Favicons -->
-        <link rel="shortcut icon" href="{{url_for('static',filename='img/icons/favicon.ico')}}">
-        <link rel="apple-touch-icon" href="{{url_for('static',filename='img/icons/apple-touch-icon.png')}}">
-        <link rel="apple-touch-icon" sizes="72x72" href="{{url_for('static',filename='img/icons/apple-touch-icon-72x72.png')}}">
-        <link rel="apple-touch-icon" sizes="114x114" href="{{url_for('static',filename='img/icons/apple-touch-icon-114x114.png')}}">
-    </head>
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Theme CSS -->
+    <link href="{{url_for('static',filename='css/main.css')}}" rel="stylesheet" media="screen">
 
-    <body>
-        <div id="layout">
-            {% block navbar %}
-                {% include 'includes/_navbar.html' %}
-            {% endblock %}
+    <!-- Favicons -->
+    <link rel="shortcut icon" href="{{url_for('static',filename='img/icons/favicon.ico')}}">
+    <link rel="apple-touch-icon" href="{{url_for('static',filename='img/icons/apple-touch-icon.png')}}">
+    <link rel="apple-touch-icon" sizes="72x72"
+        href="{{url_for('static',filename='img/icons/apple-touch-icon-72x72.png')}}">
+    <link rel="apple-touch-icon" sizes="114x114"
+        href="{{url_for('static',filename='img/icons/apple-touch-icon-114x114.png')}}">
+</head>
 
-            {% block content %}
-            {% endblock %}
-
-            {% block footer %}
-                {% include 'includes/_footer.html' %}
-            {% endblock %}
+<body>
+    <div id="layout">
+        <!-- Alert Container -->
+        <div class="alert-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <!-- <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div> -->
+            <script>
+                window.addEventListener('load', function () {
+                    showAlert("{{ message }}", "{{ category }}", 5000);
+                })
+            </script>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
         </div>
-    </body>
+        {% block navbar %}
+        {% include 'includes/_navbar.html' %}
+        {% endblock %}
+
+        {% block content %}
+        {% endblock %}
+
+        {% block footer %}
+        {% include 'includes/_footer.html' %}
+        {% endblock %}
+    </div>
+</body>
 
 </html>
-
