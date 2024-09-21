@@ -1,0 +1,129 @@
+.content{
+    position: relative;
+    height: 100%;
+    margin: 50px;
+    top: 150px;
+    /* border: 2px solid red; */
+} 
+
+.date-container{
+    position: relative;
+    /* border: 2px solid blue; */
+    height: 50px;
+}
+
+.date-label{
+    position: absolute;
+    top: -30px;
+    font-weight: 500;
+}
+
+.date-input{
+    position: absolute;
+    box-sizing: border-box;
+    height: 100%;
+    width: 20%;
+    top: 0px;
+    border-radius: 5px;
+    font-size: 15px;
+    padding: 10px;
+}
+
+.name-container{
+    position: relative;
+    /* border: 2px solid blue; */
+    top: 100px;
+    height: 50px;
+}
+
+.name-label{
+    position: absolute;
+    top: -30px;
+    font-weight: 500;
+}
+
+.name-input{
+    position: absolute;
+    box-sizing: border-box;
+    height: 100%;
+    width: 50%;
+    top: 0px;
+    border-radius: 5px;
+    font-size: 15px;
+    padding: 10px;
+}
+
+.organizer-container{
+    position: relative;
+    /* border: 2px solid blue; */
+    top: 200px;
+    height: 50px;
+}
+
+.organizer-label{
+    position: absolute;
+    top: -30px;
+    font-weight: 500;
+}
+
+.organizer-input{
+    position: absolute;
+    box-sizing: border-box;
+    height: 100%;
+    width: 50%;
+    top: 0px;
+    border-radius: 5px;
+    font-size: 15px;
+    padding: 10px;
+}
+
+.status-container{
+    position: relative;
+    /* border: 2px solid blue; */
+    top: 300px;
+    height: 50px;
+}
+
+.status-label{
+    position: absolute;
+    top: -30px;
+    font-weight: 500;
+}
+
+.status-input{
+    position: absolute;
+    box-sizing: border-box;
+    height: 100%;
+    width: 50%;
+    top: 0px;
+    border-radius: 5px;
+    font-size: 15px;
+    padding: 10px;
+}
+
+.regType-container{
+    position: relative;
+    /* border: 2px solid blue; */
+    top: 400px;
+    height: 50px;
+}
+
+.regType-label{
+    position: absolute;
+    top: -30px;
+    font-weight: 500;
+}
+
+.regType-input{
+    position: absolute;
+    box-sizing: border-box;
+    height: 100%;
+    width: 50%;
+    top: 0px;
+    border-radius: 5px;
+    font-size: 15px;
+    padding: 10px;
+}
+
+
+

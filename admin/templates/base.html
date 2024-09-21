@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- import font-->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+        <!-- -->
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/navbar.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/general.css') }}">
+        {% block head %}{% endblock %}
+    </head>
+    <body>
+        <div class="navbar">
+            <div class="left-section">
+                <div class="logo-container">
+                    <img class="magic-logo" src="{{ url_for('static', filename='images/magic-logo.png') }}">
+                </div>
+                <div class="nav">
+                    <p class="home">Home</p>
+                    <p class="tnm">Tournaments</p>
+                    <p class="lb">Leaderboard</p>
+                </div>
+            </div>
+        </div>
+
+        {% block content %}{% endblock %}
+    </body>
+</html>

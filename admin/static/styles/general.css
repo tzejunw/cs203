@@ -1,0 +1,10 @@
+body{
+    margin: 0px;
+    height: 2000px;
+}
+
+p,
+label{
+    font-family: "Inter";
+}
+
