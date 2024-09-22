@@ -1,0 +1,21 @@
+### Create Account
+POST http://localhost:8080/user/create
+Content-Type: application/json
+
+{
+    "userName": "garychia14",
+    "name": "gary",
+    "birthday": "10/10/2010",
+    "email": "gary1@gmail.com",
+    "gender": "male",
+    "password": "1@Secured"
+}
+
+### Login
+POST http://localhost:8080/user/login
+Content-Type: application/json
+
+{
+    "email": "gary1@gmail.com",
+    "password": "1@Secured"
+}

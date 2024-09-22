@@ -1,10 +1,15 @@
 package com.java.firebase.demo.tournament;
-import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TournamentController {
@@ -21,9 +26,15 @@ public class TournamentController {
     }
 
     @GetMapping("/tournament/get") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
-    public Tournament getTournament(@RequestParam String documentId) throws InterruptedException, ExecutionException {
-        return tournamentService.getTournament(documentId);
+    public Tournament getTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
+        return tournamentService.getTournament(tournamentName);
     }
+
+    @GetMapping("/tournament/get/all") // Adjust the route path as needed
+    public List<Tournament> getAllTournaments() throws InterruptedException, ExecutionException {
+        return tournamentService.getAllTournaments();
+    }
+
 
     @PutMapping("/tournament/update") // takes another tournament json
     public String updateTournament(@RequestBody Tournament tournament) throws InterruptedException, ExecutionException {
@@ -31,8 +42,8 @@ public class TournamentController {
     }
 
     @DeleteMapping("/tournament/delete") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
-    public String deleteTournament(@RequestParam String documentId) throws InterruptedException, ExecutionException {
-        return tournamentService.deleteTournament(documentId);
+    public String deleteTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteTournament(tournamentName);
     }
 
     @GetMapping("/tournament/test")
@@ -40,38 +51,66 @@ public class TournamentController {
         return ResponseEntity.ok("Test Get Endpoint is Working");
     }
 
-
-
     // // Rounds
-    // @PostMapping("/{tournamentId}/rounds")
-    // public void addRound(@PathVariable String tournamentId, @RequestBody Round round) {
-    //     tournamentService.addRound(tournamentId, round);
-    // }
+    @PostMapping("/tournament/round/create")
+    public String createRound(@RequestParam String tournamentName, @RequestBody Round round) throws InterruptedException, ExecutionException{
+        return tournamentService.createRound(tournamentName, round);
+    }
 
-    // @GetMapping("/{tournamentId}/rounds")
-    // public List<Round> getRounds(@PathVariable String tournamentId) throws Exception {
-    //     return tournamentService.getRounds(tournamentId);
-    // }
+    @GetMapping("/tournament/round/get") // The argument here determines what it expects as the key in Postman
+    public Round getRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
+        return tournamentService.getRound(tournamentName, roundName);
+    }
+    // no put mapping for rounds, no fields
+    @DeleteMapping("/tournament/round/delete")
+    public String deleteRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteRound(tournamentName, roundName);
+}
 
-    // // Matches
-    // @PostMapping("/{tournamentId}/rounds/{roundId}/matches")
-    // public void addMatch(@PathVariable String tournamentId, @PathVariable String roundId, @RequestBody Match match) {
-    //     tournamentService.addMatch(tournamentId, roundId, match);
-    // }
+    @PostMapping("/tournament/round/match/create")
+    public String createMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Match match) throws InterruptedException, ExecutionException{
+        return tournamentService.createMatch(tournamentName, roundName, match);
+    }
 
-    // @GetMapping("/{tournamentId}/rounds/{roundId}/matches")
-    // public List<Match> getMatches(@PathVariable String tournamentId, @PathVariable String roundId) throws Exception {
-    //     return tournamentService.getMatches(tournamentId, roundId);
-    // }
+    @GetMapping("/tournament/round/match/get") // The argument here determines what it expects as the key in Postman
+    public Match getMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player1, @RequestParam String player2) throws InterruptedException, ExecutionException {
+        return tournamentService.getMatch(tournamentName, roundName, player1, player2);
+    }
 
-    // // Standings
-    // @PostMapping("/{tournamentId}/rounds/{roundId}/standings")
-    // public void addStanding(@PathVariable String tournamentId, @PathVariable String roundId, @RequestBody Standings standing) {
-    //     tournamentService.addStanding(tournamentId, roundId, standing);
-    // }
-
-    // @GetMapping("/{tournamentId}/rounds/{roundId}/standings")
-    // public List<Standings> getStandings(@PathVariable String tournamentId, @PathVariable String roundId) throws Exception {
-    //     return tournamentService.getStandings(tournamentId, roundId);
-    // }
+    @PutMapping("/tournament/round/match/update")
+    public String updateMatch(@RequestParam String tournamentName, 
+                              @RequestParam String roundName, 
+                              @RequestParam String player1, 
+                              @RequestParam String player2, 
+                              @RequestBody Match match) throws InterruptedException, ExecutionException {
+        return tournamentService.updateMatch(tournamentName, roundName, player1, player2, match);
+    }
+        
+    @DeleteMapping("/tournament/round/match/delete")
+    public String deleteMatch(@RequestParam String tournamentName, 
+                              @RequestParam String roundName, 
+                              @RequestParam String player1, 
+                              @RequestParam String player2) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteMatch(tournamentName, roundName, player1, player2);
+    }
+    
+    @PostMapping("/tournament/round/standing/create")
+    public String createStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Standing standing) throws InterruptedException, ExecutionException {
+        return tournamentService.createStanding(tournamentName, roundName, standing);
+    }
+    
+    @GetMapping("/tournament/round/standing/get")
+    public Standing getStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
+        return tournamentService.getStanding(tournamentName, roundName, rank);
+    }
+    
+    @PutMapping("/tournament/round/standing/update")
+    public String updateStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Standing standing) throws InterruptedException, ExecutionException {
+        return tournamentService.updateStanding(tournamentName, roundName, standing);
+    }
+    
+    @DeleteMapping("/tournament/round/standing/delete")
+    public String deleteStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteStanding(tournamentName, roundName, rank);
+    }
 }

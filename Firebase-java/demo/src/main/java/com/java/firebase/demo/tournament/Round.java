@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 
 public class Round {
-    private String roundId;
+    private String roundName;
     private List<Match> matches;
-    private List<Standings> standings;
+    private List<Standing> standings;
 }

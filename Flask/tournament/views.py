@@ -11,9 +11,35 @@ import requests
 def index():
     return render_template('frontend/index.html')
 
-@tournament.route('/view')
+# to view all tournaments
+@tournament.route('/view') #/<int:id>
 def view_tournaments():
-    return render_template('tournament/tournaments.html')
+    api_url = 'http://localhost:8080/tournament/get/all'
+    response = requests.get(api_url) 
+    tournaments = response.json() 
+
+    return render_template('tournament/tournaments.html', tournaments = tournaments)
+
+@tournament.route('/tournament/<string:tournament_name>')
+def view_tournament(tournament_name):
+    api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    response = requests.get(api_url)
+    
+    if response.status_code == 200:
+        tournament = response.json()
+        return render_template('tournament/tournament.html', tournament=tournament)
+    else:
+        return render_template('error.html', message="Tournament not found"), 404
+
+# to view an individual tournament
+# @tournament.route('/tournament')
+# def view_tournament():
+#     return render_template('tournament/tournament.html')
+
+# to view rankings
+@tournament.route('/rankings')
+def view_rankings():
+    return render_template('tournament/rankings.html')
 
 @tournament.route('/results')
 def view_results():
@@ -26,4 +52,3 @@ def view_players():
 @tournament.route('/matches')
 def tournament_matches():
     return render_template('tournament/matches.html')
-

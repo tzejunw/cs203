@@ -10,7 +10,8 @@ public class Match {
     private String player1;
     private String player2;
     private String winner;
-    private int win;
-    private int draw;
-    private int loss;
+    private int wins;
+    private int losses;
+    private boolean isDraw;
+    private boolean isBye;
 }
