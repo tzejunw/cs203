@@ -6,3 +6,6 @@ Flask/__pycache__
 Flask/frontend/__pycache__
 Flask/user/__pycache__
 Flask/tournament/__pycache__
+
+# Ignore any unrelated files
+.DS_Store

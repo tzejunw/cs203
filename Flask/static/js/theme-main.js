@@ -130,7 +130,7 @@ $(document).ready(function($) {
 
     //=================================== Counter  ==============================//
 
-    $('#event-one').countdown('2018/06/14', function(event) {
+    $('#event-one').countdown('2024/10/14', function(event) {
       var $this = $(this).html(event.strftime(''
       + '<span>%D <br> <small>days</small></span>  '
       + '<span>%H <br> <small>hr</small> </span>  '
@@ -139,7 +139,7 @@ $(document).ready(function($) {
     });
 
 
-     //=================================== Subtmit Form  ===================================//
+     //=================================== Submit Form  ===================================//
 
        $('.form-theme').submit(function(event) {
              event.preventDefault();
