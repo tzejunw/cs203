@@ -1,7 +1,9 @@
 package com.java.firebase.demo.user.Security;
 
 import java.io.IOException;
+import java.util.Collections; 
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
@@ -27,9 +29,29 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token);
-                PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(
-                        firebaseToken, null, null);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Check for the "admin" role in custom claims
+                // Extract the custom claims and check if the user has the "admin" role
+                boolean isAdmin = firebaseToken.getClaims().containsKey("admin")
+                        && (boolean) firebaseToken.getClaims().get("admin");
+
+                if (isAdmin) {
+                    // Set authentication and proceed
+                    PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(
+                            firebaseToken, null, 
+                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println("Admin authority");
+                } else {
+                    PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(
+                            firebaseToken.getUid(), null,
+                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println("Scrub authority");
+                }
+
             } catch (FirebaseAuthException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;

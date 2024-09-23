@@ -1,5 +1,7 @@
 package com.java.firebase.demo.user;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,7 +60,13 @@ public class UserService {
                 // .setDisabled(false);
         UserRecord userAuthRecord = FirebaseAuth.getInstance().createUser(request);
 
-        // Step 3: Store user data in Firestore once the user record is created
+        // Step 3: Set player status
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("admin", true);
+
+        FirebaseAuth.getInstance().setCustomUserClaims(userAuthRecord.getUid(), claims);
+
+        // Step 4: Store user data in Firestore once the user record is created
         // Need to recreate user class to exclude storing password into firestore ><
         // Player status is set here too, to avoid people from manipulating the data to become an admin.
         User user = new User();

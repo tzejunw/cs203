@@ -31,6 +31,7 @@ public class SecurityConfig {
             .addFilterAfter((Filter) firebaseTokenFilter, BasicAuthenticationFilter.class)
             .authorizeHttpRequests(
                 authorizeRequests -> authorizeRequests
+                    .requestMatchers("/tournament/test").hasRole("ADMIN")
                     // For easy testing purposes, all tournaments routes will be permitted.
                     .requestMatchers("/tournament/**").permitAll()    
 
