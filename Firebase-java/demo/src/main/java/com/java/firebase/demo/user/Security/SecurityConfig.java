@@ -31,12 +31,16 @@ public class SecurityConfig {
             .addFilterAfter((Filter) firebaseTokenFilter, BasicAuthenticationFilter.class)
             .authorizeHttpRequests(
                 authorizeRequests -> authorizeRequests
-                    .requestMatchers("/tournament/test").hasRole("ADMIN")
-                    // For easy testing purposes, all tournaments routes will be permitted.
-                    .requestMatchers("/tournament/**").permitAll()    
+// For easy testing purposes, uncomment this for all tournaments routes to be permitted.
+                    // .requestMatchers("/tournament/**").permitAll()    
 
+                    // User Route
                     .requestMatchers(HttpMethod.POST, "/user/create", "/user/login").permitAll()
                     .requestMatchers("/user/**").authenticated()
+                    
+                    // Tournament Route
+                    .requestMatchers("/tournament/get/all", "/tournament/get").permitAll()
+                    .requestMatchers("/tournament/**").hasRole("ADMIN")
             );
         return http.build();
     }

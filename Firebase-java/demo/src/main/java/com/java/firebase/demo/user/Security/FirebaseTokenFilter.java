@@ -49,7 +49,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
                             Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
                     );
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("Scrub authority");
+                    System.out.println("Player authority");
                 }
 
             } catch (FirebaseAuthException e) {
@@ -68,12 +68,4 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
-    // @Override
-    // public void init(FilterConfig filterConfig) throws ServletException {
-    // }
-
-    // @Override
-    // public void destroy() {
-    // }
 }

@@ -40,7 +40,7 @@ public class UserController {
     public ResponseEntity<String> login(@RequestBody Login login) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
         try {
             String bearerToken = userService.login(login);
-            return ResponseEntity.ok().body("Token: " + bearerToken);
+            return ResponseEntity.ok().body(bearerToken);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
