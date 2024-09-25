@@ -62,7 +62,8 @@ public class UserService {
 
         // Step 3: Set player status
         Map<String, Object> claims = new HashMap<>();
-        claims.put("admin", true);
+        // claims.put("admin", true);
+        claims.put("player", true);
 
         FirebaseAuth.getInstance().setCustomUserClaims(userAuthRecord.getUid(), claims);
 
