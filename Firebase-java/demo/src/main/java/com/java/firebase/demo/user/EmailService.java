@@ -13,7 +13,7 @@ public class EmailService {
             // Obtain the mail session from EmailConfig
             Session session = EmailConfig.getSession();
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("magicarena148@gmail.com")); // Your email
+            message.setFrom(new InternetAddress(EMAIL_SENDER_USERNAME)); 
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
             message.setSubject("Verify Your Email Address");
             message.setText("Please click the following link to verify your email: " + verificationLink);

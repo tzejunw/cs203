@@ -11,8 +11,8 @@ public class EmailConfig {
         props.put("mail.smtp.host", "smtp.gmail.com"); 
         props.put("mail.smtp.port", "587"); 
 
-        final String username = "magicarena148@gmail.com"; 
-        final String password = "kpvs mqie zqxx rsqd"; 
+        final String username = EMAIL_SENDER_USERNAME; 
+        final String password = EMAIL_SENDER_USERNAME;
 
         Session session = Session.getInstance(props, new javax.mail.Authenticator() {
             protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
