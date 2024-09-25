@@ -60,6 +60,13 @@ public class UserService {
                 // .setDisabled(false);
         UserRecord userAuthRecord = FirebaseAuth.getInstance().createUser(request);
 
+        System.out.println("testing");
+        System.out.println("testing");
+
+        // Send email verification to the user
+        sendVerificationEmail(userAuthRecord.getUid());
+        
+
         // Step 3: Set player status
         Map<String, Object> claims = new HashMap<>();
         // claims.put("admin", true);
@@ -81,6 +88,30 @@ public class UserService {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(userAuthRecord.getUid()).set(user);
         return collectionsApiFuture.get().getUpdateTime().toString();
+    }
+
+     // Method to send email verification
+     public void sendVerificationEmail(String uid) {
+        
+        try {
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            UserRecord user = firebaseAuth.getUser(uid);
+
+            // Trigger the email verification
+            String verificationLink = firebaseAuth.generateEmailVerificationLink(user.getEmail());
+
+            System.out.println(verificationLink);
+
+            // Create an instance of EmailService
+            EmailService emailService = new EmailService();
+
+            // Use the EmailService to send the verification email
+            emailService.sendVerificationEmail(user.getEmail(), verificationLink);
+
+        } catch (FirebaseAuthException e) {
+            // Handle exceptions if sending the email fails
+            e.printStackTrace();
+        }
     }
 
     // Verify the Firebase ID token and decode it
