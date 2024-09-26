@@ -7,9 +7,18 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 public class EmailService {
     public void sendVerificationEmail(String recipientEmail, String verificationLink) {
         try {
+
+            // Load environment variables
+            Dotenv dotenv = Dotenv.load();
+
+            // Get the Base64 encoded key from environment variable
+            String EMAIL_SENDER_USERNAME = dotenv.get("EMAIL_SENDER_USERNAME");
+
             // Obtain the mail session from EmailConfig
             Session session = EmailConfig.getSession();
             Message message = new MimeMessage(session);
