@@ -19,7 +19,7 @@
                     <!-- Adds Header-->
                     <div class="col">
                         <!-- Call Nav Menu-->
-                        <a class="mobile-nav" href="#mobile-nav"><i class="fa fa-bars"></i></a>
+                        <a class="mobile-nav" href="#mobile-nav"><i class="fa fa-bars" style="color:#d25134"></i></a>
                         <!-- End Call Nav Menu-->
                     </div>
                     <!-- End Adds Header-->
@@ -200,12 +200,17 @@
                 </div>
             </li> -->
 
-            
+            {% if jwt_present %}
             <li>
                 <a href="{{url_for('user.update_account')}}">Profile</a>
             </li>
+            {% endif %}
             <li>
-                <a href="{{url_for('user.login')}}">Login</a>
+                {% if jwt_present %}
+                    <a href="{{ url_for('user.logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('user.login') }}">Login</a>
+                {% endif %}
             </li>
         </ul>
         <!-- End Menu-->
@@ -372,7 +377,11 @@
             <a href="{{url_for('user.update_account')}}">Profile</a>
         </li>
         <li>
-            <a href="{{url_for('user.login')}}">Login</a>
+            {% if jwt_present %}
+                <a href="{{ url_for('user.logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('user.login') }}">Login</a>
+            {% endif %}
         </li>
     </ul>
     <!-- End Menu-->

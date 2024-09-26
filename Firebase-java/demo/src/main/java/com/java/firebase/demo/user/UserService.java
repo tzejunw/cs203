@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -56,11 +57,9 @@ public class UserService {
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                 .setEmail(register.getEmail())
                 .setPassword(register.getPassword())
-                .setEmailVerified(false);
-                // .setDisabled(false);
+                .setEmailVerified(true);
         UserRecord userAuthRecord = FirebaseAuth.getInstance().createUser(request);
 
-        System.out.println("testing");
         System.out.println("testing");
 
         // Send email verification to the user
@@ -186,6 +185,10 @@ public class UserService {
             if (e.getMessage().contains("too-many-requests")){
                 throw new TooManyRequestsException("Too many requests detected. Please try again later, or reset your password to continue.");
             }
+            if (e.getStatusCode() == HttpStatus.FORBIDDEN && e.getMessage().contains("blocked")){
+                throw new AccessDeniedException(e.getMessage());
+            }
+            // throw new IllegalArgumentException(e.getMessage());
             throw new IllegalArgumentException("Email or password is incorrect.");
         } catch (HttpServerErrorException e) {
             // Handle HTTP server errors (5xx)

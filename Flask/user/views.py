@@ -1,7 +1,7 @@
 from . import user
 from user.forms import LoginForm, RegisterForm, UpdateAccountForm, LoginOTPForm
 
-from flask import Flask, abort, jsonify, make_response, render_template, request, redirect, url_for, flash
+from flask import Flask, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app
 from flask_wtf import Form, FlaskForm 
 from wtforms import ValidationError, StringField, PasswordField, SubmitField, \
     TextAreaField, BooleanField, RadioField, FileField, DateField, SelectField
@@ -63,6 +63,14 @@ def register():
 @user.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if request.method == 'GET' and request.cookies.get('jwt'):
+        flash("Don't delulu, you are already logged in.", "danger")
+        previous_page = request.referrer
+        # If no referrer, go to the home page
+        if previous_page is None:
+            return redirect(url_for('frontend.index'))
+        return redirect(previous_page)
+
     if request.method == 'POST' and form.validate_on_submit():
         # form.email.errors = ["User is not valid"]
         data = {
@@ -95,6 +103,13 @@ def login():
         
     return render_template('user/login.html', form=form)
 
+@user.route('/logout')
+def logout():
+    response = make_response(redirect(url_for('user.login')))
+    response.set_cookie('jwt', '', expires=0)
+    flash("Logout successfully", 'success')
+    return response
+
 @user.route('/login_otp', methods=['GET', 'POST'])
 def login_otp():
     form = LoginOTPForm();
@@ -115,7 +130,7 @@ def update_account():
     if request.method == 'GET':
         # form.email.errors = ["User is not valid"]
         response = requests.get(
-            "http://localhost:8080/user/get", 
+            current_app.config['BACKEND_URL'] + "/user/get", 
             headers = {
                 "Authorization": f"Bearer {jwt_cookie}",
                 "Content-Type": "application/json"
