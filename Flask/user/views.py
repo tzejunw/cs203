@@ -62,19 +62,25 @@ def register():
 # /user/login
 @user.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm();
+    form = LoginForm()
     if request.method == 'POST' and form.validate_on_submit():
         # form.email.errors = ["User is not valid"]
         data = {
             "email": form.email.data,
             "password": form.password.data
         }
+        header= {
+            "Content-Type": "application/json"
+        }
 
-        response = requests.post(
-            "http://localhost:8080/user/login", 
-            json=data,
-            headers={"Content-Type": "application/json"}
-        )
+        # create global variable for post URL to determine if it's cloud link or local links
+        response = {}
+        try:
+            response = requests.post("http://localhost:8080/user/login", json=data, headers=header)
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
+            print(e)
+            return render_template('user/login.html', form=form)
         
         if response.status_code == 200:
             token = response.text
@@ -83,7 +89,7 @@ def login():
             response.set_cookie('jwt', token, max_age=60*60)
             return response
         else:
-            flash(response.text, 'error')
+            flash(response.text, 'danger')
             print(f"Failed to login. Status code: {response.status_code}")
 
         
@@ -118,6 +124,7 @@ def update_account():
 
         if response.status_code == 200:
             data = response.json()
+            form.userName.data = data.get('userName')
             form.name.data = data.get('name')
             form.gender.data = data.get('gender')
             if data.get('birthday'):
@@ -131,7 +138,7 @@ def update_account():
         birthday_str = YmdToDmyConverter(form.birthday.data.strftime('%Y-%m-%d'))
 
         data = {
-            "userName": data.get('userName'), # username nt getting from data
+            "userName": form.userName.data,
             "name": form.name.data,
             "birthday": birthday_str,
             "email": "admin@gmail.com",
@@ -150,10 +157,10 @@ def update_account():
         if response.status_code == 200:
             flash("Successfully updated profile!", 'success')
         else:
-            flash(response, 'error')
+            flash(response, 'danger')
             print(response)
         
-    return render_template('user/update_account.html', form=form, userDetails=data)
+    return render_template('user/update_account.html', form=form)
 
 # DELETE method is somehow (device) restricted in HTML, so lets just use POST.
 @user.route('/delete_user', methods=['POST'])

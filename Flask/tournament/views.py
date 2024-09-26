@@ -24,10 +24,11 @@ def view_tournaments():
 def view_tournament(tournament_name):
     api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
     response = requests.get(api_url)
+    location = "SCG CON Portland, OR" # Test data 
     
     if response.status_code == 200:
         tournament = response.json()
-        return render_template('tournament/tournament.html', tournament=tournament)
+        return render_template('tournament/tournament.html', tournament=tournament, location=location)
     else:
         return render_template('error.html', message="Tournament not found"), 404
 

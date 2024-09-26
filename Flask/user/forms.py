@@ -36,10 +36,11 @@ class RegisterForm(FlaskForm):
 # Update account form is the same as register form, 
 # just that birthdate is different & password and profile_pic is not mandatory.
 class UpdateAccountForm(FlaskForm):
+    userName = StringField('Username', validators=[DataRequired()])
     name = StringField('Full Name', validators=[DataRequired()])
     gender = RadioField('Gender', choices=[('Male', 'Male'), ('Female', 'Female')], validators=[DataRequired()])
     birthday = DateField('Birthday', format='%Y-%m-%d')
-    profile_pic = FileField('Profile Picture')
+    # profile_pic = FileField('Profile Picture')
     register = SubmitField('Update')
 
 # Seperated because need to reconfirm OTP later

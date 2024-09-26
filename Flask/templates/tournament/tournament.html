@@ -20,6 +20,15 @@
                     Players must have their Wizards Account Email in their Melee.gg profile in order to enroll.</p>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="mt-4">Location Details</h4>
+                    <p>{{location}}</p>
+                </div>
+                <input type="hidden" id="address" value="{{ location }}">
+                <div id="map" style="width: 100%; height: 400px;"></div>
+            </div>
         </div>
 
         <!-- Right Side Content (Tournament Info and Join Button) -->
@@ -40,4 +49,36 @@
         </div>
     </div>
 </div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyALm6bzbiFAayZoBcbEOe4QJa3S-8jz74E&libraries=places,geometry"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+      loadMap();
+    });
+    function loadMap() {
+        var address = document.getElementById("address").value;
+        var geocoder = new google.maps.Geocoder();
+    
+        geocoder.geocode({ address: address }, function   
+     (results, status) {
+            if (status === "OK") {
+                var mapOptions = {
+                    center: results[0].geometry.location,   
+    
+                    zoom: 15
+                };
+    
+                var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+    
+                var marker = new google.maps.Marker({
+                    position: results[0].geometry.location,
+                    map: map   
+    
+                });
+            } else {
+                alert("Geocoding failed: " + status);
+            }
+        });
+    }
+</script>
 {% endblock %}
