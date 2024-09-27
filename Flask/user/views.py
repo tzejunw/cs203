@@ -68,7 +68,7 @@ def login():
         previous_page = request.referrer
         # If no referrer, go to the home page
         if previous_page is None:
-            return redirect(url_for('frontend.index'))
+            return redirect(url_for('index'))
         return redirect(previous_page)
 
     if request.method == 'POST' and form.validate_on_submit():
@@ -93,7 +93,7 @@ def login():
         if response.status_code == 200:
             token = response.text
             flash("Login Successfully!", 'success')
-            response = make_response(redirect(url_for('frontend.index')))
+            response = make_response(redirect(url_for('index')))
             response.set_cookie('jwt', token, max_age=60*60)
             return response
         else:

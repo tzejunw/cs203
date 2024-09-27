@@ -148,7 +148,6 @@ public class UserService {
     }
 
     // Retrieves the idToken on login (email & password) 
-    // @TODO: store it as users' cookies on spring boot (for internal testing) & frontend.
     public String login(Login login) throws ExecutionException, InterruptedException, JsonProcessingException, Exception {
         // Basic Validation
         if (login.getEmail() == null || !login.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
@@ -166,6 +165,8 @@ public class UserService {
         // Create the request entity
         HttpEntity<String> entity = new HttpEntity<>(requestPayload, headers);
         RestTemplate restTemplate = new RestTemplate();
+
+        // @TODO: disallow login if email is not verified
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
