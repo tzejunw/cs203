@@ -51,4 +51,4 @@ if __name__ == '__main__':
 if application.debug:
     application.config['BACKEND_URL'] = 'http://localhost:8080'
 else:
-    application.config['BACKEND_URL'] = 'b'
+    application.config['BACKEND_URL'] = 'b' # TODO: Change with cloud address

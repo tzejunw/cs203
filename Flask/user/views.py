@@ -16,6 +16,24 @@ def YmdToDmyConverter(date_str):
     birthday_str = datetime.strptime(date_str, '%Y-%m-%d').strftime('%d/%m/%Y')
     return birthday_str
 
+def handleNormalResponses(response):
+    try: # For responses in JSON format
+        response_text = response.json()
+    except ValueError: # For responses in pure text
+        response_text = response.text
+    return response_text
+
+def handleErrorResponses(response):
+    try: # For errors in JSON format
+        error = response.json()
+        flash(error["message"], 'danger')
+        if "debug" in error:
+            print(error["debug"])
+    except ValueError: # For errors in pure text
+        flash(response.text, 'danger')
+    print(f"Error Status code: {response.status_code}.")
+
+
 # /user/register
 @user.route('/register', methods=['GET', 'POST'])
 def register():
@@ -34,28 +52,20 @@ def register():
             "gender": form.gender.data,
             "password": form.password.data
         }
+        header={"Content-Type": "application/json"}
 
-        response = requests.post(
-            "http://localhost:8080/user/create", 
-            json=data,
-            headers={"Content-Type": "application/json"}
-        )
+        response = {}
+        try:
+            response = requests.post(current_app.config['BACKEND_URL'] + "/user/create", json=data, headers=header)
+        except Exception as e: 
+            flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
+            print(e)
 
-        response_text = ""
         if response.status_code == 200:
-            try:
-                response_text = response.json()
-                return redirect(url_for('user.login'))
-            except ValueError:
-                response_text = response.text
-                print("Received a non-JSON response from the server.")
-            flash(response_text, 'success')
+            flash(handleNormalResponses(response), 'success')
             return redirect(url_for('user.login'))
         else:
-            response_text = response.text
-            print(f"Failed to register user. Status code: {response.status_code}")
-        print(response_text)
-        flash(response_text, 'danger')
+            handleErrorResponses(response)
         
     return render_template('user/register.html', form=form)
 
@@ -81,14 +91,12 @@ def login():
             "Content-Type": "application/json"
         }
 
-        # create global variable for post URL to determine if it's cloud link or local links
         response = {}
         try:
-            response = requests.post("http://localhost:8080/user/login", json=data, headers=header)
-        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            response = requests.post(current_app.config['BACKEND_URL'] + "/user/login", json=data, headers=header)
+        except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
             print(e)
-            return render_template('user/login.html', form=form)
         
         if response.status_code == 200:
             token = response.text
@@ -97,9 +105,7 @@ def login():
             response.set_cookie('jwt', token, max_age=60*60)
             return response
         else:
-            flash(response.text, 'danger')
-            print(f"Failed to login. Status code: {response.status_code}")
-
+            handleErrorResponses(response)
         
     return render_template('user/login.html', form=form)
 
@@ -122,10 +128,6 @@ def login_otp():
 def update_account():
     jwt_cookie = request.cookies.get('jwt')
     form = UpdateAccountForm()
-
-    data = {
-        "username": ""
-    }
     
     if request.method == 'GET':
         # form.email.errors = ["User is not valid"]
@@ -140,6 +142,7 @@ def update_account():
         if response.status_code == 200:
             data = response.json()
             form.userName.data = data.get('userName')
+            form.userName(disabled=True)
             form.name.data = data.get('name')
             form.gender.data = data.get('gender')
             if data.get('birthday'):
@@ -172,8 +175,7 @@ def update_account():
         if response.status_code == 200:
             flash("Successfully updated profile!", 'success')
         else:
-            flash(response, 'danger')
-            print(response)
+            handleErrorResponses(response)
         
     return render_template('user/update_account.html', form=form)
 
@@ -195,6 +197,7 @@ def delete_user():
         response.set_cookie('jwt', '', expires=0)
         return response
     else:
+        handleErrorResponses(response)
         abort(response.status_code)
     
     
