@@ -14,6 +14,22 @@ def index():
 # SETUP FOR joining a tournament
 # @tournament.route('/tournament/join', methods=['POST'])
 # def join_tournament():
+
+#     get the jwt token
+#     jwt_cookie = request.cookies.get('jwt')
+#     # Check if JWT cookie exists (for authentication)
+#     if not jwt_cookie:
+#       return render_template('error.html', message="You must be logged in to join a tournament"), 401
+
+#     Make a GET request to retrieve the user's username using the JWT token
+    # response = requests.get(
+    #     current_app.config['BACKEND_URL'] + "/user/get", 
+    #     headers={
+    #         "Authorization": f"Bearer {jwt_cookie}",
+    #         "Content-Type": "application/json"
+    #     }
+    # )
+
 #     tournament_name = request.form.get('tournament_name')
 #     username = request.form.get('username')  # Assuming user_id is being sent with the form
 
