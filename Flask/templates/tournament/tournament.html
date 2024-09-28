@@ -43,12 +43,7 @@
                         <li><strong>Organizer:</strong> {{ tournament.adminList | join(', ') }}</li>
                         <li><strong>Current Players:</strong> {{ tournament.numberOfPlayers }}</li>
                     </ul>
-                    <form action="{{ url_for('tournament.join_tournament') }}" method="post">
-                        <input type="hidden" name="tournament_name" value="{{ tournament.tournamentName }}">
-                        <input type="hidden" name="user_id" value="{{ current_user.id }}"> 
-                        <button type="submit" class="btn tournament-join-btn w-100 mt-3">Join</button>
-                    </form>
-                    
+                    <a href="#" class="btn tournament-join-btn w-100 mt-3">Join</a>
                 </div>
             </div>
         </div>
