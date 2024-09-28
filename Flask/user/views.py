@@ -111,10 +111,28 @@ def login():
 
 @user.route('/logout')
 def logout():
-    response = make_response(redirect(url_for('user.login')))
-    response.set_cookie('jwt', '', expires=0)
-    flash("Logout successfully", 'success')
-    return response
+    jwt_cookie = request.cookies.get('jwt')
+    header= {
+        "Authorization": f"Bearer {jwt_cookie}",
+        "Content-Type": "application/json"
+    }
+
+    response = {}
+    try:
+        response = requests.post(current_app.config['BACKEND_URL'] + "/user/logout", headers=header)
+    except Exception as e: 
+        flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
+        print(e)
+    
+    if response.status_code == 200:
+        response = make_response(redirect(url_for('user.login')))
+        response.set_cookie('jwt', '', expires=0)
+        flash("Logout successfully", 'success')
+        return response
+    else:
+        handleErrorResponses(response)
+        return redirect(url_for('index'))
+    
 
 @user.route('/login_otp', methods=['GET', 'POST'])
 def login_otp():

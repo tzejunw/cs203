@@ -37,6 +37,13 @@ public class UserController {
         return ResponseEntity.ok().body(bearerToken);
     }
 
+    @PostMapping("/user/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException, Exception {
+        String uid = userService.getIdToken(request.getHeader("Authorization"));
+        userService.logoutUser(uid);
+        return ResponseEntity.ok("User signed out successfully.");
+    }
+
     // Uses the token ID from login > convert it to uid > get user data from firestore
     // To test in postman: Authorization > Under Auth Type: Bearer Token > Token (put the respective token ID from login)
     @GetMapping("/user/get") 

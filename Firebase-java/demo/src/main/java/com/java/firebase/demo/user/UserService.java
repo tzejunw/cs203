@@ -219,36 +219,8 @@ public class UserService {
         }
     }
 
-    // Token expires every hour, hence we need to refresh it when it expires.
-    public String refreshToken(String refreshToken) throws Exception {
-        // Prepare the request payload
-        String requestPayload = String.format("{\"grant_type\":\"refresh_token\",\"refresh_token\":\"%s\"}",
-                refreshToken);
-
-        // Create the headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create the request entity
-        HttpEntity<String> entity = new HttpEntity<>(requestPayload, headers);
-
-        // Make the HTTP request using RestTemplate
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(
-                "https://securetoken.googleapis.com/v1/token?key=" + FIREBASE_API_KEY,
-                HttpMethod.POST,
-                entity,
-                String.class);
-
-        // Parse the response
-        if (response.getStatusCode() == HttpStatus.OK) {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonResponse = mapper.readTree(response.getBody());
-            String newIdToken = jsonResponse.get("id_token").asText();
-            return newIdToken;
-        } else {
-            throw new Exception("Failed to refresh token");
-        }
+    public void logoutUser(String uid) throws FirebaseAuthException {
+        FirebaseAuth.getInstance().revokeRefreshTokens(uid);
     }
 
     public Boolean userExists(String uid) throws ExecutionException, InterruptedException {
