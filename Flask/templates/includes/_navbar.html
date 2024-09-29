@@ -199,19 +199,28 @@
                     </div>
                 </div>
             </li> -->
-
+            
             {% if jwt_present %}
+            <li class="current" style="float:right;">
+                <!-- <i class="fa fa-user"></i> -->
+                <a href="{{url_for('user.update_account')}}">todo:username</a>
+                <ul class="sub-current">
+                    <li>
+                        <a href="{{url_for('user.update_account')}}">Update Profile</a>
+                    </li>
+                    <li>
+                        <a href="{{url_for('user.update_password')}}">Update Password</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('user.logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </li>
+            {% else %}
             <li>
-                <a href="{{url_for('user.update_account')}}">Profile</a>
+                <a href="{{ url_for('user.login') }}">Login</a>
             </li>
             {% endif %}
-            <li>
-                {% if jwt_present %}
-                    <a href="{{ url_for('user.logout') }}">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('user.login') }}">Login</a>
-                {% endif %}
-            </li>
         </ul>
         <!-- End Menu-->
     </div>
@@ -374,7 +383,17 @@
             </ul>
         </li> -->
         <li>
-            <a href="{{url_for('user.update_account')}}">Profile</a>
+            <li>
+                <a href="{{url_for('user.update_account')}}">Profile</a>
+                <ul>
+                    <li>
+                        <a href="{{url_for('user.update_account')}}">Update Account</a>
+                    </li>
+                    <li>
+                        <a href="{{url_for('user.update_password')}}">Update Password</a>
+                    </li>
+                </ul>
+            </li>
         </li>
         <li>
             {% if jwt_present %}

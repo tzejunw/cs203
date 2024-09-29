@@ -68,12 +68,12 @@ public class UserController {
     }
 
     // Segregated for backend simplicity
-    @PutMapping("/user/updateEmail")
-    public ResponseEntity<String> updateEmail(@RequestBody UpdateEmail updateEmail, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
-        String uid = userService.getIdToken(request.getHeader("Authorization"));
-        userService.updateEmail(updateEmail.getEmail(), uid);
-        return ResponseEntity.ok().body("Email successfully updated!");
-    }
+    // @PutMapping("/user/updateEmail")
+    // public ResponseEntity<String> updateEmail(@RequestBody UpdateEmail updateEmail, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
+    //     String uid = userService.getIdToken(request.getHeader("Authorization"));
+    //     userService.updateEmail(updateEmail.getEmail(), uid);
+    //     return ResponseEntity.ok().body("Email successfully updated!");
+    // }
 
     // Segregated for frontend simplicity
     @PutMapping("/user/updatePassword")

@@ -44,5 +44,6 @@ class UpdateAccountForm(FlaskForm):
     register = SubmitField('Update')
 
 # Seperated because need to reconfirm OTP later
-class UpdateEmail(FlaskForm):
-    email = StringField('Email', validators=[DataRequired()])
+class UpdatePasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    register = SubmitField('Update')

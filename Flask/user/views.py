@@ -1,5 +1,5 @@
 from . import user
-from user.forms import LoginForm, RegisterForm, UpdateAccountForm, LoginOTPForm
+from user.forms import LoginForm, RegisterForm, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
 
 from flask import Flask, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app
 from flask_wtf import Form, FlaskForm 
@@ -124,14 +124,10 @@ def logout():
         flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
         print(e)
     
-    if response.status_code == 200:
-        response = make_response(redirect(url_for('user.login')))
-        response.set_cookie('jwt', '', expires=0)
-        flash("Logout successfully", 'success')
-        return response
-    else:
-        handleErrorResponses(response)
-        return redirect(url_for('index'))
+    response = make_response(redirect(url_for('user.login')))
+    response.set_cookie('jwt', '', expires=0)
+    flash("Logout successfully", 'success')
+    return response
     
 
 @user.route('/login_otp', methods=['GET', 'POST'])
@@ -196,6 +192,49 @@ def update_account():
             handleErrorResponses(response)
         
     return render_template('user/update_account.html', form=form)
+
+@user.route('/update_password', methods=['GET', 'POST'])
+def update_password():
+    jwt_cookie = request.cookies.get('jwt')
+    form = UpdatePasswordForm()
+
+    if request.method == 'GET':
+        # form.email.errors = ["User is not valid"]
+        response = requests.get(
+            current_app.config['BACKEND_URL'] + "/user/get", 
+            headers = {
+                "Authorization": f"Bearer {jwt_cookie}",
+                "Content-Type": "application/json"
+            }
+        )
+
+        if response.status_code != 200:
+            abort(response.status_code)
+    
+    if request.method == 'POST' and form.validate_on_submit():
+        data = {
+            "password": form.password.data,
+        }
+
+        response = requests.put(
+            "http://localhost:8080/user/updatePassword", 
+            json=data,
+            headers = {
+                "Authorization": f"Bearer {jwt_cookie}",
+                "Content-Type": "application/json"
+            }
+        )
+
+        if response.status_code == 200:
+            response = make_response(redirect(url_for('user.login')))
+            response.set_cookie('jwt', '', expires=0)
+            flash("Successfully updated password!", 'success')
+            flash("For security reasons, we have logged you out of all devices. Please log in again.", 'info')
+            return response
+        else:
+            handleErrorResponses(response)
+
+    return render_template('user/update_password.html', form=form)
 
 # DELETE method is somehow (device) restricted in HTML, so lets just use POST.
 @user.route('/delete_user', methods=['POST'])

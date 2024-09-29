@@ -262,14 +262,14 @@ public class UserService {
         throw new IllegalArgumentException("User not found.");
     }
 
-    public String updateEmail(String newEmail, String uid)
-            throws ExecutionException, InterruptedException, FirebaseAuthException {
-        if (!newEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$"))
-            throw new IllegalArgumentException("Invalid email format");
-        UpdateRequest request = new UserRecord.UpdateRequest(uid).setEmail(newEmail);
-        FirebaseAuth.getInstance().updateUser(request);
-        return "Successfully updated user";
-    }
+    // public String updateEmail(String newEmail, String uid)
+    //         throws ExecutionException, InterruptedException, FirebaseAuthException {
+    //     if (!newEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$"))
+    //         throw new IllegalArgumentException("Invalid email format");
+    //     UpdateRequest request = new UserRecord.UpdateRequest(uid).setEmail(newEmail);
+    //     FirebaseAuth.getInstance().updateUser(request);
+    //     return "Successfully updated user";
+    // }
 
     public String updatePassword(String newPassword, String uid)
             throws ExecutionException, InterruptedException, FirebaseAuthException {
