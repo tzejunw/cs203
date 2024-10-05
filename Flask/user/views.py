@@ -100,8 +100,22 @@ def login():
         
         if response.status_code == 200:
             token = response.text
-            flash("Login Successfully!", 'success')
             response = make_response(redirect(url_for('index')))
+
+            getUserDetails = requests.get(
+                current_app.config['BACKEND_URL'] + "/user/get", 
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json"
+                }
+            )
+
+            if getUserDetails.status_code == 200:
+                data = getUserDetails.json()
+                if data.get('userName'):
+                    response.set_cookie('userName', data.get('userName'), max_age=60*60)
+            
+            flash("Login Successfully!", 'success')
             response.set_cookie('jwt', token, max_age=60*60)
             return response
         else:
