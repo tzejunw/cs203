@@ -24,9 +24,11 @@ application.register_blueprint(tournament, url_prefix='/tournament')
 def inject_logout_status():
 
     jwt_cookie = request.cookies.get('jwt')
+    userName = "user"
     is_admin = False  # Default to False
 
     if jwt_cookie:  
+        userName = request.cookies.get('userName')
         try:
             # Decode without verifying the signature
             decoded_jwt = jwt.decode(jwt_cookie, options={"verify_signature": False})
@@ -35,16 +37,12 @@ def inject_logout_status():
             # Check if the 'admin' key is present and set is_admin accordingly
             is_admin = decoded_jwt.get('admin', False)
             print("Is admin:", is_admin)  # Print the admin status for debugging
-        except jwt.DecodeError:
+        except:
             print("Invalid token")  # Handle decoding error
 
-    return {'jwt_present': True, 'is_admin': is_admin}  
+        return {'jwt_present': True, 'is_admin': is_admin, 'userName': userName}  
 
-    # Check if a specific cookie exists
-    # if request.cookies.get('jwt'):  
-    #     return {'jwt_present': True}  
-    # return {'jwt_present': False}
-
+    return {'jwt_present': False, 'is_admin': False}
 
 @application.route('/')
 def index():
