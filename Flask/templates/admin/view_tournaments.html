@@ -3,74 +3,68 @@
 {% from "macros/form.html" import render_form %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Tournaments</title>
-    <!-- Bootstrap CSS -->
-   
-    <style>
-        .search-bar {
-            width: 300px;
-            margin-bottom: 20px;
-        }
-        .table th, .table td {
-            vertical-align: middle;
-        }
-        .table-action-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        .table-action-buttons a {
-            color: #fff;
-        }
-    </style>
-</head>
-<body>
-    <div class="container mt-5">
-        <!-- Search Bar -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <input type="text" class="form-control search-bar" placeholder="Enter a Tournament">
-            </div>
-        </div>
-        
-        <!-- Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Tournament Name</th>
-                        <th>Image</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Number of Players</th>
-                        <th>Location</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for tournament in tournaments %}
-                    <tr>
-                        <td>{{ tournament.tournamentName }}</td>
-                        <td><img src="{{ tournament.imageUrl }}" alt="Project Image" style="width: 50px; height: 50px;"></td>
-                        <td>{{ tournament.startDate }}</td>
-                        <td>{{ tournament.endDate }}</td>
-                        <td>{{ tournament.numberOfPlayers }}</td>
-                        <td>{{ tournament.location or 'N/A' }}</td>
-                        <td class="table-action-buttons">
-                            <a href="#" class="btn btn-warning btn-sm" title="Edit"><i class="fas fa-edit"></i></a>
-                            <a href="#" class="btn btn-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <input type="text" class="form-control search-bar" placeholder="Enter a Tournament" id="searchInput" onkeyup="filterTournaments()">
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Tournament Name</th>
+                    <th>Image</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Number of Players</th>
+                    <th>Location</th>
+                    <th>Registration Deadline</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tournamentTableBody">
+                {% for tournament in tournaments %}
+                <tr>
+                    <td>{{ tournament.tournamentName }}</td>
+                    <td><img src="{{ tournament.imageUrl }}" alt="Project Image" class="tournament-image"></td>
+                    <td>{{ tournament.startDate }}</td>
+                    <td>{{ tournament.endDate }}</td>
+                    <td>{{ tournament.numberOfPlayers }}</td>
+                    <td>{{ tournament.location or 'N/A' }}</td>
+                    <td>{{ tournament.registrationDeadline }}</td>
+                    <td class="table-action-buttons" >
+                        <a href="#" class="btn btn-warning btn-sm" title="Edit" >
+                            <img src="../../static/icons/pencil.svg"/>
+                        </a>
+                        <a href="#" class="btn btn-danger btn-sm" title="Delete">
+                            <img src="../../static/icons/trash.svg"/>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function filterTournaments() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let rows = document.querySelectorAll('#tournamentTableBody tr');
+
+        rows.forEach(row => {
+            let tournamentName = row.querySelector('td').textContent.toLowerCase();
+            if (tournamentName.includes(input)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+
 {% endblock %}

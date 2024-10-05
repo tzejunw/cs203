@@ -19,18 +19,17 @@
     <!-- Search Bar -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <input type="text" class="form-control" placeholder="Search for a Tournament">
+            <input type="text" class="form-control" placeholder="Search for a Tournament" id="searchInput" onkeyup="filterTournaments()">
         </div>
     </div>
 
     <div class="row">
         {% for tournament in tournaments %}
-        <div class="col-md-12 mb-4">
-            <div class="card tournaments-card">
+        <div class="col-md-12 mb-4 tournaments-card">
+            <div class="card">
                 <a href="{{ url_for('tournament.view_tournament', tournament_name=tournament.tournamentName) }}" class="stretched-link"></a>
                 <div class="row g-0">
                     <div class="col-md-4">
-                    
                         <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="img-fluid rounded-start" alt="{{ tournament.tournamentName }}">
                     </div>
                     <div class="col-md-8">
@@ -50,5 +49,22 @@
         </div>
         {% endfor %}
     </div>
+
+    <script>
+        function filterTournaments() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('.tournaments-card');
+
+            cards.forEach(card => {
+                let tournamentName = card.querySelector('.card-title').textContent.toLowerCase();
+                // Check if the tournament name includes the input text
+                if (tournamentName.includes(input)) {
+                    card.style.display = ''; // Show the card
+                } else {
+                    card.style.display = 'none'; // Hide the card
+                }
+            });
+        }
+    </script>
 </div>
 {% endblock %}

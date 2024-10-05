@@ -19223,3 +19223,22 @@ table.career tr td img {
   left: 0;
   z-index: 1;
 }
+
+/* ADMIN VIEW TOURNAMENTS CSS */
+
+.table-action-buttons a {
+}
+
+.table-action-buttons img {
+  width: 24px;              
+  height: 24px;             
+  border: none;             
+  margin: auto;
+}
+
+.tournament-image {
+  width: 100px;
+  height: 50px;
+}
+
+
