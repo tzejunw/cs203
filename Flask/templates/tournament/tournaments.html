@@ -23,7 +23,6 @@
         </div>
     </div>
 
-    <!-- Tournament List -->
     <div class="row">
         {% for tournament in tournaments %}
         <div class="col-md-12 mb-4">
@@ -31,7 +30,7 @@
                 <a href="{{ url_for('tournament.view_tournament', tournament_name=tournament.tournamentName) }}" class="stretched-link"></a>
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <!-- Use a placeholder image if imageUrl is not provided -->
+                    
                         <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="img-fluid rounded-start" alt="{{ tournament.tournamentName }}">
                     </div>
                     <div class="col-md-8">

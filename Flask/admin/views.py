@@ -9,26 +9,12 @@ from werkzeug.security import generate_password_hash
 import requests
 import jwt 
 
-@admin.route('/view_tournaments')
-def index():
-    
-    
-    jwt_cookie = request.cookies.get('jwt')
-    # Log the jwt_cookie to the console
-    print("JWT Cookie:", jwt_cookie)  # This will print the cookie value in the console
+@admin.route('/admin_view_tournaments')
+def admin_view_tournaments():
 
-    if jwt_cookie:
-        try:
-            # Decode without verifying the signature
-            decoded_jwt = jwt.decode(jwt_cookie, options={"verify_signature": False})
-            print("Decoded JWT:", decoded_jwt)
-            
-            # Assuming the role is stored under a key called 'role'
-            is_admin = decoded_jwt.get('admin')
-            print("Is admin:", is_admin)
+    api_url = 'http://localhost:8080/tournament/get/all'
+    response = requests.get(api_url)  
+    tournaments = response.json()  
 
-        except jwt.DecodeError:
-            print("Error decoding token.")
-
-    return render_template('admin/view_tournaments.html')
+    return render_template('admin/view_tournaments.html', tournaments=tournaments)
 

@@ -1,8 +1,8 @@
-{% extends "layouts/base.html" %} 
-{% block title %}Tournaments{% endblock %} 
-{% from "macros/form.html" import render_form %} 
+{% extends "layouts/base.html" %}
+{% block title %}Tournaments{% endblock %}
+{% from "macros/form.html" import render_form %}
 
-{% block content %} 
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,52 +43,34 @@
             <table class="table table-bordered">
                 <thead class="thead-light">
                     <tr>
-                        <th>Project</th>
+                        <th>Tournament Name</th>
                         <th>Image</th>
-                        <th>Building Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Number of Players</th>
                         <th>Location</th>
-                        <th>Developer</th>
-                        <th>Awards</th>
-                        <th>Completion</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example Row -->
+                    {% for tournament in tournaments %}
                     <tr>
-                        <td>The Asana</td>
-                        <td><img src="path_to_image" alt="Project Image" style="width: 50px; height: 50px;"></td>
-                        <td>Private Condominium<br>(720 Units)</td>
-                        <td>Bedok South<br>Avenue 3, Singapore</td>
-                        <td>CEL Development</td>
-                        <td>BCA BIM 2017<br>Goldplus Award</td>
-                        <td>2020</td>
+                        <td>{{ tournament.tournamentName }}</td>
+                        <td><img src="{{ tournament.imageUrl }}" alt="Project Image" style="width: 50px; height: 50px;"></td>
+                        <td>{{ tournament.startDate }}</td>
+                        <td>{{ tournament.endDate }}</td>
+                        <td>{{ tournament.numberOfPlayers }}</td>
+                        <td>{{ tournament.location or 'N/A' }}</td>
                         <td class="table-action-buttons">
                             <a href="#" class="btn btn-warning btn-sm" title="Edit"><i class="fas fa-edit"></i></a>
                             <a href="#" class="btn btn-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></a>
                         </td>
                     </tr>
-
-                    <!-- Duplicate as needed for more rows -->
-                    <tr>
-                        <td>The Asana</td>
-                        <td><img src="path_to_image" alt="Project Image" style="width: 50px; height: 50px;"></td>
-                        <td>Private Condominium<br>(720 Units)</td>
-                        <td>Bedok South<br>Avenue 3, Singapore</td>
-                        <td>CEL Development</td>
-                        <td>BCA BIM 2017<br>Goldplus Award</td>
-                        <td>2020</td>
-                        <td class="table-action-buttons">
-                            <a href="#" class="btn btn-warning btn-sm" title="Edit"><i class="fas fa-edit"></i></a>
-                            <a href="#" class="btn btn-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></a>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </body>
 </html>
-
-
 {% endblock %}
