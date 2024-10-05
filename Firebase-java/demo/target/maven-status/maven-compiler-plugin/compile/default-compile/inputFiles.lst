@@ -9,6 +9,7 @@ C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\fir
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\TournamentService.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\EmailConfig.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\EmailService.java
+C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Exceptions\RestExceptionHandler.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Exceptions\TooManyRequestsException.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Login.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Register.java

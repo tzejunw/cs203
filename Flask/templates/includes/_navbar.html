@@ -88,7 +88,16 @@
                 <a href="{{url_for('tournament.view_rankings')}}">Rankings</a>
             </li>
 
-            <li class="current">
+            {% if is_admin %}
+                <li>
+                    <a href="{{ url_for('admin.index') }}">Admin Tournaments</a>
+                </li>
+            {% endif %}
+          
+
+      
+
+            <!-- <li class="current">
                 <a href="">Hidden Pages</a>
                 <ul class="sub-current">
                     <li>
@@ -98,7 +107,7 @@
                         <a href="single-team.html">Single Team</a>
                     </li>
                 </ul>
-            </li>
+            </li> -->
 
             <!-- <li class="current">
                 <a href="players.html">Players</a>

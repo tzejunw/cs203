@@ -8,6 +8,8 @@ from wtforms import StringField, PasswordField ,SubmitField
 from wtforms.validators import InputRequired
 from werkzeug.security import generate_password_hash 
 
+import jwt 
+
 # instance of flask application
 application = Flask(__name__)
 # application.config['SESSION_COOKIE_NAME'] = None
@@ -17,13 +19,32 @@ application.register_blueprint(user, url_prefix='/user')
 application.register_blueprint(admin, url_prefix='/admin') 
 application.register_blueprint(tournament, url_prefix='/tournament') 
 
-# On each route, check if jwt cookie is still present. So can dynamically display login/logout on navbar
+# this method is executed for every page that is loaded
 @application.context_processor
 def inject_logout_status():
+
+    jwt_cookie = request.cookies.get('jwt')
+    is_admin = False  # Default to False
+
+    if jwt_cookie:  
+        try:
+            # Decode without verifying the signature
+            decoded_jwt = jwt.decode(jwt_cookie, options={"verify_signature": False})
+            print("Decoded JWT:", decoded_jwt)  # Print the decoded JWT for debugging
+            
+            # Check if the 'admin' key is present and set is_admin accordingly
+            is_admin = decoded_jwt.get('admin', False)
+            print("Is admin:", is_admin)  # Print the admin status for debugging
+        except jwt.DecodeError:
+            print("Invalid token")  # Handle decoding error
+
+    return {'jwt_present': True, 'is_admin': is_admin}  
+
     # Check if a specific cookie exists
-    if request.cookies.get('jwt'):  
-        return {'jwt_present': True}  
-    return {'jwt_present': False}
+    # if request.cookies.get('jwt'):  
+    #     return {'jwt_present': True}  
+    # return {'jwt_present': False}
+
 
 @application.route('/')
 def index():
