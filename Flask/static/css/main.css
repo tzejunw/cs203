@@ -19241,4 +19241,7 @@ table.career tr td img {
   height: 50px;
 }
 
-
+.admin-create-tournament-btn {
+  display: flex;
+  justify-content: flex-end;
+}
