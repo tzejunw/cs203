@@ -60,6 +60,7 @@ def register():
         except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
             print(e)
+            return render_template('user/register.html', form=form)
 
         if response.status_code == 200:
             flash(handleNormalResponses(response), 'success')
@@ -96,7 +97,9 @@ def login():
             response = requests.post(current_app.config['BACKEND_URL'] + "/user/login", json=data, headers=header)
         except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
+            flash("Ensure Spring Boot server is running, and has no problems on it.", "info")
             print(e)
+            return render_template('user/login.html', form=form)
         
         if response.status_code == 200:
             token = response.text
@@ -135,7 +138,6 @@ def logout():
     try:
         response = requests.post(current_app.config['BACKEND_URL'] + "/user/logout", headers=header)
     except Exception as e: 
-        flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
         print(e)
     
     response = make_response(redirect(url_for('user.login')))
