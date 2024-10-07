@@ -36,6 +36,8 @@ public class TournamentService {
         
         // Wait for the tournament document to be created
         collectionsApiFuture.get();
+
+        // call the image functions here?
         
         // Create the "rounds" subcollection under the tournament document, with the first round
         DocumentReference round1DocRef = dbFirestore.collection("tournament")

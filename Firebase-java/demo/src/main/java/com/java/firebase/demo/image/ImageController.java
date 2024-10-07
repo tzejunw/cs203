@@ -1,10 +1,13 @@
 package com.java.firebase.demo.image;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/image")
@@ -19,7 +22,7 @@ public class ImageController {
         this.firestoreService = firestoreService;
     }
 
-    // Endpoint to upload an image and save the URL to Firestore
+    // Endpoint to upload an image to Firebase Storage and save the URL to Firestore DOCUMENT
     @PostMapping("/upload")
     public String uploadImage(@RequestParam("file") MultipartFile file,
                               @RequestParam("documentId") String documentId) throws IOException {
