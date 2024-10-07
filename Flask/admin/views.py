@@ -65,3 +65,28 @@ def create_tournament():
             flash("Error creating tournament: " + response.text, "danger")
 
     return render_template('admin/create_tournament.html', form=form)
+
+@admin.route('/delete_tournament/<string:tournament_name>', methods=['POST'])
+def delete_tournament(tournament_name):
+
+    jwt_cookie = request.cookies.get('jwt')
+
+    api_url = f'http://localhost:8080/tournament/delete?tournamentName={tournament_name}'
+
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',
+        'Content-Type': 'application/json'
+    }
+    
+    response = requests.delete(api_url, headers=headers)
+
+    print("Response Status Code:", response.status_code)
+    print("Response Content:", response.text)
+
+    # Handle response
+    if response.status_code == 200 or response.status_code == 204:
+        flash(f"{tournament_name} deleted successfully!", "success")
+        return redirect(url_for('admin.view_tournaments'))
+    else:
+        flash("Error deleting tournament: " + response.text, "danger")
+        return redirect(url_for('admin.view_tournaments'))
