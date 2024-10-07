@@ -28,7 +28,8 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token);
+                boolean checkRevoked = true;
+                FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token, checkRevoked);
 
                 // Check for the "admin" role in custom claims
                 // Extract the custom claims and check if the user has the "admin" role

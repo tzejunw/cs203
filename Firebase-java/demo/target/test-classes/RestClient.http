@@ -50,3 +50,7 @@ Authorization: Bearer jwt_token_from_login
 DELETE http://localhost:8080/user/delete
 Content-Type: application/json,
 Authorization: Bearer jwt_token_from_login
+
+### GET all tournaments
+GET http://localhost:8080/tournament/get/all
+Content-Type: application/json
