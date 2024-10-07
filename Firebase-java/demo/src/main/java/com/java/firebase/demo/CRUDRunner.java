@@ -37,6 +37,7 @@ public class CRUDRunner {
 
         FirebaseOptions options = new FirebaseOptions.Builder()
             .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+            .setStorageBucket("cs203-a263b.appspot.com")
             .build();
 
         FirebaseApp.initializeApp(options);
@@ -44,28 +45,3 @@ public class CRUDRunner {
         SpringApplication.run(CRUDRunner.class, args);
     }
 }
-
-
-
-
-// @SpringBootApplication
-// public class CRUDRunner {
-
-// 	public static void main(String[] args) throws IOException {
-// 		ClassLoader classLoader = CRUDRunner.class.getClassLoader(); 
-
-// 		File file = new File(Objects.requireNonNull(classLoader.getResource("serviceAccountKey.json")).getFile());
-// 		FileInputStream serviceAccount = new FileInputStream(file.getAbsolutePath());
-
-				
-// 		FirebaseOptions options = new FirebaseOptions.Builder()
-// 			.setCredentials(GoogleCredentials.fromStream(serviceAccount))
-// 			.build();
-				
-// 		FirebaseApp.initializeApp(options);
-				
-
-// 		SpringApplication.run(CRUDRunner.class, args);
-// 	}
-
-// }

@@ -41,6 +41,11 @@ public class SecurityConfig {
                     // Tournament Route
                     .requestMatchers("/tournament/get/all", "/tournament/get").permitAll()
                     .requestMatchers("/tournament/**").hasRole("ADMIN")
+
+                    // Image Route
+                    .requestMatchers(HttpMethod.POST, "/api/image/upload").authenticated()
+                    .requestMatchers("/api/image/**").hasRole("ADMIN") // Only admins can access other image-related routes
+
             );
         return http.build();
     }
