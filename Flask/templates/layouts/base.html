@@ -26,6 +26,14 @@
 
 <body>
     <div id="layout">
+        {% if registration %}
+        <!-- Ensure user record exists in Firestore when logged in -->
+        <script>
+            if (window.location.pathname != "{{url_for('user.register_step2')}}"){
+                window.location.href = "{{url_for('user.register_step2')}}";
+            }
+        </script>
+        {% endif %}
         <!-- Alert Container -->
         <div class="alert-container">
             {% with messages = get_flashed_messages(with_categories=true) %}

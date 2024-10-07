@@ -1,0 +1,24 @@
+{% extends "layouts/base.html" %}
+{% block title %}Register Account{% endblock %}
+{% from "macros/form.html" import render_form %}
+
+{% block content %}
+<section class="vh-100 bg-image"
+  style="background-image: url('https://media.wizards.com/images/magic/daily/wallpapers/Gruul_Wallpaper_2560x1440.jpg'); background-size: cover;  padding:20px">
+  <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-9 col-lg-7 col-xl-4">
+          <div class="card" style="border-radius: 15px;">
+            <div class="card-body p-5">
+              <h3 class="text-uppercase text-center mb-5">Create an account</h3>
+              {{ render_form(url_for('user.register_step2'), form) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Section Area -  Content Central -->
+{% endblock %}

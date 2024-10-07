@@ -31,6 +31,13 @@ public class UserController {
         return ResponseEntity.ok().body("Welcome " + register.getName() + ", verify your account to continue.");
     }
 
+    @PostMapping("/user/googleSignUp") // expects a User object in body raw JSON
+    public ResponseEntity<String> createGoogleUser(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
+        String uid = userService.getIdToken(request.getHeader("Authorization"));
+        userService.createFirestoreRecord(user, uid);
+        return ResponseEntity.ok().body("Success");
+    }
+
     @PostMapping("/user/login") // expects a User object in body raw JSON
     public ResponseEntity<String> login(@RequestBody Login login) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
         String bearerToken = userService.login(login);

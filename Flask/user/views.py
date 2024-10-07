@@ -1,5 +1,5 @@
 from . import user
-from user.forms import LoginForm, RegisterForm, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
+from user.forms import LoginForm, RegisterForm, RegisterStep2Form, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
 
 from flask import Flask, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app
 from flask_wtf import Form, FlaskForm 
@@ -28,7 +28,7 @@ def handleErrorResponses(response):
         error = response.json()
         flash(error["message"], 'danger')
         if "debug" in error:
-            print(error["debug"])
+            print("Debug - " + error["debug"])
     except ValueError: # For errors in pure text
         flash(response.text, 'danger')
     print(f"Error Status code: {response.status_code}.")
@@ -38,10 +38,7 @@ def handleErrorResponses(response):
 @user.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm();
-    if request.method == 'POST' and form.validate_on_submit():
-        # form.email.errors = ["Email is not valid"]
-        # form.name.errors = ["Name is not valid"]
-        
+    if request.method == 'POST' and form.validate_on_submit():      
         birthday_str = YmdToDmyConverter(form.birthday.data.strftime('%Y-%m-%d'))
         
         data = {
@@ -69,6 +66,47 @@ def register():
             handleErrorResponses(response)
         
     return render_template('user/register.html', form=form)
+
+@user.route('/register/step2', methods=['GET', 'POST'])
+def register_step2():
+    jwt_cookie = request.cookies.get('jwt')
+    form = RegisterStep2Form()
+
+    if request.method == 'GET':
+        form.name.data = request.cookies.get('name')
+    
+    if request.method == 'POST' and form.validate_on_submit():      
+        birthday_str = YmdToDmyConverter(form.birthday.data.strftime('%Y-%m-%d'))
+        
+        data = {
+            "userName": form.userName.data,
+            "name": form.name.data,
+            "birthday": birthday_str,
+            "gender": form.gender.data
+        }
+        header= {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {jwt_cookie}"
+        }
+
+        response = {}
+        try:
+            response = requests.post(current_app.config['BACKEND_URL'] + "/user/googleSignUp", json=data, headers=header)
+        except Exception as e: 
+            flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
+            print(e)
+            return render_template('user/registerstep2.html', form=form)
+
+        if response.status_code == 200:
+            flash(handleNormalResponses(response), 'success')
+            response = make_response(redirect(url_for('index')))
+            response.set_cookie('userName', form.userName.data, max_age=60*60)
+            response.set_cookie('name', '', expires=0)
+            response.set_cookie('registration', '', expires=0)
+            return response
+        else:
+            handleErrorResponses(response)
+    return render_template('user/registerstep2.html', form=form)
 
 # /user/login
 @user.route('/login', methods=['GET', 'POST'])
@@ -126,6 +164,40 @@ def login():
         
     return render_template('user/login.html', form=form)
 
+@user.route('/google_login', methods=['POST'])
+def google_login():
+    data = request.get_json()
+    token = data.get('token')
+    name = data.get('name')
+
+    if token is None:
+        return jsonify({'status': 'error', 'message': 'Token is missing'}), 400
+
+    getUserDetails = requests.get(
+        current_app.config['BACKEND_URL'] + "/user/get", 
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+    )
+
+    if getUserDetails.status_code == 200:
+        user_data = getUserDetails.json()
+        print(user_data)
+        response = jsonify({'status': 'success', 'message': 'Login Successfully!'})
+        response.set_cookie('jwt', token, max_age=60*60)
+        response.set_cookie('userName', user_data.get('userName'), max_age=60*60)
+    else:
+        print("no user record found")
+        response = jsonify({'status': 'error', 'message': 'No user record found'})
+        response.set_cookie('jwt', token, max_age=60*60)
+        response.set_cookie('name', name, max_age=60*60)
+        response.set_cookie('registration', "not_done", max_age=60*60)
+
+    return response
+
+    
+    
 @user.route('/logout')
 def logout():
     jwt_cookie = request.cookies.get('jwt')
@@ -142,6 +214,8 @@ def logout():
     
     response = make_response(redirect(url_for('user.login')))
     response.set_cookie('jwt', '', expires=0)
+    response.set_cookie('name', '', expires=0)
+    response.set_cookie('registration', '', expires=0)
     flash("Logout successfully", 'success')
     return response
     
