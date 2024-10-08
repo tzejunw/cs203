@@ -197,7 +197,7 @@
 {% endmacro %}
 
 {% macro render_action(field) %}
-    {% if field.id == "login" -%}
+    {% if (field.id == "login" or field.id == "register") -%}
         {{ field(class_="btn login-btn-gradient") }}
     {% else -%}
         {{ field(class_="btn btn-primary", style="float: right;") }}

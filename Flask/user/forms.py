@@ -33,12 +33,17 @@ class RegisterForm(FlaskForm):
     # profile_pic = FileField('Profile Picture')
     register = SubmitField('Register')
 
+class RegisterStep1Form(FlaskForm):
+    email = StringField('Email', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    register = SubmitField('Register')
+
 class RegisterStep2Form(FlaskForm):
     userName = StringField('Username', validators=[DataRequired()])
     name = StringField('Full Name', validators=[DataRequired()])
     gender = RadioField('Gender', choices=[('Male', 'Male'), ('Female', 'Female')], validators=[DataRequired()])
     birthday = DateField('Birthday', format='%Y-%m-%d') 
-    register = SubmitField('Register')
+    register = SubmitField('Submit')
 
 # Update account form is the same as register form, 
 # just that birthdate is different & password and profile_pic is not mandatory.

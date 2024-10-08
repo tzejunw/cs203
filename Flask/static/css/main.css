@@ -19351,4 +19351,19 @@ table.career tr td img {
   opacity: 8%;
 }
 
+.line {
+  border-top: 1px solid grey;
+  width: 39%; /* Adjust width as needed */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.text {
+  display: inline-block;
+  margin: 0 20px; /* Adjust spacing around text as needed */
+}
 /* end of google sign in btn */
+
+/* Progress bar */
+
+/* End of progress bar */

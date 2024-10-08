@@ -1,5 +1,5 @@
 from . import user
-from user.forms import LoginForm, RegisterForm, RegisterStep2Form, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
+from user.forms import LoginForm, RegisterForm, RegisterStep1Form, RegisterStep2Form, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
 
 from flask import Flask, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app
 from flask_wtf import Form, FlaskForm 
@@ -33,20 +33,12 @@ def handleErrorResponses(response):
         flash(response.text, 'danger')
     print(f"Error Status code: {response.status_code}.")
 
-
-# /user/register
 @user.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegisterForm();
+    form = RegisterStep1Form();
     if request.method == 'POST' and form.validate_on_submit():      
-        birthday_str = YmdToDmyConverter(form.birthday.data.strftime('%Y-%m-%d'))
-        
         data = {
-            "userName": form.userName.data,
-            "name": form.name.data,
-            "birthday": birthday_str,
             "email": form.email.data,
-            "gender": form.gender.data,
             "password": form.password.data
         }
         header={"Content-Type": "application/json"}
@@ -57,15 +49,22 @@ def register():
         except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
             print(e)
-            return render_template('user/register.html', form=form)
+            return render_template('user/register_step1.html', form=form)
 
         if response.status_code == 200:
-            flash(handleNormalResponses(response), 'success')
-            return redirect(url_for('user.login'))
+            flash("Account created. Please verify your email to proceed.", 'success')
+            return redirect(url_for('user.verify_email', email=form.email.data, **request.args))
         else:
             handleErrorResponses(response)
         
-    return render_template('user/register.html', form=form)
+    return render_template('user/register_step1.html', form=form)
+
+@user.route('/verify_email')
+def verify_email():
+    if request.args.get('email'):
+        return render_template('user/register_confirm_email.html', email = request.args.get('email'))
+    
+    return redirect(url_for('index'))
 
 @user.route('/register/step2', methods=['GET', 'POST'])
 def register_step2():
@@ -91,11 +90,11 @@ def register_step2():
 
         response = {}
         try:
-            response = requests.post(current_app.config['BACKEND_URL'] + "/user/googleSignUp", json=data, headers=header)
+            response = requests.post(current_app.config['BACKEND_URL'] + "/user/createDetails", json=data, headers=header)
         except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
             print(e)
-            return render_template('user/registerstep2.html', form=form)
+            return render_template('user/register_step2.html', form=form)
 
         if response.status_code == 200:
             flash(handleNormalResponses(response), 'success')
@@ -106,7 +105,7 @@ def register_step2():
             return response
         else:
             handleErrorResponses(response)
-    return render_template('user/registerstep2.html', form=form)
+    return render_template('user/register_step2.html', form=form)
 
 # /user/login
 @user.route('/login', methods=['GET', 'POST'])
@@ -141,7 +140,6 @@ def login():
         
         if response.status_code == 200:
             token = response.text
-            response = make_response(redirect(url_for('index')))
 
             getUserDetails = requests.get(
                 current_app.config['BACKEND_URL'] + "/user/get", 
@@ -152,9 +150,15 @@ def login():
             )
 
             if getUserDetails.status_code == 200:
+                response = make_response(redirect(url_for('index')))
                 data = getUserDetails.json()
                 if data.get('userName'):
                     response.set_cookie('userName', data.get('userName'), max_age=60*60)
+            else:
+                print("no user record found")
+                response = make_response(redirect(url_for('user.register_step2')))
+                response.set_cookie('jwt', token, max_age=60*60)
+                response.set_cookie('registration', "not_done", max_age=60*60)
             
             flash("Login Successfully!", 'success')
             response.set_cookie('jwt', token, max_age=60*60)

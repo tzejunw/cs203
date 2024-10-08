@@ -44,60 +44,80 @@ public class UserService {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         dbFirestore.collection("user").document(uid).set(user);
     }
+
+    public String createAccountInAuth(String email, String password) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        // Create an account in Firebase Authentication
+        // Returns Unique ID (uid)
+        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                .setEmail(email)
+                .setPassword(password)
+                .setEmailVerified(false);
+        UserRecord userAuthRecord = FirebaseAuth.getInstance().createUser(request);
+        return userAuthRecord.getUid();
+    }
+
+    public void setAdminAuthority(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("admin", true);
+        // claims.put("player", true);
+        FirebaseAuth.getInstance().setCustomUserClaims(uid, claims);
+    }
+
+    public String createUser(Register register) throws ExecutionException, InterruptedException, FirebaseAuthException{
+        if (!isPasswordValid(register.getPassword()))
+            throw new IllegalArgumentException("Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
+        
+        String uid = createAccountInAuth(register.getEmail(), register.getPassword());
+        
+        // Send email verification to the user
+        sendVerificationEmail(uid);
+
+        // setAdminAuthority(uid); // Uncomment to make the next registration an admin user.
+        return uid;
+    }
+
+
     // This takes one of the specified json fields, here .getEmail(), and sets it as
     // the documentId (document identifier) if you want firebase to generate
     // documentId for us, leave .document() blank
-    public String createUser(Register register)
-            throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
-        // Step 1: Validate if registration details fits our business requirements
-        // Email validations is conducted by Firebase Auth
-        if (!(register.getGender().equals("Male") || register.getGender().equals("Female")))
-            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
-        if (!isPasswordValid(register.getPassword()))
-            throw new IllegalArgumentException(
-                    "Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
-        if (!isBirthdayValid(register.getBirthday()))
-            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
-        if (!isUsernameValid(register.getUserName()))
-            throw new IllegalArgumentException("Username should be between 3-32 characters long");
-        if (!isUsernameUnique(register.getUserName()))
-            throw new IllegalArgumentException("Username exists, please choose another username");
+    // public String OLDcreateUser(Register register)
+    //         throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
+    //     // Step 1: Validate if registration details fits our business requirements
+    //     // Email validations is conducted by Firebase Auth
+        
 
-        // Step 2: Create an account in Firebase Authentication
-        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setEmail(register.getEmail())
-                .setPassword(register.getPassword())
-                .setEmailVerified(false);
-        UserRecord userAuthRecord = FirebaseAuth.getInstance().createUser(request);
+        
 
-        System.out.println("testing");
+    //     // Step 3: Set player status
+        
 
-        // Send email verification to the user
-        sendVerificationEmail(userAuthRecord.getUid());
+        
 
-        // Step 3: Set player status
-        Map<String, Object> claims = new HashMap<>();
-        // claims.put("admin", true);
-        claims.put("player", true);
+    //     // Step 4: Store user data in Firestore once the user record is created
+    //     // Need to recreate user class to exclude storing password into firestore ><
+    //     // Player status is set here too, to avoid people from manipulating the data to
+    //     // become an admin.
+    //     User user = new User();
+    //     user.setUserName(register.getUserName().toLowerCase());
+    //     user.setName(register.getName());
+    //     user.setBirthday(register.getBirthday());
+    //     user.setGender(register.getGender());
 
-        FirebaseAuth.getInstance().setCustomUserClaims(userAuthRecord.getUid(), claims);
-
-        // Step 4: Store user data in Firestore once the user record is created
-        // Need to recreate user class to exclude storing password into firestore ><
-        // Player status is set here too, to avoid people from manipulating the data to
-        // become an admin.
-        User user = new User();
-        user.setUserName(register.getUserName().toLowerCase());
-        user.setName(register.getName());
-        user.setBirthday(register.getBirthday());
-        user.setGender(register.getGender());
-
-        createRecordInFirestore(user, userAuthRecord.getUid());
-        return "Successfully added user.";
-    }
+    //     createRecordInFirestore(user, userAuthRecord.getUid());
+    //     return "Successfully added user.";
+    // }
 
     public void createFirestoreRecord(User user, String uid)
             throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
+        if (!(user.getGender().equals("Male") || user.getGender().equals("Female")))
+            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
+        if (!isBirthdayValid(user.getBirthday()))
+            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
+        if (!isUsernameValid(user.getUserName()))
+            throw new IllegalArgumentException("Username should be between 3-32 characters long");
+        if (!isUsernameUnique(user.getUserName()))
+            throw new IllegalArgumentException("Username exists, please choose another username");
+        
         createRecordInFirestore(user, uid);
     }
 
@@ -209,7 +229,7 @@ public class UserService {
             // Handle HTTP client errors (4xx)
             if (e.getMessage().contains("too-many-requests")) {
                 throw new TooManyRequestsException(
-                        "Too many requests detected. Please try again later, or reset your password to continue.");
+                        "Too many requests detected. Please try again later.");
             }
             if (e.getStatusCode() == HttpStatus.FORBIDDEN && e.getMessage().contains("blocked")) {
                 throw new AccessDeniedException(e.getMessage());
