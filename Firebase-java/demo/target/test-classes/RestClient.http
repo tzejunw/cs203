@@ -11,11 +11,46 @@ Content-Type: application/json
     "password": "1@Secured"
 }
 
-### Login
+### Admin Login - Please avoid changing the pw
 POST http://localhost:8080/user/login
 Content-Type: application/json
 
 {
-    "email": "gary1@gmail.com",
+    "email": "admin@gmail.com",
     "password": "1@Secured"
 }
+
+### User Login - Please avoid changing the pw
+POST http://localhost:8080/user/login
+Content-Type: application/json
+
+{
+    "email": "user@gmail.com",
+    "password": "1@Secured"
+}
+
+### User Get
+GET http://localhost:8080/user/get
+Content-Type: application/json,
+Authorization: Bearer jwt_token_from_login
+
+### User Update
+PUT http://localhost:8080/user/update
+Content-Type: application/json,
+Authorization: Bearer jwt_token_from_login
+{
+    "userName": "onglai",
+    "name": "ong lai",
+    "birthday": "10/10/2010",
+    "email": "onglai@gmail.com",
+    "gender": "male"
+}
+
+### User Update
+DELETE http://localhost:8080/user/delete
+Content-Type: application/json,
+Authorization: Bearer jwt_token_from_login
+
+### GET all tournaments
+GET http://localhost:8080/tournament/get/all
+Content-Type: application/json

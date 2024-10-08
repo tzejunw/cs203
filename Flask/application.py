@@ -1,4 +1,3 @@
-from frontend import frontend
 from user import user
 from admin import admin
 from tournament import tournament
@@ -8,43 +7,46 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField ,SubmitField 
 from wtforms.validators import InputRequired
 from werkzeug.security import generate_password_hash 
-import requests
-import json
+
+import jwt 
 
 # instance of flask application
 application = Flask(__name__)
-application.register_blueprint(frontend) 
+# application.config['SESSION_COOKIE_NAME'] = None
+application.config['SECRET_KEY'] = 'secretkey'
+
 application.register_blueprint(user, url_prefix='/user') 
 application.register_blueprint(admin, url_prefix='/admin') 
 application.register_blueprint(tournament, url_prefix='/tournament') 
-application.config['SECRET_KEY'] = 'secretkey'
 
+# this method is executed for every page that is loaded
+@application.context_processor
+def inject_logout_status():
 
-@application.route("/fetch_api")
-def api_fetch_example():
-    url = "https://api.openweathermap.org/data/2.5/weather?lat=1.295895&lon=103.8474269&appid=0e0816d27fe6cc9cba94aa06cf871e94"
-    res = requests.get(url)
-    print(res.json())
-    return render_template('fetch_api.html', data=str(res.json()))
+    jwt_cookie = request.cookies.get('jwt')
+    userName = "user"
+    is_admin = False  # Default to False
 
-class MyForm(FlaskForm): 
-    user_input = StringField('Name', validators=[InputRequired()]) 
+    if jwt_cookie:  
+        userName = request.cookies.get('userName')
+        try:
+            # Decode without verifying the signature
+            decoded_jwt = jwt.decode(jwt_cookie, options={"verify_signature": False})
+            print("Decoded JWT:", decoded_jwt)  # Print the decoded JWT for debugging
+            
+            # Check if the 'admin' key is present and set is_admin accordingly
+            is_admin = decoded_jwt.get('admin', False)
+            print("Is admin:", is_admin)  # Print the admin status for debugging
+        except:
+            print("Invalid token")  # Handle decoding error
 
-@application.route("/post_api", methods=['GET', 'POST'])
-def api_post_example():
-    form = MyForm()
-    data = "Type something first and submit."
-    if request.method == 'POST' and form.validate_on_submit():
-        print(form.user_input.data)
-        response = requests.post("https://httpbin.org/post", 
-            data={"key": form.user_input.data},
-            headers={"Content-Type": "application/json"},
-        )
-        # response_dict = json.loads(response.json())
-        # print(response_dict)
-        data = str(response.json())
-        # return redirect(url_for('post_output'))
-    return render_template('post_api.html', form=form, data=data)
+        return {'jwt_present': True, 'is_admin': is_admin, 'userName': userName}  
+
+    return {'jwt_present': False, 'is_admin': False}
+
+@application.route('/')
+def index():
+    return render_template('index.html')
 
 @application.errorhandler(400)
 def bad_request(e):
@@ -64,3 +66,8 @@ def page_not_found(e):
 
 if __name__ == '__main__':  
    application.run(debug=True) # remove debug=True for production
+
+if application.debug:
+    application.config['BACKEND_URL'] = 'http://localhost:8080'
+else:
+    application.config['BACKEND_URL'] = 'b' # TODO: Change with cloud address

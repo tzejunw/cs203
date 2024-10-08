@@ -1,13 +1,18 @@
 import java.util.ArrayList;
+import java.util.*;
 
 public class Tournament {
 
-    private List<Round> tournamentRounds;
-    private List<TournamentPlayer> participatingPlayers;
+    private ArrayList<Round> tournamentRounds;
+    private ArrayList<TournamentPlayer> participatingPlayers;
+    private int curRoundNumber;
+    private int totalRounds;
 
-    public Tournament( List<TournamentPlayer> participatingPlayers){
+    public Tournament( ArrayList<TournamentPlayer> participatingPlayers, int totalRounds){
 
         this.participatingPlayers = participatingPlayers;
+        this.totalRounds = totalRounds;
+        curRoundNumber = 1;
 
     }
 
@@ -15,12 +20,28 @@ public class Tournament {
         participatingPlayers.add(player);
     }
 
-    public void nextRound(){
-        
+    public int curRoundNumber(){
+        return curRoundNumber;
     }
 
-    public void beginTournament(){
+    public void nextRound(){
+        tournamentRounds.get(curRoundNumber).generateMatches();
 
+    }
+
+    public void endRound(){
+        curRoundNumber++;
+        Round nextRound = new Round(curRoundNumber, participatingPlayers);
+        nextRound.generateStandings();
+        tournamentRounds.add(nextRound);
+
+    }
+
+
+    public void beginTournament(){
+        Round firstRound = new Round(curRoundNumber, participatingPlayers);
+        firstRound.generateRoundOne();
+        tournamentRounds.add(firstRound);
     }
 
     

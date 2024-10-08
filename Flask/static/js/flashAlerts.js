@@ -22,7 +22,7 @@ function showAlert(message, type, closeDelay) {
         .addClass("fade in show alert alert-" + type)
         .append(
             $('<button type="button" class="close" data-dismiss="alert">')
-                .append("&times;")
+                .append("&nbsp;&times;")
         )
         .append(message);
 

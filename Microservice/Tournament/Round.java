@@ -1,14 +1,14 @@
 import java.util.*;
 
 public class Round {
-    private List<Match> matches;
+    private ArrayList<Match> matches;
     private Standings prevRoundStandings;
     private int roundNumber;
-    private List<TournamentPlayer> players;
-    private List<List<TournamentPlayer>> brackets;
-    private List<TournamentPlayer> stillplaying;
+    private ArrayList<TournamentPlayer> players;
+    private ArrayList<List<TournamentPlayer>> brackets;
+    private ArrayList<TournamentPlayer> stillplaying;
 
-    public Round(int roundNumber, List<TournamentPlayer> tournamentPlayers){
+    public Round(int roundNumber, ArrayList<TournamentPlayer> tournamentPlayers){
         players = tournamentPlayers;
         stillplaying = players;
         this.roundNumber = roundNumber;
@@ -16,7 +16,7 @@ public class Round {
     }
 
 
-    public void generateMatches(Standings standing){
+    public void generateMatches(){
         createBrackets();
         boolean isMatched;
 
@@ -57,8 +57,24 @@ public class Round {
         
     }
 
-    public void generateStandings(){
+    public Standings generateStandings(){
         prevRoundStandings = new Standings(players);
+        return prevRoundStandings;
+    }
+
+    public void generateRoundOne(){
+        Collections.shuffle(players);
+
+        int tomatch = players.size() ;
+
+        if (players.size() % 2 == 1){
+            matches.add(new Match(players.getLast()));
+            tomatch--;
+        }
+
+        for (int i = 0; i < players.size()/2; i++){
+            matches.add(new Match(players.get(i), players.get(i + players.size()/2)));
+        }
     }
 
     public void createBrackets(){

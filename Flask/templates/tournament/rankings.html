@@ -1,7 +1,72 @@
 {% extends "layouts/base.html" %} 
-{% block title %}Tournaments{% endblock %} 
+{% block title %}Rankings{% endblock %} 
 {% from "macros/form.html" import render_form %} 
 
 {% block content %} 
+<div class="section-title" style="background:url({{url_for('static',filename='img/rankings/rankings_hero.webp')}})">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 home-hero-text">
+                <h1 class="home-hero-header">Rankings</h1>
+                <p class="home-hero-desc" style="color: white;">Track the rise of champions, where strategy and mastery define the elite</p>
+            </div>
+        </div>
+    </div>
+</div>
 
- {% endblock %} 
+<div class="container mt-5">
+    <!-- Search bar for filtering by tournament -->
+    <div class="row mb-3">
+      <div class="col-md-12">
+        <label for="searchTournament" class="form-label">Search Tournament</label>
+        <input type="text" class="form-control" id="searchTournament" placeholder="Enter tournament name">
+      </div>
+    
+    </div>
+  
+    <!-- Rankings table -->
+    <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col" style="background-color: #000000; color: white;">Tournament</th>
+            <th scope="col" style="background-color: #000000; color: white;">Username</th>
+            <th scope="col" style="background-color: #000000; color: white;">MW%</th>
+            <th scope="col" style="background-color: #000000; color: white;">GW%</th>
+          </tr>
+        </thead>
+        <tbody id="rankingsTable">
+          <tr>
+            <td>Tournament 1</td>
+            <td>ian1</td>
+            <td>100</td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>Tournament 1</td>
+            <td>john1</td>
+            <td>100</td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>Tournament 1</td>
+            <td>jack1</td>
+            <td>100</td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>Tournament 2</td>
+            <td>jane1</td>
+            <td>100</td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>Tournament 2</td>
+            <td>jane1</td>
+            <td>100</td>
+            <td>100</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+{% endblock %}

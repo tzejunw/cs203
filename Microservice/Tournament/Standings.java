@@ -2,9 +2,9 @@ import java.util.*;
 
 public class Standings {
     
-    List<TournamentPlayer> TournamentPlayers;
+    ArrayList<TournamentPlayer> TournamentPlayers;
 
-    public Standings(List<TournamentPlayer> TournamentPlayers){
+    public Standings(ArrayList<TournamentPlayer> TournamentPlayers){
         this.TournamentPlayers= TournamentPlayers;
         updateCurPoints();
         updateStandings();

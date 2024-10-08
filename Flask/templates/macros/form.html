@@ -142,6 +142,9 @@
     {{ field(class_="form-control") }}
     {%- endif %}
     <span class="help-inline">{{ field.description }}</span>
+    {% if field.id == "password" -%}
+    <pre id="passwordMessage"></pre>
+    {%- endif %}
     {% if field.errors -%}
     <ul class="help-block" style="color: red;">
         {% for error in field.errors -%}

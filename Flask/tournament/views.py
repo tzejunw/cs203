@@ -11,6 +11,52 @@ import requests
 def index():
     return render_template('frontend/index.html')
 
+# SETUP FOR joining a tournament
+# @tournament.route('/tournament/join', methods=['POST'])
+# def join_tournament():
+
+#     get the jwt token
+#     jwt_cookie = request.cookies.get('jwt')
+#     # Check if JWT cookie exists (for authentication)
+#     if not jwt_cookie:
+#       return render_template('error.html', message="You must be logged in to join a tournament"), 401
+
+#     Make a GET request to retrieve the user's username using the JWT token
+    # response = requests.get(
+    #     current_app.config['BACKEND_URL'] + "/user/get", 
+    #     headers={
+    #         "Authorization": f"Bearer {jwt_cookie}",
+    #         "Content-Type": "application/json"
+    #     }
+    # )
+
+#     tournament_name = request.form.get('tournament_name')
+#     username = request.form.get('username')  # Assuming user_id is being sent with the form
+
+#     # First, retrieve the tournament to check its current participants
+#     api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+#     response = requests.get(api_url)
+
+#     if response.status_code == 200:
+#         tournament = response.json()
+#         if user_id not in tournament.get('participatingPlayers', []):
+#             # Add the user to the participatingPlayers list
+#             tournament['participatingPlayers'].append(username)
+#             # Update the tournament in Firebase
+#             update_url = f'http://localhost:8080/tournament/update'
+#             update_response = requests.put(update_url, json=tournament)
+
+#             if update_response.status_code == 200:
+#                 flash('You have successfully joined the tournament!', 'success')
+#             else:
+#                 flash('Error updating tournament participants. Please try again.', 'danger')
+#         else:
+#             flash('You are already participating in this tournament.', 'info')
+#     else:
+#         flash('Error finding the tournament. Please try again.', 'danger')
+
+#     return redirect(url_for('tournament.view_tournaments'))  # Redirect to the tournament listing page
+
 # to view all tournaments
 @tournament.route('/view') #/<int:id>
 def view_tournaments():
@@ -24,10 +70,11 @@ def view_tournaments():
 def view_tournament(tournament_name):
     api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
     response = requests.get(api_url)
+    location = "SCG CON Portland, OR" # Test data 
     
     if response.status_code == 200:
         tournament = response.json()
-        return render_template('tournament/tournament.html', tournament=tournament)
+        return render_template('tournament/tournament.html', tournament=tournament, location=location)
     else:
         return render_template('error.html', message="Tournament not found"), 404
 

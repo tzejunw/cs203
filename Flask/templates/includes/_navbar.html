@@ -19,7 +19,7 @@
                     <!-- Adds Header-->
                     <div class="col">
                         <!-- Call Nav Menu-->
-                        <a class="mobile-nav" href="#mobile-nav"><i class="fa fa-bars"></i></a>
+                        <a class="mobile-nav" href="#mobile-nav"><i class="fa fa-bars" style="color:#d25134"></i></a>
                         <!-- End Call Nav Menu-->
                     </div>
                     <!-- End Adds Header-->
@@ -88,7 +88,16 @@
                 <a href="{{url_for('tournament.view_rankings')}}">Rankings</a>
             </li>
 
-            <li class="current">
+            {% if is_admin %}
+                <li>
+                    <a href="{{ url_for('admin.view_tournaments') }}">Admin Tournaments</a>
+                </li>
+            {% endif %}
+          
+
+      
+
+            <!-- <li class="current">
                 <a href="">Hidden Pages</a>
                 <ul class="sub-current">
                     <li>
@@ -98,7 +107,7 @@
                         <a href="single-team.html">Single Team</a>
                     </li>
                 </ul>
-            </li>
+            </li> -->
 
             <!-- <li class="current">
                 <a href="players.html">Players</a>
@@ -199,14 +208,28 @@
                     </div>
                 </div>
             </li> -->
-
             
-            <li>
-                <a href="{{url_for('user.update_account')}}">Profile</a>
+            {% if jwt_present %}
+            <li class="current" style="float:right;">
+                <!-- <i class="fa fa-user"></i> -->
+                <a href="{{url_for('user.update_account')}}">{{ userName }}</a>
+                <ul class="sub-current">
+                    <li>
+                        <a href="{{url_for('user.update_account')}}">Update Profile</a>
+                    </li>
+                    <li>
+                        <a href="{{url_for('user.update_password')}}">Update Password</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('user.logout') }}">Logout</a>
+                    </li>
+                </ul>
             </li>
-            <li>
-                <a href="{{url_for('user.login')}}">Login</a>
+            {% else %}
+            <li style="float:right;">
+                <a href="{{ url_for('user.login') }}">Login</a>
             </li>
+            {% endif %}
         </ul>
         <!-- End Menu-->
     </div>
@@ -369,10 +392,24 @@
             </ul>
         </li> -->
         <li>
-            <a href="{{url_for('user.update_account')}}">Profile</a>
+            <li>
+                <a href="{{url_for('user.update_account')}}">Profile</a>
+                <ul>
+                    <li>
+                        <a href="{{url_for('user.update_account')}}">Update Account</a>
+                    </li>
+                    <li>
+                        <a href="{{url_for('user.update_password')}}">Update Password</a>
+                    </li>
+                </ul>
+            </li>
         </li>
         <li>
-            <a href="{{url_for('user.login')}}">Login</a>
+            {% if jwt_present %}
+                <a href="{{ url_for('user.logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('user.login') }}">Login</a>
+            {% endif %}
         </li>
     </ul>
     <!-- End Menu-->
