@@ -1,9 +1,7 @@
 package com.java.firebase.demo;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Objects;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,8 +11,6 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 
 
 // some boiler plate to authenticate and connect to firebase

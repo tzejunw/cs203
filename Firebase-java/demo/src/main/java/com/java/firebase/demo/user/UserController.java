@@ -34,7 +34,7 @@ public class UserController {
     @PostMapping("/user/createDetails") // expects a User object in body raw JSON
     public ResponseEntity<String> createUserDetails(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
-        userService.createFirestoreRecord(user, uid);
+        userService.createUserDetails(user, uid);
         return ResponseEntity.ok().body("Success");
     }
 
