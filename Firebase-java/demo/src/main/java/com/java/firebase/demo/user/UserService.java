@@ -277,7 +277,7 @@ public class UserService {
     }
 
     // Birthday date format checks DD/MM/YYYY
-    public static boolean isBirthdayValid(String birthday) {
+    public boolean isBirthdayValid(String birthday) {
         String regex = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$";
         Pattern pattern = Pattern.compile(regex);
         Matcher birthdayMatcher = pattern.matcher(birthday);
@@ -292,7 +292,7 @@ public class UserService {
     private static final Pattern DIGIT = Pattern.compile("[0-9]");
     private static final Pattern SPECIAL_CHAR = Pattern.compile("[^a-zA-Z0-9]");
 
-    public static boolean isPasswordValid(String password) {
+    public boolean isPasswordValid(String password) {
         if (password.length() < PASSWORD_MIN_LENGTH || password.length() > PASSWORD_MAX_LENGTH) {
             return false;
         }
@@ -315,7 +315,7 @@ public class UserService {
     private static final int USERNAME_MIN_LENGTH = 3;
     private static final int USERNAME_MAX_LENGTH = 32;
 
-    public static boolean isUsernameValid(String username) {
+    public boolean isUsernameValid(String username) {
         if (username.length() < USERNAME_MIN_LENGTH || username.length() > USERNAME_MAX_LENGTH) {
             return false;
         }
