@@ -1,3 +1,4 @@
+import os
 from . import user
 from user.forms import LoginForm, RegisterForm, RegisterStep1Form, RegisterStep2Form, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
 
@@ -10,6 +11,16 @@ from werkzeug.security import generate_password_hash
 import requests
 import json
 from datetime import datetime, date
+
+firebase_config = {
+    'apiKey': os.getenv('FIREBASE_API_KEY'),
+    'authDomain': os.getenv('FIREBASE_AUTH_DOMAIN'),
+    'projectId': os.getenv('FIREBASE_PROJECT_ID'),
+    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
+    'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+    'appId': os.getenv('FIREBASE_APP_ID'),
+    'measurementId': os.getenv('FIREBASE_MEASUREMENT_ID'),
+}
 
 def YmdToDmyConverter(date_str):
     # The backend only accepts DD/MM/YYYY
@@ -57,7 +68,7 @@ def register():
         else:
             handleErrorResponses(response)
         
-    return render_template('user/register_step1.html', form=form)
+    return render_template('user/register_step1.html', form=form, firebase_config=firebase_config)
 
 @user.route('/verify_email')
 def verify_email():
@@ -111,6 +122,7 @@ def register_step2():
 @user.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+
     if request.method == 'GET' and request.cookies.get('jwt'):
         flash("Don't delulu, you are already logged in.", "danger")
         previous_page = request.referrer
@@ -166,7 +178,7 @@ def login():
         else:
             handleErrorResponses(response)
         
-    return render_template('user/login.html', form=form)
+    return render_template('user/login.html', form=form, firebase_config=firebase_config)
 
 @user.route('/google_login', methods=['POST'])
 def google_login():

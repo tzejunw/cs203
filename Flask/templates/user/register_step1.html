@@ -3,6 +3,72 @@
 {% from "macros/form.html" import render_form %}
 
 {% block content %}
+<script type="module">
+  // Import the functions needed from the SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+      apiKey: "{{firebase_config.apiKey}}",
+      authDomain: "{{firebase_config.authDomain}}",
+      projectId: "{{firebase_config.projectId}}",
+      storageBucket: "{{firebase_config.storageBucket}}",
+      messagingSenderId: "{{firebase_config.messagingSenderId}}",
+      appId: "{{firebase_config.appId}}",
+      measurementId: "{{firebase_config.measurementId}}"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  import * as firebase from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const googleLogin = document.getElementById("google-login-btn");
+  googleLogin.addEventListener("click", function () {
+      signInWithPopup(auth, provider).then((result) => {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const user = result.user;
+
+          user.getIdToken().then((token) => {
+              let data = {
+                  "token": token,
+                  "name": user.displayName
+              };
+              fetch("{{url_for('user.google_login')}}", {
+                  method: "POST",
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data)
+              }).then(res => res.json())
+                  .then(data => {
+                      if (data.status === 'success') {
+                          console.log(data.message);
+                          console.log('User Name:', data.userName);
+                          // Perform actions on successful login, e.g., redirect
+                          window.location.href = "{{url_for('index')}}";
+                      } else {
+                          console.error(data.message);
+                          if (data.message == "No user record found"){
+                              window.location.href = "{{url_for('user.register_step2')}}";
+                          }
+                          // Handle error, e.g., show error message to user
+                      }
+                  }).catch(error => {
+                      console.error('Error:', error);
+                  });
+          }).catch((error) => {
+              console.error("Error getting token:", error);
+          });
+
+      }).catch((error) => {
+          console.error(error.message);
+      })
+  })
+</script>
+
 <section class="vh-100 bg-image"
   style="background-image: url('https://media.wizards.com/images/magic/daily/wallpapers/Gruul_Wallpaper_2560x1440.jpg'); background-size: cover;  padding:20px">
   <div class="mask d-flex align-items-center h-100 gradient-custom-3">
