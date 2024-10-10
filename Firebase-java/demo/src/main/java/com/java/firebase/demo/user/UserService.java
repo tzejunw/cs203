@@ -35,7 +35,6 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.UpdateRequest;
-import com.google.firebase.cloud.FirestoreClient;
 import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
 
 @Service
@@ -46,10 +45,6 @@ public class UserService {
     public UserService(Firestore firestore, FirebaseAuth firebaseAuth) {
         this.firestore = firestore;
         this.firebaseAuth = firebaseAuth;
-    }
-
-    public void createRecordInFirestore(User user, String uid) throws ExecutionException, InterruptedException, FirestoreException {
-        firestore.collection("user").document(uid).set(user);
     }
 
     public void createUserDetails(User user, String uid)
@@ -63,7 +58,7 @@ public class UserService {
         if (!isUsernameUnique(user.getUserName()))
             throw new IllegalArgumentException("Username exists, please choose another username");
         
-        createRecordInFirestore(user, uid);
+        firestore.collection("user").document(uid).set(user);
     }
 
     public String createAccountInAuth(String email, String password) throws ExecutionException, InterruptedException, FirebaseAuthException {
@@ -96,6 +91,27 @@ public class UserService {
         // setAdminAuthority(uid); // Uncomment to make the next registration an admin user.
         return uid;
     }
+
+    // FOR TESTING ONLY
+    // public String createTestAccountInAuth(String email, String password) throws ExecutionException, InterruptedException, FirebaseAuthException {
+    //     // Create an account in Firebase Authentication
+    //     // Returns Unique ID (uid)
+    //     UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+    //             .setEmail(email)
+    //             .setPassword(password)
+    //             .setEmailVerified(true);
+    //     UserRecord userAuthRecord = firebaseAuth.createUser(request);
+    //     return userAuthRecord.getUid();
+    // }
+
+    // // FOR TESTING ONLY
+    // public void createTestUser(String userName) throws ExecutionException, InterruptedException, FirebaseAuthException{
+    //     String uid = createTestAccountInAuth(userName + "@test.com", "1@Secured");
+    //     User user = new User(userName, userName + " test", "12/12/2000", "Male");
+    //     createUserDetails(user, uid);
+        
+    //     System.out.println("Created " + userName);
+    // }
 
     
     // Method to send email verification
@@ -231,8 +247,7 @@ public class UserService {
 
     // For this Firebase doc, the uid is the documentId.
     public User getUser(String uid) throws ExecutionException, InterruptedException, Exception {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference documentReference = dbFirestore.collection("user").document(uid); // get the doc
+        DocumentReference documentReference = firestore.collection("user").document(uid); // get the doc
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         User user;
@@ -248,10 +263,13 @@ public class UserService {
         return userRecord.getEmail();
     }
 
-    // this is exact same as POST route!! should we input validate?
-    // @TODO: Disable setting of userStatus
-    // exisits in the database!
+    // User only allowed to update gender, birthday and name 
     public String updateUser(User user, String uid) throws ExecutionException, InterruptedException {
+        if (!(user.getGender().equals("Male") || user.getGender().equals("Female")))
+            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
+        if (!isBirthdayValid(user.getBirthday()))
+            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
+        
         if (userExists(uid)) {
             ApiFuture<WriteResult> collectionsApiFuture = firestore.collection("user").document(uid).set(user);
             return collectionsApiFuture.get().getUpdateTime().toString();
@@ -272,7 +290,7 @@ public class UserService {
     // For this Firebase doc, the uid is the documentId.
     public String deleteUser(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
         firebaseAuth.deleteUser(uid);
-        ApiFuture<WriteResult> writeResult = firestore.collection("user").document(uid).delete();
+        firestore.collection("user").document(uid).delete();
         return "Successfully deleted " + uid;
     }
 

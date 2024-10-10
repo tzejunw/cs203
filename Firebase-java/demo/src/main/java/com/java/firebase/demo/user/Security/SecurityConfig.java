@@ -35,7 +35,7 @@ public class SecurityConfig {
                     // .requestMatchers("/tournament/**").permitAll()    
 
                     // User Route
-                    .requestMatchers(HttpMethod.POST, "/user/create", "/user/login").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/user/create", "/user/login", "/user/masscreate").permitAll()
                     .requestMatchers("/user/**").authenticated()
                     
                     // Tournament Route

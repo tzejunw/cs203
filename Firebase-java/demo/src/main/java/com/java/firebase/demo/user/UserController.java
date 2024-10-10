@@ -25,6 +25,14 @@ public class UserController {
         this.userService = userService;
     }
 
+    // @PostMapping("/user/masscreate") // expects a User object in body raw JSON
+    // public ResponseEntity<String> massCreateUser() throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
+    //     for (int i = 11; i <= 30; i++){
+    //         userService.createTestUser("user" + i);
+    //     }
+    //     return ResponseEntity.ok().body("Success");
+    // }
+
     @PostMapping("/user/create") // expects a User object in body raw JSON
     public ResponseEntity<String> createUser(@RequestBody Register register) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
         String uid = userService.createUser(register);
