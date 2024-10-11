@@ -1,13 +1,20 @@
 package com.java.firebase.demo.tournament;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -17,16 +24,77 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
+import com.google.common.base.Strings;
 import com.google.firebase.cloud.FirestoreClient;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @Service
 public class TournamentService {
+    public static boolean isValidDate(String dateStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            // Parse the date string using the formatter
+            LocalDate date = LocalDate.parse(dateStr, formatter);
+            // Ensure the parsed date string matches the input (to avoid things like 2024-2-30)
+            return dateStr.equals(date.format(formatter));
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    public static boolean areDatesValidAndInOrder(String startDateStr, String endDateStr) {
+        if (!isValidDate(startDateStr) || !isValidDate(endDateStr)) {
+            return false; // Invalid date format for either start or end date
+        }
+
+        // Parse the dates after confirming they are in the correct format
+        LocalDate startDate = LocalDate.parse(startDateStr);
+        LocalDate endDate = LocalDate.parse(endDateStr);
+
+        // Check that the end date is not earlier than the start date
+        return !endDate.isBefore(startDate);
+    }
+
+    // @TODO: checks whether the same tournament name has been created.
+    public boolean isNameUnique(String name) {
+        return true;
+    }
+
+    public boolean isTournamentValid(Tournament tournament) throws IllegalArgumentException {
+        if (!isValidDate(tournament.getStartDate()))
+            throw new IllegalArgumentException("Start date should be in yyyy-MM-dd format");
+        if (!isValidDate(tournament.getEndDate()))
+            throw new IllegalArgumentException("End date should be in yyyy-MM-dd format");
+        if (!isValidDate(tournament.getRegistrationDeadline()))
+            throw new IllegalArgumentException("End date should be in yyyy-MM-dd format");
+        if (!areDatesValidAndInOrder(tournament.getStartDate(), tournament.getEndDate())){
+            throw new IllegalArgumentException("End date should not be earlier than the start date");
+        }
+        if (Strings.isNullOrEmpty(tournament.getTournamentDesc())){
+            throw new IllegalArgumentException("Tournament desc should not be empty");
+        }
+        if (Strings.isNullOrEmpty(tournament.getImageUrl())){
+            throw new IllegalArgumentException("Tournament desc should not be empty");
+        }
+        if (!isValidAddress(tournament.getLocation())){
+            throw new IllegalArgumentException("Invalid location.");
+        }
+        if (!isNameUnique(tournament.getTournamentName())){
+            throw new IllegalArgumentException("Invalid tournament name.");
+        }
+        return true;
+    }
 
     // CRUD for Tournaments
     // This takes one of the specified json fields, here .getTournamentName(),  and sets it as the documentId (document identifier)
     // if you want firebase to generate documentId for us, leave .document() blank
     // generates a tournament with an empty Round 1
     public String createTournament(Tournament tournament) throws ExecutionException, InterruptedException {
+        if(isTournamentValid(tournament)) // validations, will throw error if not valid
+        {
+            System.out.println("Valid Input");
+        }
         Firestore dbFirestore = FirestoreClient.getFirestore();
         
         // Add the tournament object as a document in Firestore
@@ -38,6 +106,7 @@ public class TournamentService {
         collectionsApiFuture.get();
 
         // call the image functions here?
+        // yes sire
         
         // Create the "rounds" subcollection under the tournament document, with the first round
         DocumentReference round1DocRef = dbFirestore.collection("tournament")
@@ -57,6 +126,35 @@ public class TournamentService {
         round1DocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
         
         return collectionsApiFuture.get().getUpdateTime().toString();
+    }
+
+    public boolean isValidAddress(String address) {
+        Dotenv dotenv = Dotenv.load();
+        String map_api_key = dotenv.get("GOOGLE_MAP_API_KEY");
+        String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + map_api_key;
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String responseBody = response.getBody();
+                
+                if (responseBody != null) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode json = mapper.readTree(responseBody);
+                    String status = json.get("status").asText();
+
+                    // Check if the status is OK, indicating the address is valid
+                    System.out.println("OK".equals(status));
+                    return "OK".equals(status);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
     
     // For this Firebase doc, the tournamentName is the documentId.
@@ -125,6 +223,11 @@ public class TournamentService {
     
 
     public String updateTournament(Tournament tournament) throws ExecutionException, InterruptedException { 
+        if(isTournamentValid(tournament)) // validations, will throw error if not valid
+        {
+            System.out.println("Valid Input");
+        }
+        
         Firestore dbFirestore = FirestoreClient.getFirestore(); 
         
         // Check if the document exists
@@ -141,6 +244,7 @@ public class TournamentService {
         }
     }
     
+
     // For this Firebase doc, the tournamentName is the documentId.
     public String deleteTournament(String tournamentName) throws ExecutionException, InterruptedException {
         // we are using email as the documentId. the key in the DELETE request must be "documentid", and the value is the email
