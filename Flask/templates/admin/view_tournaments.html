@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container mt-5">
+<div class="container-fluid mt-5" style="width: 75%;">
     <div class="row mb-4">
         <div class="col-md-12">
             <input type="text" class="form-control search-bar" placeholder="Enter tournament name" id="searchInput" onkeyup="filterTournaments()">
@@ -24,6 +24,7 @@
             <thead class="thead-light">
                 <tr>
                     <th>Tournament Name</th>
+                    <th>Description</th>
                     <th>Image</th>
                     <th>Start Date</th>
                     <th>End Date</th>
@@ -37,6 +38,7 @@
                 {% for tournament in tournaments %}
                 <tr>
                     <td>{{ tournament.tournamentName }}</td>
+                    <td>{{ tournament.tournamentDesc }}</td>
                     <td><img src="{{ tournament.imageUrl }}" alt="Project Image" class="tournament-image"></td>
                     <td>{{ tournament.startDate }}</td>
                     <td>{{ tournament.endDate }}</td>
