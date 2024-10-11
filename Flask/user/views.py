@@ -1,5 +1,6 @@
+import os
 from . import user
-from user.forms import LoginForm, RegisterForm, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
+from user.forms import LoginForm, RegisterForm, RegisterStep1Form, RegisterStep2Form, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
 
 from flask import Flask, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app
 from flask_wtf import Form, FlaskForm 
@@ -10,6 +11,16 @@ from werkzeug.security import generate_password_hash
 import requests
 import json
 from datetime import datetime, date
+
+firebase_config = {
+    'apiKey': os.getenv('FIREBASE_API_KEY'),
+    'authDomain': os.getenv('FIREBASE_AUTH_DOMAIN'),
+    'projectId': os.getenv('FIREBASE_PROJECT_ID'),
+    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
+    'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+    'appId': os.getenv('FIREBASE_APP_ID'),
+    'measurementId': os.getenv('FIREBASE_MEASUREMENT_ID'),
+}
 
 def YmdToDmyConverter(date_str):
     # The backend only accepts DD/MM/YYYY
@@ -28,28 +39,17 @@ def handleErrorResponses(response):
         error = response.json()
         flash(error["message"], 'danger')
         if "debug" in error:
-            print(error["debug"])
+            print("Debug - " + error["debug"])
     except ValueError: # For errors in pure text
         flash(response.text, 'danger')
     print(f"Error Status code: {response.status_code}.")
 
-
-# /user/register
 @user.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegisterForm();
-    if request.method == 'POST' and form.validate_on_submit():
-        # form.email.errors = ["Email is not valid"]
-        # form.name.errors = ["Name is not valid"]
-        
-        birthday_str = YmdToDmyConverter(form.birthday.data.strftime('%Y-%m-%d'))
-        
+    form = RegisterStep1Form();
+    if request.method == 'POST' and form.validate_on_submit():      
         data = {
-            "userName": form.userName.data,
-            "name": form.name.data,
-            "birthday": birthday_str,
             "email": form.email.data,
-            "gender": form.gender.data,
             "password": form.password.data
         }
         header={"Content-Type": "application/json"}
@@ -60,20 +60,69 @@ def register():
         except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
             print(e)
-            return render_template('user/register.html', form=form)
+            return render_template('user/register_step1.html', form=form)
 
         if response.status_code == 200:
-            flash(handleNormalResponses(response), 'success')
-            return redirect(url_for('user.login'))
+            flash("Account created. Please verify your email to proceed.", 'success')
+            return redirect(url_for('user.verify_email', email=form.email.data, **request.args))
         else:
             handleErrorResponses(response)
         
-    return render_template('user/register.html', form=form)
+    return render_template('user/register_step1.html', form=form, firebase_config=firebase_config)
+
+@user.route('/verify_email')
+def verify_email():
+    if request.args.get('email'):
+        return render_template('user/register_confirm_email.html', email = request.args.get('email'))
+    
+    return redirect(url_for('index'))
+
+@user.route('/register/step2', methods=['GET', 'POST'])
+def register_step2():
+    jwt_cookie = request.cookies.get('jwt')
+    form = RegisterStep2Form()
+
+    if request.method == 'GET':
+        form.name.data = request.cookies.get('name')
+    
+    if request.method == 'POST' and form.validate_on_submit():      
+        birthday_str = YmdToDmyConverter(form.birthday.data.strftime('%Y-%m-%d'))
+        
+        data = {
+            "userName": form.userName.data,
+            "name": form.name.data,
+            "birthday": birthday_str,
+            "gender": form.gender.data
+        }
+        header= {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {jwt_cookie}"
+        }
+
+        response = {}
+        try:
+            response = requests.post(current_app.config['BACKEND_URL'] + "/user/createDetails", json=data, headers=header)
+        except Exception as e: 
+            flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
+            print(e)
+            return render_template('user/register_step2.html', form=form)
+
+        if response.status_code == 200:
+            flash(handleNormalResponses(response), 'success')
+            response = make_response(redirect(url_for('index')))
+            response.set_cookie('userName', form.userName.data, max_age=60*60)
+            response.set_cookie('name', '', expires=0)
+            response.set_cookie('registration', '', expires=0)
+            return response
+        else:
+            handleErrorResponses(response)
+    return render_template('user/register_step2.html', form=form)
 
 # /user/login
 @user.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+
     if request.method == 'GET' and request.cookies.get('jwt'):
         flash("Don't delulu, you are already logged in.", "danger")
         previous_page = request.referrer
@@ -103,7 +152,6 @@ def login():
         
         if response.status_code == 200:
             token = response.text
-            response = make_response(redirect(url_for('index')))
 
             getUserDetails = requests.get(
                 current_app.config['BACKEND_URL'] + "/user/get", 
@@ -114,9 +162,15 @@ def login():
             )
 
             if getUserDetails.status_code == 200:
+                response = make_response(redirect(url_for('index')))
                 data = getUserDetails.json()
                 if data.get('userName'):
                     response.set_cookie('userName', data.get('userName'), max_age=60*60)
+            else:
+                print("no user record found")
+                response = make_response(redirect(url_for('user.register_step2')))
+                response.set_cookie('jwt', token, max_age=60*60)
+                response.set_cookie('registration', "not_done", max_age=60*60)
             
             flash("Login Successfully!", 'success')
             response.set_cookie('jwt', token, max_age=60*60)
@@ -124,8 +178,42 @@ def login():
         else:
             handleErrorResponses(response)
         
-    return render_template('user/login.html', form=form)
+    return render_template('user/login.html', form=form, firebase_config=firebase_config)
 
+@user.route('/google_login', methods=['POST'])
+def google_login():
+    data = request.get_json()
+    token = data.get('token')
+    name = data.get('name')
+
+    if token is None:
+        return jsonify({'status': 'error', 'message': 'Token is missing'}), 400
+
+    getUserDetails = requests.get(
+        current_app.config['BACKEND_URL'] + "/user/get", 
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+    )
+
+    if getUserDetails.status_code == 200:
+        user_data = getUserDetails.json()
+        print(user_data)
+        response = jsonify({'status': 'success', 'message': 'Login Successfully!'})
+        response.set_cookie('jwt', token, max_age=60*60)
+        response.set_cookie('userName', user_data.get('userName'), max_age=60*60)
+    else:
+        print("no user record found")
+        response = jsonify({'status': 'error', 'message': 'No user record found'})
+        response.set_cookie('jwt', token, max_age=60*60)
+        response.set_cookie('name', name, max_age=60*60)
+        response.set_cookie('registration', "not_done", max_age=60*60)
+
+    return response
+
+    
+    
 @user.route('/logout')
 def logout():
     jwt_cookie = request.cookies.get('jwt')
@@ -142,6 +230,8 @@ def logout():
     
     response = make_response(redirect(url_for('user.login')))
     response.set_cookie('jwt', '', expires=0)
+    response.set_cookie('name', '', expires=0)
+    response.set_cookie('registration', '', expires=0)
     flash("Logout successfully", 'success')
     return response
     

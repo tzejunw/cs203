@@ -1,7 +1,5 @@
 package com.java.firebase.demo.image;
 
-import org.springframework.stereotype.Service;
-
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
 
@@ -11,12 +9,12 @@ public class FirestoreService {
     private final Firestore firestore;
 
     // Constructor to initialize Firestore instance
-    public FirestoreService() {
+    public FirestoreService(Firestore firestore) {
         // Make sure Firestore is initialized properly
-        this.firestore = FirestoreClient.getFirestore();
+        this.firestore = firestore;
     }
 
-    // Save the image URL to Firestore under the specified tournament document, in the imageUrl field. 
+    // Save the image URL to Firestore under the specified document
     public void saveImageUrl(String documentId, String imageUrl) {
         try {
             firestore.collection("tournament")

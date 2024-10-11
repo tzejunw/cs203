@@ -227,7 +227,11 @@
             </li>
             {% else %}
             <li style="float:right;">
+                {% if registration %}
+                <a href="{{ url_for('user.logout') }}">Logout</a>
+                {% else %}
                 <a href="{{ url_for('user.login') }}">Login</a>
+                {% endif %}
             </li>
             {% endif %}
         </ul>

@@ -35,72 +35,89 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.UpdateRequest;
-import com.google.firebase.cloud.FirestoreClient;
 import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
 
 @Service
 public class UserService {
-    // This takes one of the specified json fields, here .getEmail(), and sets it as
-    // the documentId (document identifier) if you want firebase to generate
-    // documentId for us, leave .document() blank
-    public String createUser(Register register)
-            throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
-        // Step 1: Validate if registration details fits our business requirements
-        // Email validations is conducted by Firebase Auth
-        if (!(register.getGender().equals("Male") || register.getGender().equals("Female")))
-            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
-        if (!isPasswordValid(register.getPassword()))
-            throw new IllegalArgumentException(
-                    "Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
-        if (!isBirthdayValid(register.getBirthday()))
-            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
-        if (!isUsernameValid(register.getUserName()))
-            throw new IllegalArgumentException("Username should be between 3-32 characters long");
-        if (!isUsernameUnique(register.getUserName()))
-            throw new IllegalArgumentException("Username exists, please choose another username");
+    private final Firestore firestore;
+    private final FirebaseAuth firebaseAuth;
 
-        // Step 2: Create an account in Firebase Authentication
-        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setEmail(register.getEmail())
-                .setPassword(register.getPassword())
-                .setEmailVerified(false);
-        UserRecord userAuthRecord = FirebaseAuth.getInstance().createUser(request);
-
-        System.out.println("testing");
-
-        // Send email verification to the user
-        sendVerificationEmail(userAuthRecord.getUid());
-
-        // Step 3: Set player status
-        Map<String, Object> claims = new HashMap<>();
-        // claims.put("admin", true);
-        claims.put("player", true);
-
-        FirebaseAuth.getInstance().setCustomUserClaims(userAuthRecord.getUid(), claims);
-
-        // Step 4: Store user data in Firestore once the user record is created
-        // Need to recreate user class to exclude storing password into firestore ><
-        // Player status is set here too, to avoid people from manipulating the data to
-        // become an admin.
-        User user = new User();
-        user.setUserName(register.getUserName().toLowerCase());
-        user.setName(register.getName());
-        user.setBirthday(register.getBirthday());
-        user.setUserStatus("player");
-        user.setEmail(register.getEmail()); // Should we exclude email being added to Firestore?
-        user.setGender(register.getGender());
-
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(userAuthRecord.getUid())
-                .set(user);
-        return collectionsApiFuture.get().getUpdateTime().toString();
+    public UserService(Firestore firestore, FirebaseAuth firebaseAuth) {
+        this.firestore = firestore;
+        this.firebaseAuth = firebaseAuth;
     }
 
+    public void createUserDetails(User user, String uid)
+            throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
+        if (!(user.getGender().equals("Male") || user.getGender().equals("Female")))
+            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
+        if (!isBirthdayValid(user.getBirthday()))
+            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
+        if (!isUsernameValid(user.getUserName()))
+            throw new IllegalArgumentException("Username should be between 3-32 characters long");
+        if (!isUsernameUnique(user.getUserName()))
+            throw new IllegalArgumentException("Username exists, please choose another username");
+        
+        firestore.collection("user").document(uid).set(user);
+    }
+
+    public String createAccountInAuth(String email, String password) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        // Create an account in Firebase Authentication
+        // Returns Unique ID (uid)
+        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                .setEmail(email)
+                .setPassword(password)
+                .setEmailVerified(false);
+        UserRecord userAuthRecord = firebaseAuth.createUser(request);
+        return userAuthRecord.getUid();
+    }
+
+    public void setAdminAuthority(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("admin", true);
+        // claims.put("player", true);
+        firebaseAuth.setCustomUserClaims(uid, claims);
+    }
+
+    public String createUser(Register register) throws ExecutionException, InterruptedException, FirebaseAuthException{
+        if (!isPasswordValid(register.getPassword()))
+            throw new IllegalArgumentException("Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
+        
+        String uid = createAccountInAuth(register.getEmail(), register.getPassword());
+        
+        // Send email verification to the user
+        sendVerificationEmail(uid);
+
+        // setAdminAuthority(uid); // Uncomment to make the next registration an admin user.
+        return uid;
+    }
+
+    // FOR TESTING ONLY
+    // public String createTestAccountInAuth(String email, String password) throws ExecutionException, InterruptedException, FirebaseAuthException {
+    //     // Create an account in Firebase Authentication
+    //     // Returns Unique ID (uid)
+    //     UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+    //             .setEmail(email)
+    //             .setPassword(password)
+    //             .setEmailVerified(true);
+    //     UserRecord userAuthRecord = firebaseAuth.createUser(request);
+    //     return userAuthRecord.getUid();
+    // }
+
+    // // FOR TESTING ONLY
+    // public void createTestUser(String userName) throws ExecutionException, InterruptedException, FirebaseAuthException{
+    //     String uid = createTestAccountInAuth(userName + "@test.com", "1@Secured");
+    //     User user = new User(userName, userName + " test", "12/12/2000", "Male");
+    //     createUserDetails(user, uid);
+        
+    //     System.out.println("Created " + userName);
+    // }
+
+    
     // Method to send email verification
     public void sendVerificationEmail(String uid) {
 
         try {
-            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
             UserRecord user = firebaseAuth.getUser(uid);
 
             // Trigger the email verification
@@ -130,7 +147,7 @@ public class UserService {
             String idToken = bearerToken.substring(7); // Remove "Bearer " from the header
 
             // Verify the token and get the user's UID
-            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+            FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
             return decodedToken.getUid();
         } catch (Exception e) {
             return e.getMessage();
@@ -139,7 +156,7 @@ public class UserService {
 
     public FirebaseToken verifyIdToken(String idToken) throws FirebaseAuthException {
         try {
-            return FirebaseAuth.getInstance().verifyIdToken(idToken);
+            return firebaseAuth.verifyIdToken(idToken);
         } catch (FirebaseAuthException e) {
             throw e;
         }
@@ -155,8 +172,8 @@ public class UserService {
     }
 
     public boolean isEmailVerified(String idToken) throws Exception {
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-        UserRecord userRecord = FirebaseAuth.getInstance().getUser(decodedToken.getUid());
+        FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
+        UserRecord userRecord = firebaseAuth.getUser(decodedToken.getUid());
         return userRecord.isEmailVerified();
     }
 
@@ -181,8 +198,6 @@ public class UserService {
         HttpEntity<String> entity = new HttpEntity<>(requestPayload, headers);
         RestTemplate restTemplate = new RestTemplate();
 
-        // @TODO: disallow login if email is not verified
-
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + FIREBASE_API_KEY,
@@ -204,7 +219,7 @@ public class UserService {
             // Handle HTTP client errors (4xx)
             if (e.getMessage().contains("too-many-requests")) {
                 throw new TooManyRequestsException(
-                        "Too many requests detected. Please try again later, or reset your password to continue.");
+                        "Too many requests detected. Please try again later.");
             }
             if (e.getStatusCode() == HttpStatus.FORBIDDEN && e.getMessage().contains("blocked")) {
                 throw new AccessDeniedException(e.getMessage());
@@ -220,12 +235,11 @@ public class UserService {
     }
 
     public void logoutUser(String uid) throws FirebaseAuthException {
-        FirebaseAuth.getInstance().revokeRefreshTokens(uid);
+        firebaseAuth.revokeRefreshTokens(uid);
     }
 
     public Boolean userExists(String uid) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        DocumentReference documentReference = dbFirestore.collection("user").document(uid);
+        DocumentReference documentReference = firestore.collection("user").document(uid);
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         return document.exists();
@@ -233,8 +247,7 @@ public class UserService {
 
     // For this Firebase doc, the uid is the documentId.
     public User getUser(String uid) throws ExecutionException, InterruptedException, Exception {
-        Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        DocumentReference documentReference = dbFirestore.collection("user").document(uid); // get the doc
+        DocumentReference documentReference = firestore.collection("user").document(uid); // get the doc
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         User user;
@@ -246,30 +259,23 @@ public class UserService {
     }
 
     public String getUserEmail(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
-        UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
+        UserRecord userRecord = firebaseAuth.getUser(uid);
         return userRecord.getEmail();
     }
 
-    // this is exact same as POST route!! should we input validate?
-    // @TODO: Disable setting of userStatus
-    // exisits in the database!
+    // User only allowed to update gender, birthday and name 
     public String updateUser(User user, String uid) throws ExecutionException, InterruptedException {
+        if (!(user.getGender().equals("Male") || user.getGender().equals("Female")))
+            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
+        if (!isBirthdayValid(user.getBirthday()))
+            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
+        
         if (userExists(uid)) {
-            Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-            ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(uid).set(user);
+            ApiFuture<WriteResult> collectionsApiFuture = firestore.collection("user").document(uid).set(user);
             return collectionsApiFuture.get().getUpdateTime().toString();
         }
         throw new IllegalArgumentException("User not found.");
     }
-
-    // public String updateEmail(String newEmail, String uid)
-    //         throws ExecutionException, InterruptedException, FirebaseAuthException {
-    //     if (!newEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$"))
-    //         throw new IllegalArgumentException("Invalid email format");
-    //     UpdateRequest request = new UserRecord.UpdateRequest(uid).setEmail(newEmail);
-    //     FirebaseAuth.getInstance().updateUser(request);
-    //     return "Successfully updated user";
-    // }
 
     public String updatePassword(String newPassword, String uid)
             throws ExecutionException, InterruptedException, FirebaseAuthException {
@@ -277,20 +283,19 @@ public class UserService {
             throw new IllegalArgumentException(
                     "Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
         UpdateRequest request = new UserRecord.UpdateRequest(uid).setPassword(newPassword);
-        FirebaseAuth.getInstance().updateUser(request);
+        firebaseAuth.updateUser(request);
         return "Successfully updated password";
     }
 
     // For this Firebase doc, the uid is the documentId.
     public String deleteUser(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
-        FirebaseAuth.getInstance().deleteUser(uid);
-        Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> writeResult = dbFirestore.collection("user").document(uid).delete();
+        firebaseAuth.deleteUser(uid);
+        firestore.collection("user").document(uid).delete();
         return "Successfully deleted " + uid;
     }
 
     // Birthday date format checks DD/MM/YYYY
-    public static boolean isBirthdayValid(String birthday) {
+    public boolean isBirthdayValid(String birthday) {
         String regex = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$";
         Pattern pattern = Pattern.compile(regex);
         Matcher birthdayMatcher = pattern.matcher(birthday);
@@ -305,7 +310,7 @@ public class UserService {
     private static final Pattern DIGIT = Pattern.compile("[0-9]");
     private static final Pattern SPECIAL_CHAR = Pattern.compile("[^a-zA-Z0-9]");
 
-    public static boolean isPasswordValid(String password) {
+    public boolean isPasswordValid(String password) {
         if (password.length() < PASSWORD_MIN_LENGTH || password.length() > PASSWORD_MAX_LENGTH) {
             return false;
         }
@@ -328,7 +333,7 @@ public class UserService {
     private static final int USERNAME_MIN_LENGTH = 3;
     private static final int USERNAME_MAX_LENGTH = 32;
 
-    public static boolean isUsernameValid(String username) {
+    public boolean isUsernameValid(String username) {
         if (username.length() < USERNAME_MIN_LENGTH || username.length() > USERNAME_MAX_LENGTH) {
             return false;
         }
@@ -336,11 +341,10 @@ public class UserService {
     }
 
     // Checks if username exists.
-    public static boolean isUsernameUnique(String username) throws ExecutionException, InterruptedException {
+    public boolean isUsernameUnique(String username) throws ExecutionException, InterruptedException {
         String normalizedUsername = username.toLowerCase();
-        Firestore dbFirestore = FirestoreClient.getFirestore();
 
-        ApiFuture<QuerySnapshot> future = dbFirestore.collection("user")
+        ApiFuture<QuerySnapshot> future = firestore.collection("user")
                 .whereEqualTo("userName", normalizedUsername)
                 .get();
 

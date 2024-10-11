@@ -1,11 +1,11 @@
 {% extends "layouts/base.html" %}
-{% block title %}Create Tournament{% endblock %}
+{% block title %}Update Tournament{% endblock %}
 
 {% block content %}
-<h2 class="p-2 ">Create Tournament</h2>
+<h2 class="p-2 ">Update Tournament</h2>
 
 
-<form method="POST" action="{{ url_for('admin.create_tournament') }}">
+<form method="POST" action="{{ url_for('admin.update_tournament') }}">
     {{ form.hidden_tag() }}
     
     <div class="form-group p-2">
@@ -64,6 +64,6 @@
         {% endfor %}
     </div>
 
-    <input type="submit" value="Create Tournament" class="btn btn-primary m-2">
+    <input type="submit" value="Update Tournament" class="btn btn-primary m-2">
 </form>
 {% endblock %}
