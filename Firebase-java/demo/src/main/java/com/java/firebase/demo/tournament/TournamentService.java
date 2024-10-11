@@ -43,11 +43,7 @@ public class TournamentService {
         }
     }
 
-    public static boolean areDatesValidAndInOrder(String startDateStr, String endDateStr) {
-        if (!isValidDate(startDateStr) || !isValidDate(endDateStr)) {
-            return false; // Invalid date format for either start or end date
-        }
-
+    public static boolean areDatesInOrder(String startDateStr, String endDateStr) {
         // Parse the dates after confirming they are in the correct format
         LocalDate startDate = LocalDate.parse(startDateStr);
         LocalDate endDate = LocalDate.parse(endDateStr);
@@ -68,8 +64,11 @@ public class TournamentService {
             throw new IllegalArgumentException("End date should be in yyyy-MM-dd format");
         if (!isValidDate(tournament.getRegistrationDeadline()))
             throw new IllegalArgumentException("End date should be in yyyy-MM-dd format");
-        if (!areDatesValidAndInOrder(tournament.getStartDate(), tournament.getEndDate())){
+        if (!areDatesInOrder(tournament.getStartDate(), tournament.getEndDate())){
             throw new IllegalArgumentException("End date should not be earlier than the start date");
+        }
+        if (!areDatesInOrder(tournament.getRegistrationDeadline(), tournament.getStartDate())){
+            throw new IllegalArgumentException("Start date should not be earlier than the registration dateline");
         }
         if (Strings.isNullOrEmpty(tournament.getTournamentDesc())){
             throw new IllegalArgumentException("Tournament desc should not be empty");
@@ -77,10 +76,10 @@ public class TournamentService {
         if (Strings.isNullOrEmpty(tournament.getImageUrl())){
             throw new IllegalArgumentException("Tournament desc should not be empty");
         }
-        if (!isValidAddress(tournament.getLocation())){
+        if (Strings.isNullOrEmpty(tournament.getLocation()) || !isValidAddress(tournament.getLocation())){
             throw new IllegalArgumentException("Invalid location.");
         }
-        if (!isNameUnique(tournament.getTournamentName())){
+        if (Strings.isNullOrEmpty(tournament.getTournamentName()) || !isNameUnique(tournament.getTournamentName())){
             throw new IllegalArgumentException("Invalid tournament name.");
         }
         return true;
