@@ -1,7 +1,8 @@
 package com.java.firebase.demo.image;
 
+import org.springframework.stereotype.Service;
+
 import com.google.cloud.firestore.Firestore;
-import com.google.firebase.cloud.FirestoreClient;
 
 @Service
 public class FirestoreService {

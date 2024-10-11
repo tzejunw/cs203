@@ -141,7 +141,6 @@ public class TournamentService {
         }
     }
     
-
     // For this Firebase doc, the tournamentName is the documentId.
     public String deleteTournament(String tournamentName) throws ExecutionException, InterruptedException {
         // we are using email as the documentId. the key in the DELETE request must be "documentid", and the value is the email
