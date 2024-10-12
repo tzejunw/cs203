@@ -79,6 +79,19 @@ def view_tournament(tournament_name):
     else:
         return render_template('error.html', message="Tournament not found"), 404
 
+
+@tournament.route('/pairing')
+def view_pairing():
+    return render_template('tournament/pairing.html')
+
+@tournament.route('/reporting')
+def view_reporting():
+    return render_template('tournament/reporting.html')
+
+@tournament.route('/standings')
+def view_standings():
+    return render_template('tournament/standings.html')
+
 # to view an individual tournament
 # @tournament.route('/tournament')
 # def view_tournament():
@@ -100,3 +113,4 @@ def view_players():
 @tournament.route('/matches')
 def tournament_matches():
     return render_template('tournament/matches.html')
+

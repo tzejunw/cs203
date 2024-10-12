@@ -88,6 +88,10 @@
                 <a href="{{url_for('tournament.view_rankings')}}">Rankings</a>
             </li>
 
+            <li>
+                <a href="{{url_for('tournament.view_pairing')}}">Pairing</a>
+            </li>
+
             {% if is_admin %}
                 <li>
                     <a href="{{ url_for('admin.view_tournaments') }}">Admin Tournaments</a>
