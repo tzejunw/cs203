@@ -20,6 +20,7 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
@@ -53,11 +54,50 @@ public class TournamentService {
     }
 
     // @TODO: checks whether the same tournament name has been created.
-    public boolean isNameUnique(String name) {
-        return true;
+    public boolean isNameUnique(String name) throws InterruptedException, ExecutionException, FirestoreException {
+        try {
+            // Get the document from Firestore
+            ApiFuture<DocumentSnapshot> future = FirestoreClient.getFirestore().collection("tournament").document("name").get();
+            DocumentSnapshot document = future.get();
+
+            // Return true if the document does NOT exist (ID is unique), otherwise false
+            return !document.exists();
+        } catch (InterruptedException | ExecutionException | FirestoreException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    public boolean isTournamentValid(Tournament tournament) throws IllegalArgumentException {
+    public boolean isValidAddress(String address) {
+        Dotenv dotenv = Dotenv.load();
+        String map_api_key = dotenv.get("GOOGLE_MAP_API_KEY");
+        String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + map_api_key;
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String responseBody = response.getBody();
+                
+                if (responseBody != null) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode json = mapper.readTree(responseBody);
+                    String status = json.get("status").asText();
+
+                    // Check if the status is OK, indicating the address is valid
+                    System.out.println("OK".equals(status));
+                    return "OK".equals(status);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean isTournamentValid(Tournament tournament) throws IllegalArgumentException, InterruptedException, ExecutionException, FirestoreException {
         if (!isValidDate(tournament.getStartDate()))
             throw new IllegalArgumentException("Start date should be in yyyy-MM-dd format");
         if (!isValidDate(tournament.getEndDate()))
@@ -79,7 +119,7 @@ public class TournamentService {
         if (Strings.isNullOrEmpty(tournament.getLocation()) || !isValidAddress(tournament.getLocation())){
             throw new IllegalArgumentException("Invalid location.");
         }
-        if (Strings.isNullOrEmpty(tournament.getTournamentName()) || !isNameUnique(tournament.getTournamentName())){
+        if (Strings.isNullOrEmpty(tournament.getTournamentName())){
             throw new IllegalArgumentException("Invalid tournament name.");
         }
         return true;
@@ -90,10 +130,13 @@ public class TournamentService {
     // if you want firebase to generate documentId for us, leave .document() blank
     // generates a tournament with an empty Round 1
     public String createTournament(Tournament tournament) throws ExecutionException, InterruptedException {
-        if(isTournamentValid(tournament)) // validations, will throw error if not valid
-        {
-            System.out.println("Valid Input");
+        if(isTournamentValid(tournament)) {
+            System.out.println("Valid Input"); // validations, will throw error if not valid
         }
+        if (!isNameUnique(tournament.getTournamentName())){
+            throw new IllegalArgumentException("The same tournament name already exists.");
+        }
+
         Firestore dbFirestore = FirestoreClient.getFirestore();
         
         // Add the tournament object as a document in Firestore
@@ -125,35 +168,6 @@ public class TournamentService {
         round1DocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
         
         return collectionsApiFuture.get().getUpdateTime().toString();
-    }
-
-    public boolean isValidAddress(String address) {
-        Dotenv dotenv = Dotenv.load();
-        String map_api_key = dotenv.get("GOOGLE_MAP_API_KEY");
-        String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + map_api_key;
-
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String responseBody = response.getBody();
-                
-                if (responseBody != null) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonNode json = mapper.readTree(responseBody);
-                    String status = json.get("status").asText();
-
-                    // Check if the status is OK, indicating the address is valid
-                    System.out.println("OK".equals(status));
-                    return "OK".equals(status);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
     }
     
     // For this Firebase doc, the tournamentName is the documentId.
