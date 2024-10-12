@@ -7,6 +7,7 @@ from wtforms import StringField, PasswordField ,SubmitField
 from wtforms.validators import InputRequired
 from werkzeug.security import generate_password_hash 
 import requests
+from flask import jsonify
 
 @tournament.route('/')
 def index():
@@ -83,6 +84,7 @@ def view_tournament(tournament_name):
 @tournament.route('/pairing')
 def view_pairing():
     return render_template('tournament/pairing.html')
+    
 
 @tournament.route('/reporting')
 def view_reporting():

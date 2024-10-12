@@ -1,0 +1,98 @@
+{% extends "layouts/base.html" %} 
+{% block title %}Player Pairing{% endblock %} 
+{% from "macros/form.html" import render_form %} 
+
+{% block content %} 
+<div class="section-title" style="background:url({{url_for('static',filename='img/tournaments/rankings_hero.jpg')}})">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 home-hero-text">
+                <h1 class="home-hero-header">Player Standings</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container mt-5">
+    <div class="header-container"> 
+    <h3 class="tournament-header-rankings">Eternal Weekend: <span class="header-highlight">Round 1</span></h3>
+</div>
+
+  <table class="table table-dark table-striped text-center mt-4">
+      <thead>
+          <tr>
+              <th scope="col" class="text-center">Player 1</th>
+              <th scope="col" colspan="2" class="text-center">Record</th>
+              <th scope="col" class="text-center">Player 2</th>
+              <th scope="col" colspan="2" class="text-center">Records</th>
+              <th scope="col" colspan="2" class="bg-danger text-center">Score</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <td class="text-center">user1</td>
+              <td class="text-center">0</td>
+              <td class="text-center">0</td>
+              <td class="text-center">user2</td>
+              <td class="text-center">0</td>
+              <td class="text-center">1</td>
+              <td class="text-center">1</td>
+              <td class="text-center">1</td>
+          </tr>
+          <tr>
+            <td class="text-center">user1</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">user2</td>
+            <td class="text-center">0</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+          </tr>
+          <tr>
+            <td class="text-center">user1</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">user2</td>
+            <td class="text-center">0</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+          </tr>
+          <tr>
+            <td class="text-center">user1</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">user2</td>
+            <td class="text-center">0</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+          </tr>
+          <tr>
+            <td class="text-center">user1</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">user2</td>
+            <td class="text-center">0</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+          </tr>
+          <tr>
+            <td class="text-center">user1</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">user2</td>
+            <td class="text-center">0</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+          </tr>
+      </tbody>
+  </table>
+</div>
+
+{% endblock %}
