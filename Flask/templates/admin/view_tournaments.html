@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container-fluid mt-5" style="width: 75%;">
+<div class="container-fluid mt-5" style="width: 90%;">
     <div class="row mb-4">
         <div class="col-md-12">
             <input type="text" class="form-control search-bar" placeholder="Enter tournament name" id="searchInput" onkeyup="filterTournaments()">
@@ -13,8 +13,7 @@
 
     <div class="admin-create-tournament-btn mb-2">
         <a href="{{url_for('admin.create_tournament')}}" class="btn btn-success btn-sm admin-create-tournament" title="Edit" >
-            <!-- <img src="../../static/icons/plus.svg"/> -->
-            Add New
+            Create New Tournament
         </a>
     </div>
 
