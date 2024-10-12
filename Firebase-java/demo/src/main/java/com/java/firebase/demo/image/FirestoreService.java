@@ -15,15 +15,10 @@ public class FirestoreService {
         this.firestore = firestore;
     }
 
-    // public FirestoreService() {
-    //     // Make sure Firestore is initialized properly
-    //     this.firestore = firestore;
-    // }
-
     // Save the image URL to Firestore under the specified document
     public void saveImageUrl(String documentId, String imageUrl) {
         try {
-            firestore.collection("your-collection-name")
+            firestore.collection("tournament")
                     .document(documentId)
                     .update("imageUrl", imageUrl)
                     .get(); // Use .get() to ensure the update completes
