@@ -282,6 +282,28 @@ public class UserService {
         
         return users;
     }
+    
+    public User getPlayer(String userName) throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        
+        // Query the "user" collection to find the document where the userName matches
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection("user")
+                                                      .whereEqualTo("userName", userName)
+                                                      .get();
+        
+        // Get the list of matching documents (should contain at most one result)
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        
+        // Check if any document was found
+        if (!documents.isEmpty()) {
+            // Convert the first matching document to a User object
+            return documents.get(0).toObject(User.class);
+        } else {
+            // Return null or handle the case where no user was found
+            return null;
+        }
+    }
+    
 
     public String getUserEmail(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
         UserRecord userRecord = firebaseAuth.getUser(uid);

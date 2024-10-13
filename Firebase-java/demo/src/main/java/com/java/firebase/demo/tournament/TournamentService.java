@@ -375,8 +375,8 @@ public class TournamentService {
     }
     
     // // CRUD for Matches (nested under Round -> Tournament)
-    // TODO some input validation for match? we have to make sure that match is created with two valid user emails
-    // now for matches, i want to be able to update winner wins losses isDraw isBye
+    // TODO some input validation for match? we have to make sure that match is created with two valid userNames
+    // now for matches, winner wins losses isDraw isBye can be empty for now, but must be updated later. 
     public String createMatch(String tournamentName, String roundName, Match match) throws ExecutionException, InterruptedException{
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
         + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");

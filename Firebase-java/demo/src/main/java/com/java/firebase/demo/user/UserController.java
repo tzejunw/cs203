@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -69,10 +70,16 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/user/get/all") // Adjust the route path as needed
+    @GetMapping("/user/get/all") // doesnt expect anything
     public ResponseEntity<?> getAllUsers() throws InterruptedException, ExecutionException {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/user/get/player") // Expects String in Param
+    public ResponseEntity<?> getPlayer(@RequestParam String userName) throws InterruptedException, ExecutionException {
+        User user = userService.getPlayer(userName);
+        return ResponseEntity.ok(user);
     }
 
 
