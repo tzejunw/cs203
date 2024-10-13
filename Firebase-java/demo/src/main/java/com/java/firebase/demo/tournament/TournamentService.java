@@ -26,12 +26,17 @@ import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import com.google.common.base.Strings;
-import com.google.firebase.cloud.FirestoreClient;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
 @Service
 public class TournamentService {
+    private final Firestore firestore;
+
+    public TournamentService(Firestore firestore) {
+        this.firestore = firestore;
+    }
+
     public static boolean isValidDate(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         try {
@@ -53,11 +58,10 @@ public class TournamentService {
         return !endDate.isBefore(startDate);
     }
 
-    // @TODO: checks whether the same tournament name has been created.
     public boolean isNameUnique(String name) throws InterruptedException, ExecutionException, FirestoreException {
         try {
             // Get the document from Firestore
-            ApiFuture<DocumentSnapshot> future = FirestoreClient.getFirestore().collection("tournament").document("name").get();
+            ApiFuture<DocumentSnapshot> future = firestore.collection("tournament").document("name").get();
             DocumentSnapshot document = future.get();
 
             // Return true if the document does NOT exist (ID is unique), otherwise false
@@ -136,11 +140,9 @@ public class TournamentService {
         if (!isNameUnique(tournament.getTournamentName())){
             throw new IllegalArgumentException("The same tournament name already exists.");
         }
-
-        Firestore dbFirestore = FirestoreClient.getFirestore();
         
         // Add the tournament object as a document in Firestore
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("tournament")
+        ApiFuture<WriteResult> collectionsApiFuture = firestore.collection("tournament")
                                                                   .document(tournament.getTournamentName())
                                                                   .set(tournament);
         
@@ -151,7 +153,7 @@ public class TournamentService {
         // yes sire
         
         // Create the "rounds" subcollection under the tournament document, with the first round
-        DocumentReference round1DocRef = dbFirestore.collection("tournament")
+        DocumentReference round1DocRef = firestore.collection("tournament")
                                                     .document(tournament.getTournamentName())
                                                     .collection("round")
                                                     .document("Round 1");
@@ -173,8 +175,7 @@ public class TournamentService {
     // For this Firebase doc, the tournamentName is the documentId.
     // The key in the GET request must be "documentid", and the value is the tournamentName
     public Tournament getTournament(String tournamentName) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference documentReference = dbFirestore.collection("tournament").document(tournamentName); 
+        DocumentReference documentReference = firestore.collection("tournament").document(tournamentName); 
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         Tournament tournament;
@@ -214,10 +215,8 @@ public class TournamentService {
     }
 
     public List<Tournament> getAllTournaments() throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        
         // Retrieve all documents from the "tournament" collection
-        ApiFuture<QuerySnapshot> future = dbFirestore.collection("tournament").get();
+        ApiFuture<QuerySnapshot> future = firestore.collection("tournament").get();
         
         // QuerySnapshot contains all documents in the collection
         List<QueryDocumentSnapshot> documents = future.get().getDocuments();
@@ -241,10 +240,8 @@ public class TournamentService {
             System.out.println("Valid Input");
         }
         
-        Firestore dbFirestore = FirestoreClient.getFirestore(); 
-        
         // Check if the document exists
-        DocumentReference tournamentDocRef = dbFirestore.collection("tournament").document(tournament.getTournamentName());
+        DocumentReference tournamentDocRef = firestore.collection("tournament").document(tournament.getTournamentName());
         ApiFuture<DocumentSnapshot> future = tournamentDocRef.get();
         DocumentSnapshot document = future.get();
         
@@ -261,16 +258,14 @@ public class TournamentService {
     // For this Firebase doc, the tournamentName is the documentId.
     public String deleteTournament(String tournamentName) throws ExecutionException, InterruptedException {
         // we are using email as the documentId. the key in the DELETE request must be "documentid", and the value is the email
-        Firestore dbFirestore = FirestoreClient.getFirestore(); // connect the db
-        ApiFuture<WriteResult> writeResult = dbFirestore.collection("tournament").document(tournamentName).delete(); // get the doc
+        ApiFuture<WriteResult> writeResult = firestore.collection("tournament").document(tournamentName).delete(); // get the doc
         return "Successfully deleted " + tournamentName;
     }
 
     // // CRUD for Rounds (nested under Tournament)
 
     public String createRound(String tournamentName, Round round) throws ExecutionException, InterruptedException{
-        Firestore dbFirestore = FirestoreClient.getFirestore(); 
-        DocumentReference roundDocRef = dbFirestore.collection("tournament")
+        DocumentReference roundDocRef = firestore.collection("tournament")
                                                                  .document(tournamentName)
                                                                  .collection("round")
                                                                  .document(round.getRoundName());
@@ -299,8 +294,7 @@ public class TournamentService {
         System.out.println("getRound starting");
         System.out.println("arguments are " + tournamentName + ", " + roundName);
         
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference documentReference = dbFirestore.collection("tournament")
+        DocumentReference documentReference = firestore.collection("tournament")
                                                          .document(tournamentName)
                                                          .collection("round")
                                                          .document(roundName);
@@ -343,10 +337,8 @@ public class TournamentService {
     // round itself has no fields so no need update
 
     public String deleteRound(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        
         // Get a reference to the round document
-        DocumentReference roundDocRef = dbFirestore.collection("tournament")
+        DocumentReference roundDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
                                                    .collection("round")
                                                    .document(roundName);
@@ -388,8 +380,7 @@ public class TournamentService {
     public String createMatch(String tournamentName, String roundName, Match match) throws ExecutionException, InterruptedException{
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
         + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
-        Firestore dbFirestore = FirestoreClient.getFirestore(); 
-        DocumentReference matchDocRef = dbFirestore.collection("tournament")
+        DocumentReference matchDocRef = firestore.collection("tournament")
                                                                  .document(tournamentName)
                                                                  .collection("round")
                                                                  .document(roundName)
@@ -409,8 +400,7 @@ public class TournamentService {
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
                              + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
         System.out.println("DocumentId to be searched: " + documentId);
-        Firestore dbFirestore = FirestoreClient.getFirestore(); 
-        DocumentReference matchDocRef = dbFirestore.collection("tournament")
+        DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
                                                    .collection("round")
                                                    .document(roundName)
@@ -436,8 +426,7 @@ public class TournamentService {
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
                              + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
         
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference matchDocRef = dbFirestore.collection("tournament")
+        DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
                                                    .collection("round")
                                                    .document(roundName)
@@ -465,8 +454,7 @@ public class TournamentService {
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
                              + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
     
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference matchDocRef = dbFirestore.collection("tournament")
+        DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
                                                    .collection("round")
                                                    .document(roundName)
@@ -487,8 +475,7 @@ public class TournamentService {
 
     public String createStanding(String tournamentName, String roundName, Standing standing) throws ExecutionException, InterruptedException {
         String documentId = String.valueOf(standing.getRank()); // Using rank as the document ID
-        Firestore dbFirestore = FirestoreClient.getFirestore(); 
-        DocumentReference standingDocRef = dbFirestore.collection("tournament")
+        DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
                                                       .document(roundName)
@@ -503,8 +490,7 @@ public class TournamentService {
 
     public Standing getStanding(String tournamentName, String roundName, int rank) throws ExecutionException, InterruptedException {
         String documentId = String.valueOf(rank); // Use rank as the document ID
-        Firestore dbFirestore = FirestoreClient.getFirestore(); 
-        DocumentReference standingDocRef = dbFirestore.collection("tournament")
+        DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
                                                       .document(roundName)
@@ -525,8 +511,7 @@ public class TournamentService {
         // Generate the documentId based on tournament, round, and rank
         String documentId = updatedStanding.getRank() + "";
         
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference standingDocRef = dbFirestore.collection("tournament")
+        DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
                                                       .document(roundName)
@@ -543,8 +528,8 @@ public class TournamentService {
     
     public String deleteStanding(String tournamentName, String roundName, int rank) throws ExecutionException, InterruptedException {
         String documentId = String.valueOf(rank); // Use rank as the document ID
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference standingDocRef = dbFirestore.collection("tournament")
+
+        DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
                                                       .document(roundName)
