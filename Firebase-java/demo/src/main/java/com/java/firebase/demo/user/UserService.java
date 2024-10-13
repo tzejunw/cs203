@@ -47,18 +47,17 @@ public class UserService {
         this.firebaseAuth = firebaseAuth;
     }
 
-    public void createUserDetails(User user, String uid)
-            throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
-        if (!(user.getGender().equals("Male") || user.getGender().equals("Female")))
-            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
-        if (!isBirthdayValid(user.getBirthday()))
-            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
-        if (!isUsernameValid(user.getUserName()))
-            throw new IllegalArgumentException("Username should be between 3-32 characters long");
-        if (!isUsernameUnique(user.getUserName()))
-            throw new IllegalArgumentException("Username exists, please choose another username");
+    public String createUser(Register register) throws ExecutionException, InterruptedException, FirebaseAuthException{
+        if (!isPasswordValid(register.getPassword()))
+            throw new IllegalArgumentException("Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
         
-        firestore.collection("user").document(uid).set(user);
+        String uid = createAccountInAuth(register.getEmail(), register.getPassword());
+        
+        // Send email verification to the user
+        sendVerificationEmail(uid);
+
+        // setAdminAuthority(uid); // Uncomment to make the next registration an admin user.
+        return uid;
     }
 
     public String createAccountInAuth(String email, String password) throws ExecutionException, InterruptedException, FirebaseAuthException {
@@ -79,17 +78,18 @@ public class UserService {
         firebaseAuth.setCustomUserClaims(uid, claims);
     }
 
-    public String createUser(Register register) throws ExecutionException, InterruptedException, FirebaseAuthException{
-        if (!isPasswordValid(register.getPassword()))
-            throw new IllegalArgumentException("Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
+    public void createUserDetails(User user, String uid)
+            throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
+        if (!(user.getGender().equals("Male") || user.getGender().equals("Female")))
+            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
+        if (!isBirthdayValid(user.getBirthday()))
+            throw new IllegalArgumentException("Incorrect birthday format, format should be DD/MM/YYYY");
+        if (!isUsernameValid(user.getUserName()))
+            throw new IllegalArgumentException("Username should be between 3-32 characters long");
+        if (!isUsernameUnique(user.getUserName()))
+            throw new IllegalArgumentException("Username exists, please choose another username");
         
-        String uid = createAccountInAuth(register.getEmail(), register.getPassword());
-        
-        // Send email verification to the user
-        sendVerificationEmail(uid);
-
-        // setAdminAuthority(uid); // Uncomment to make the next registration an admin user.
-        return uid;
+        firestore.collection("user").document(uid).set(user);
     }
 
     // FOR TESTING ONLY
