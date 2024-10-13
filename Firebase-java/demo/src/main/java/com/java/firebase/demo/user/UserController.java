@@ -1,5 +1,6 @@
 package com.java.firebase.demo.user;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.http.ResponseEntity;
@@ -67,6 +68,13 @@ public class UserController {
         User user = userService.getUser(uid);
         return ResponseEntity.ok(user);
     }
+
+    @GetMapping("/user/get/all") // Adjust the route path as needed
+    public ResponseEntity<?> getAllUsers() throws InterruptedException, ExecutionException {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
 
     // Email is seperated as further email verification (when updated) is necessary later
     @GetMapping("/user/getEmail") 

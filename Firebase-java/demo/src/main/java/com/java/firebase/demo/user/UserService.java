@@ -1,5 +1,6 @@
 package com.java.firebase.demo.user;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,9 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.UpdateRequest;
 import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
+
+import com.google.firebase.cloud.FirestoreClient;
+
 
 @Service
 public class UserService {
@@ -256,6 +260,27 @@ public class UserService {
             return user;
         }
         throw new IllegalArgumentException("User not found.");
+    }
+
+    public List<User> getAllUsers() throws ExecutionException, InterruptedException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        
+        // Retrieve all documents from the "user" collection
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection("user").get();
+        
+        // QuerySnapshot contains all documents in the collection
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        
+        // Create a list to hold the User objects
+        List<User> users = new ArrayList<>();
+        
+        // Convert each document to a usr object and add it to the list
+        for (DocumentSnapshot document : documents) {
+            User user = document.toObject(User.class);
+            users.add(user);
+        }
+        
+        return users;
     }
 
     public String getUserEmail(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
