@@ -202,8 +202,8 @@ public class TournamentService {
 
                 // call getRound() on each roundId
                 List<Round> rounds = new ArrayList<>();
-                for (String roundName : roundIds) {
-                    Round round = getRound(tournamentName, roundName);
+                for (int roundNumber : roundIds) {
+                    Round round = getRound(tournamentName, roundNumber);
                     rounds.add(round);
                 }
 
@@ -295,14 +295,14 @@ public class TournamentService {
         return round.getRoundName() + "," + matchCounter +  " matches, empty standings collection, created in " + tournamentName + "at " + standingsUpdate.get().getUpdateTime().toString();
     }
 
-    public Round getRound(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
+    public Round getRound(String tournamentName, int roundNumber) throws ExecutionException, InterruptedException {
         System.out.println("getRound starting");
-        System.out.println("arguments are " + tournamentName + ", " + roundName);
+        System.out.println("arguments are " + tournamentName + ", " + roundNumber);
         
         DocumentReference documentReference = firestore.collection("tournament")
                                                          .document(tournamentName)
                                                          .collection("round")
-                                                         .document(roundName);
+                                                         .document("" + roundNumber);
     
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
@@ -311,7 +311,7 @@ public class TournamentService {
         if (document.exists()) {
             System.out.println("Round document exists");
             round = document.toObject(Round.class); // Convert to object
-            round.setRoundName(roundName);
+            round.setRoundNumber(roundNumber);
             
             // Fetching the "matches" subcollection
             CollectionReference matchSubcollectionRef = documentReference.collection("match");
@@ -341,14 +341,14 @@ public class TournamentService {
     
     // round itself has no fields so no need update
 
-    public String deleteRound(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
+    public String deleteRound(String tournamentName, int roundNumber) throws ExecutionException, InterruptedException {
         // Get a reference to the round document
         DocumentReference roundDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
                                                    .collection("round")
-                                                   .document(roundName);
+                                                   .document("" + roundNumber);
     
-        System.out.println("Attempting to delete round: " + roundName + " from tournament: " + tournamentName);
+        System.out.println("Attempting to delete round: " + roundNumber + " from tournament: " + tournamentName);
     
         // Step 1: Delete all documents in the "matches" subcollection
         CollectionReference matchesSubcollection = roundDocRef.collection("match");
@@ -374,21 +374,21 @@ public class TournamentService {
     
         // Step 3: Delete the round document itself
         ApiFuture<WriteResult> deleteFuture = roundDocRef.delete();
-        System.out.println("Deleted round document: " + roundName);
+        System.out.println("Deleted round document: " + roundNumber);
         
-        return "Deleted round: " + roundName + ", time: " + deleteFuture.get().getUpdateTime().toString();
+        return "Deleted round: " + roundNumber + ", time: " + deleteFuture.get().getUpdateTime().toString();
     }
     
     // // CRUD for Matches (nested under Round -> Tournament)
     // TODO some input validation for match? we have to make sure that match is created with two valid userNames
     // now for matches, winner wins losses isDraw isBye can be empty for now, but must be updated later. 
-    public String createMatch(String tournamentName, String roundName, Match match) throws ExecutionException, InterruptedException{
-        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+    public String createMatch(String tournamentName, int roundNumber, Match match) throws ExecutionException, InterruptedException{
+        String documentId = (tournamentName.trim() + "_" + roundNumber + "_" 
         + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                                  .document(tournamentName)
                                                                  .collection("round")
-                                                                 .document(roundName)
+                                                                 .document("" + roundNumber)
                                                                  .collection("match")
                                                                  .document(documentId); // concated Id
                                                                  
@@ -396,19 +396,19 @@ public class TournamentService {
         ApiFuture<WriteResult> matchResult = matchDocRef.set(match); 
         matchResult.get(); // Wait for completion
 
-        return "One match created in " + tournamentName + ", " + roundName + " at " + matchResult.get().getUpdateTime().toString();
+        return "One match created in " + tournamentName + ", " + roundNumber + " at " + matchResult.get().getUpdateTime().toString();
     }
 
-    public Match getMatch(String tournamentName, String roundName, String player1, String player2) throws ExecutionException, InterruptedException {
+    public Match getMatch(String tournamentName, int roundNumber, String player1, String player2) throws ExecutionException, InterruptedException {
         System.out.println("getMatch starting");
         // Generate the same documentId used in createMatch
-        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+        String documentId = (tournamentName.trim() + "_" + roundNumber + "_" 
                              + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
         System.out.println("DocumentId to be searched: " + documentId);
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
                                                    .collection("round")
-                                                   .document(roundName)
+                                                   .document("" + roundNumber)
                                                    .collection("match")
                                                    .document(documentId);
     
@@ -426,15 +426,15 @@ public class TournamentService {
         }
     }
 
-    public String updateMatch(String tournamentName, String roundName, String player1, String player2, Match updatedMatch) throws ExecutionException, InterruptedException {
+    public String updateMatch(String tournamentName, int roundNumber, String player1, String player2, Match updatedMatch) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and player names
-        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+        String documentId = (tournamentName.trim() + "_" + roundNumber + "_" 
                              + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
         
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
                                                    .collection("round")
-                                                   .document(roundName)
+                                                   .document("" + roundNumber)
                                                    .collection("match")
                                                    .document(documentId);
         
@@ -446,23 +446,23 @@ public class TournamentService {
             // Document exists, proceed with the update
             ApiFuture<WriteResult> matchResult = matchDocRef.set(updatedMatch, SetOptions.merge()); // Update only provided fields
             matchResult.get(); // Wait for completion
-            return "Match updated for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundName;
+            return "Match updated for " + player1 + " vs " + player2 + " in " + tournamentName + " at Round " + roundNumber;
         } else {
             // Document does not exist, return a message
-            return "Match not found for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundName;
+            return "Match not found for " + player1 + " vs " + player2 + " in " + tournamentName + " at Round " + roundNumber;
         }
     }
     
 
-    public String deleteMatch(String tournamentName, String roundName, String player1, String player2) throws ExecutionException, InterruptedException {
+    public String deleteMatch(String tournamentName, int roundNumber, String player1, String player2) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and player names
-        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+        String documentId = (tournamentName.trim() + "_" + roundNumber + "_" 
                              + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
     
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
                                                    .collection("round")
-                                                   .document(roundName)
+                                                   .document("" + roundNumber)
                                                    .collection("match")
                                                    .document(documentId);
     
@@ -470,7 +470,7 @@ public class TournamentService {
         ApiFuture<WriteResult> deleteResult = matchDocRef.delete();
         deleteResult.get(); // Wait for completion
     
-        return "Match deleted for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundName;
+        return "Match deleted for " + player1 + " vs " + player2 + " in " + tournamentName + " at " + roundNumber;
     }
     
 
@@ -478,27 +478,27 @@ public class TournamentService {
 
     // // CRUD for Standings (nested under Round -> Tournament)
 
-    public String createStanding(String tournamentName, String roundName, Standing standing) throws ExecutionException, InterruptedException {
+    public String createStanding(String tournamentName, int roundNumber, Standing standing) throws ExecutionException, InterruptedException {
         String documentId = String.valueOf(standing.getRank()); // Using rank as the document ID
         DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
-                                                      .document(roundName)
+                                                      .document("" + roundNumber)
                                                       .collection("standing")
                                                       .document(documentId);
     
         ApiFuture<WriteResult> standingResult = standingDocRef.set(standing);
         standingResult.get(); // Wait for completion
     
-        return "One standing created in " + tournamentName + ", " + roundName + " at " + standingResult.get().getUpdateTime().toString();
+        return "One standing created in " + tournamentName + ", " + roundNumber + " at " + standingResult.get().getUpdateTime().toString();
     }
 
-    public Standing getStanding(String tournamentName, String roundName, int rank) throws ExecutionException, InterruptedException {
+    public Standing getStanding(String tournamentName, int roundNumber, int rank) throws ExecutionException, InterruptedException {
         String documentId = String.valueOf(rank); // Use rank as the document ID
         DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
-                                                      .document(roundName)
+                                                      .document("" + roundNumber)
                                                       .collection("standing")
                                                       .document(documentId);
     
@@ -512,14 +512,14 @@ public class TournamentService {
         }
     }
         
-    public String updateStanding(String tournamentName, String roundName, Standing updatedStanding) throws ExecutionException, InterruptedException {
+    public String updateStanding(String tournamentName, int roundNumber, Standing updatedStanding) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and rank
         String documentId = updatedStanding.getRank() + "";
         
         DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
-                                                      .document(roundName)
+                                                      .document("" + roundNumber)
                                                       .collection("standing")
                                                       .document(documentId);
     
@@ -527,24 +527,24 @@ public class TournamentService {
         ApiFuture<WriteResult> standingResult = standingDocRef.set(updatedStanding, SetOptions.merge()); // Only update the provided fields
         standingResult.get(); // Wait for completion
     
-        return "Standing updated for rank " + documentId + " in " + tournamentName + " at " + roundName;
+        return "Standing updated for rank " + documentId + " in " + tournamentName + " at " + roundNumber;
     }
     
     
-    public String deleteStanding(String tournamentName, String roundName, int rank) throws ExecutionException, InterruptedException {
+    public String deleteStanding(String tournamentName, int roundNumber, int rank) throws ExecutionException, InterruptedException {
         String documentId = String.valueOf(rank); // Use rank as the document ID
 
         DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
-                                                      .document(roundName)
+                                                      .document("" + roundNumber)
                                                       .collection("standing")
                                                       .document(documentId);
     
         ApiFuture<WriteResult> deleteResult = standingDocRef.delete();
         deleteResult.get(); // Wait for completion
     
-        return "Standing with rank " + rank + " deleted from " + tournamentName + ", " + roundName;
+        return "Standing with rank " + rank + " deleted from " + tournamentName + ", " + roundNumber;
     }
     
 }
