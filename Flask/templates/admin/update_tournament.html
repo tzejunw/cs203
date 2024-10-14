@@ -10,7 +10,7 @@
     
     <div class="form-group p-2">
         {{ form.tournamentName.label(class="form-label") }}
-        {{ form.tournamentName(class="form-control") }}
+        {{ form.tournamentName(class="form-control", readonly=True, style="background-color: #e9ecef;") }}
         {% for error in form.tournamentName.errors %}
             <div class="text-danger">{{ error }}</div>
         {% endfor %}
