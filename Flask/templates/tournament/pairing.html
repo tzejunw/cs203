@@ -1,0 +1,41 @@
+{% extends "layouts/base.html" %} 
+{% block title %}Player Pairing{% endblock %} 
+{% from "macros/form.html" import render_form %} 
+
+{% block content %} 
+<div class="section-title" style="background:url({{url_for('static',filename='img/tournaments/pairings_hero.jpg')}})">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 home-hero-text">
+                <h1 class="home-hero-header">Player Pairing</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container text-center mt-5 pairing-container">
+    <h3 class="tournament-header">Eternal Weekend: <span class="header-highlight">Round 1</span></h3>
+    <div class="row justify-content-center mt-4">
+    
+        <div class="col-md-2">
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="user-block bg-black text-white px-3 py-2">user1</div>
+                <div class="score-block bg-light text-dark px-3 py-2">0</div>
+            </div>
+        </div>
+
+        <div class="col-md-1 d-flex justify-content-center align-items-center">
+            <div class="vs-block text-dark px-3 py-2">VS</div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="score-block bg-light text-dark px-3 py-2">0</div>
+                <div class="user-block bg-orange text-white px-3 py-2">user2</div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

@@ -1,20 +1,9 @@
 package com.java.firebase.demo;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Objects;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-
-import io.github.cdimascio.dotenv.Dotenv;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 
 
 // some boiler plate to authenticate and connect to firebase
@@ -24,23 +13,23 @@ public class CRUDRunner {
 
     public static void main(String[] args) throws IOException {
         // Load environment variables
-        Dotenv dotenv = Dotenv.load();
+        // Dotenv dotenv = Dotenv.load();
 
-        // Get the Base64 encoded key from environment variable
-        String keyBase64 = dotenv.get("FIREBASE_SERVICE_ACCOUNT_KEY_BASE64");
+        // // Get the Base64 encoded key from environment variable
+        // String keyBase64 = dotenv.get("FIREBASE_SERVICE_ACCOUNT_KEY_BASE64");
 
-        // Decode the Base64 key
-        byte[] decodedKey = java.util.Base64.getDecoder().decode(keyBase64);
+        // // Decode the Base64 key
+        // byte[] decodedKey = java.util.Base64.getDecoder().decode(keyBase64);
 
-        // Create InputStream from the decoded bytes
-        ByteArrayInputStream serviceAccount = new ByteArrayInputStream(decodedKey);
+        // // Create InputStream from the decoded bytes
+        // ByteArrayInputStream serviceAccount = new ByteArrayInputStream(decodedKey);
 
-        FirebaseOptions options = new FirebaseOptions.Builder()
-            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-            .setStorageBucket("cs203-a263b.appspot.com")
-            .build();
+        // FirebaseOptions options = new FirebaseOptions.Builder()
+        //     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+        //     .setStorageBucket("cs203-a263b.appspot.com")
+        //     .build();
 
-        FirebaseApp.initializeApp(options);
+        // FirebaseApp.initializeApp(options);
 
         SpringApplication.run(CRUDRunner.class, args);
     }

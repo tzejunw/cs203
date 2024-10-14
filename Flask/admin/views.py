@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, json, render_template, request, redirect, url_for, flash
 from flask_wtf import FlaskForm 
 from wtforms import StringField, SubmitField, DateField
 from wtforms.validators import InputRequired
@@ -77,6 +77,65 @@ def create_tournament():
             flash("Error creating tournament: " + response.text, "danger")
 
     return render_template('admin/create_tournament.html', form=form)
+
+@admin.route('/update_tournament', methods=['GET', 'POST'])
+def update_tournament():
+    form = TournamentForm()  # Create an instance of the form
+    jwt_cookie = request.cookies.get('jwt')
+
+    if form.validate_on_submit():
+        tournament_data = {
+            "tournamentName": form.tournamentName.data,
+            "startDate": form.startDate.data,
+            "endDate": form.endDate.data,
+            "registrationDeadline": form.registrationDeadline.data if form.registrationDeadline.data else None,
+            "tournamentDesc": form.tournamentDesc.data,
+            "location": form.location.data,
+            "imageUrl": form.imageUrl.data,
+            "adminList": [],  # Replace with actual admin emails as needed
+            "participatingPlayers": [],  # Initially empty
+            "rounds": None
+        }
+
+        api_url = 'http://localhost:8080/tournament/update'
+  
+        headers = {
+            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+            'Content-Type': 'application/json'
+        }
+        response = requests.put(api_url, json=tournament_data, headers=headers)
+
+        # Print the response status code and content for debugging
+        print("Response Status Code:", response.status_code)
+        print("Response Content:", response.text)
+
+        if response.status_code == 200 or response.status_code == 201:
+            flash("Tournament updated successfully!", "success")
+            return redirect(url_for('admin.view_tournaments'))  # Redirect after successful creation
+        else:
+            flash("Error updating tournament: " + response.text, "danger")
+            return render_template('admin/update_tournament.html', form=form)  # Return form in case of error
+    else:
+
+        tournament = request.args.get('tournament')
+        print("Original tournament string:", tournament)
+        tournament = tournament.replace("'", '"').replace("None", "null")
+        tournament = tournament.strip()
+        tournamentDict= json.loads(tournament)  #convert string to dict
+
+        print("Modified tournament string:", tournament)
+
+        form.tournamentName.data = tournamentDict.get("tournamentName")
+        form.startDate.data = tournamentDict.get("startDate")
+        form.endDate.data = tournamentDict.get("endDate")
+        form.tournamentDesc.data = tournamentDict.get("tournamentDesc")
+        form.imageUrl.data = tournamentDict.get("imageUrl")
+        #form.numberOfPlayers.data = tournamentDict.get("numberOfPlayers")
+        form.location.data = tournamentDict.get("location")
+        form.registrationDeadline.data = tournamentDict.get("registrationDeadline")
+
+
+        return render_template('admin/update_tournament.html',form=form)
 
 @admin.route('/delete_tournament/<string:tournament_name>', methods=['POST'])
 def delete_tournament(tournament_name):

@@ -41,6 +41,7 @@ public class TournamentController {
         return tournamentService.updateTournament(tournament);
     }
 
+
     @DeleteMapping("/tournament/delete") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
     public String deleteTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
         return tournamentService.deleteTournament(tournamentName);

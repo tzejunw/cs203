@@ -24,32 +24,15 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="mt-4">Location Details</h4>
-                    <p>{{location}}</p>
+                    <p>{{ tournament.location }}</p>
                 </div>
-                <input type="hidden" id="address" value="{{ location }}">
+                <input type="hidden" id="address" value="{{ tournament.location }}">
                 <div id="map" style="width: 100%; height: 400px;"></div>
             </div>
         </div>
 
-        <!-- Right Side Content (Tournament Info and Join Button) -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h3>{{ tournament.tournamentName }}</h3>
-                    <ul class="list-unstyled">
-                        <li><strong>Start Date:</strong> {{ tournament.startDate }}</li>
-                        <li><strong>End Date:</strong> {{ tournament.endDate }}</li>
-                        <li><strong>Location:</strong> {{ tournament.location }}</li>
-                        <li><strong>Organizer:</strong> {{ tournament.adminList | join(', ') }}</li>
-                        <li><strong>Current Players:</strong> {{ tournament.numberOfPlayers }}</li>
-                    </ul>
-                    <a href="#" class="btn tournament-join-btn w-100 mt-3">Join</a>
-                </div>
-            </div>
-        </div>
+       
     </div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyALm6bzbiFAayZoBcbEOe4QJa3S-8jz74E&libraries=places,geometry"></script>
-<script src="{{url_for('static',filename='js/dynamicGoogleMaps.js')}}"></script>
 {% endblock %}

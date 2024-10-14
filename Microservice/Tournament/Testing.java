@@ -89,20 +89,20 @@ public class Testing {
             //System.out.println(p.getUserID() +" " + p.getCurMatchPts());
             winners += p.getCurMatchPts()/3;
         }
-        //System.out.println(winners);
+        //System.out.println(winners);''
 
         testRound.generateStandings();
         testRound.generateMatches(new ArrayList<Match>());
 
-        for (Match m : testRound.getRoundMatches()){
-            m.update(m.getP1(), 2, 0);
-            m.getP1().addMatch(m);
-            m.getP2().addMatch(m);
+        // for (Match m : testRound.getRoundMatches()){
+        //     m.update(m.getP1(), 2, 0);
+        //     m.getP1().addMatch(m);
+        //     m.getP2().addMatch(m);
             
-        }
+        // }
 
-        testRound.generateStandings();
-        testRound.generateMatches(new ArrayList<Match>());
+        // testRound.generateStandings();
+        // testRound.generateMatches(new ArrayList<Match>());
 
         
 

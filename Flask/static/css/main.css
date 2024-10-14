@@ -19351,4 +19351,211 @@ table.career tr td img {
   opacity: 8%;
 }
 
+.line {
+  border-top: 1px solid grey;
+  width: 39%; /* Adjust width as needed */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.text {
+  display: inline-block;
+  margin: 0 20px; /* Adjust spacing around text as needed */
+}
 /* end of google sign in btn */
+
+/* Progress bar */
+
+/* End of progress bar */
+
+/* CSS for Player Pairings */
+
+.user-block {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  width: 200px;
+}
+
+.pairing-container {
+  margin-bottom: 60px;
+}
+
+.user-block, .score-block {
+  height: 50px; /* Ensure both blocks have the same height */
+  display: flex;
+  justify-content: center; /* Horizontally center the content */
+  align-items: center;     /* Vertically center the content */
+}
+
+.d-flex {
+  align-items: center; /* Ensure all flex children align vertically */
+}
+
+.score-block {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  width: 50px;
+}
+
+.vs-block {
+  font-size: 1.2rem; /* Adjust size of "VS" */
+  text-transform: uppercase; /* Make "VS" uppercase if desired */
+  color: black; /* Adjust color as needed */
+}
+
+.bg-black {
+  background-color: black;
+  border: 1px solid black;
+}
+
+.bg-orange {
+  background-color: #DC5743;
+}
+
+.bg-light {
+  background-color: #e9ecef;
+  border: 1px solid #615f5a;
+}
+
+.tournament-header {
+  font-family: 'Montserrat', sans-serif; 
+  font-weight: 700; 
+  font-size: 1.4rem; 
+  letter-spacing: 1px; 
+  text-transform: uppercase; 
+  color: #333; 
+  margin-bottom: 50px;
+}
+
+.header-highlight {
+  font-family: 'Roboto', sans-serif; 
+  font-weight: 300; 
+  color: #DC5743; 
+  font-style: italic; 
+}
+
+
+/* CSS for Match Reporting */
+
+.tournament-header-reporting{
+  font-family: 'Montserrat', sans-serif; 
+  font-weight: 700; 
+  font-size: 1.4rem; 
+  letter-spacing: 1px; 
+  text-transform: uppercase; 
+  color: #333; 
+  margin-top: 20px;
+}
+
+.header-container {
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  margin: 20px 0; /* Space above and below the header */
+}
+
+.scoreboard-container {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.scoreboard {
+  background-color: black;
+  width: 200px;
+  text-align: center;
+  border-radius: 10px;
+  overflow: hidden; /* Ensures no extra space shows outside the border */
+}
+
+.user-header {
+  background-color: #DC5743;
+  color: white;
+  padding: 7.5px;
+  font-size: 18px;
+  border-radius: 10px 10px 0 0;
+  margin: 0; /* Removes any default margin */
+}
+
+.score-display {
+  color: white;
+  font-size: 48px;
+  padding: 20px 0;
+  margin: 0; /* Ensures no additional margin is applied */
+  height: 200px; /* Fixed height */
+  display: flex; /* Use flexbox for centering */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.score-btn {
+  background-color: #BDC3C7;
+  border: none;
+  font-size: 24px;
+  width: 50%;
+  cursor: pointer;
+  padding: 5px;
+  color: white;
+}
+
+.minus {
+  background-color: #898989;
+}
+
+.plus {
+  background-color: #5B5B5B;
+}
+
+.score-btn:hover {
+  background-color: #95A5A6;
+}
+
+/* Media Query for Small Screens */
+@media (max-width: 600px) {
+  .scoreboard-container {
+      flex-direction: column; /* Stack items vertically on smaller screens */
+      align-items: center; /* Center align scoreboards */
+  }
+
+  .scoreboard {
+      width: 50%; /* Make scoreboards full width on small screens */
+      max-width: none; /* Remove max width to utilize full screen */
+  }
+}
+
+
+/* CSS for player rankings */ 
+
+.tournament-header-rankings {
+  font-family: 'Montserrat', sans-serif; 
+  font-weight: 700; 
+  font-size: 1.4rem; 
+  letter-spacing: 1px; 
+  text-transform: uppercase; 
+  color: #333; 
+}
+
+.table-dark {
+  background-color: #343a40;
+}
+
+.table-dark th {
+  background-color: black;
+  color: white;
+}
+
+.table-dark td {
+  background-color: #212529;
+  color: white;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+  color: white;
+}

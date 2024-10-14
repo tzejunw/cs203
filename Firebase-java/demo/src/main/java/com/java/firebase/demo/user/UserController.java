@@ -1,5 +1,6 @@
 package com.java.firebase.demo.user;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,16 +27,24 @@ public class UserController {
         this.userService = userService;
     }
 
+    // @PostMapping("/user/masscreate") // expects a User object in body raw JSON
+    // public ResponseEntity<String> massCreateUser() throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
+    //     for (int i = 11; i <= 30; i++){
+    //         userService.createTestUser("user" + i);
+    //     }
+    //     return ResponseEntity.ok().body("Success");
+    // }
+
     @PostMapping("/user/create") // expects a User object in body raw JSON
     public ResponseEntity<String> createUser(@RequestBody Register register) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
-        userService.createUser(register);
-        return ResponseEntity.ok().body("Welcome " + register.getName() + ", verify your account to continue.");
+        String uid = userService.createUser(register);
+        return ResponseEntity.ok().body(uid);
     }
 
-    @PostMapping("/user/googleSignUp") // expects a User object in body raw JSON
-    public ResponseEntity<String> createGoogleUser(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
+    @PostMapping("/user/createDetails") // expects a User object in body raw JSON
+    public ResponseEntity<String> createUserDetails(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
-        userService.createFirestoreRecord(user, uid);
+        userService.createUserDetails(user, uid);
         return ResponseEntity.ok().body("Success");
     }
 
@@ -59,6 +69,19 @@ public class UserController {
         User user = userService.getUser(uid);
         return ResponseEntity.ok(user);
     }
+
+    @GetMapping("/user/get/all") // doesnt expect anything
+    public ResponseEntity<?> getAllUsers() throws InterruptedException, ExecutionException {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/user/get/player") // Expects String in Param
+    public ResponseEntity<?> getPlayer(@RequestParam String userName) throws InterruptedException, ExecutionException {
+        User user = userService.getPlayer(userName);
+        return ResponseEntity.ok(user);
+    }
+
 
     // Email is seperated as further email verification (when updated) is necessary later
     @GetMapping("/user/getEmail") 
