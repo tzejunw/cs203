@@ -52,7 +52,7 @@ public class RestExceptionHandler {
     public ResponseEntity<Object> handleFirebaseAuthException(FirebaseAuthException ex, WebRequest request) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("message", "An unexpected error occurred. Please try again later.");
+        body.put("message", ex.getMessage());
         body.put("debug", "Firebase authentication error: " + ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);

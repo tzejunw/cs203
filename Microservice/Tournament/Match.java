@@ -5,7 +5,7 @@ public class Match {
     private int gameWins;
     private int gameLosses;
     private Boolean isDraw;
-    private Boolean isBye;
+    private Boolean isBye = false;
 
     public Match(TournamentPlayer player1, TournamentPlayer player2){
         this.player1 = player1;
@@ -17,9 +17,10 @@ public class Match {
         player1 = player;
         isBye = true;
         gameWins = 2;
+        gameLosses = 0;
     }
 
-    public void update(TournamentPlayer winner, int gameWins, int gameLosses, Boolean bye){
+    public void update(TournamentPlayer winner, int gameWins, int gameLosses){
 
         this.winner = winner;
 
@@ -28,6 +29,9 @@ public class Match {
         if (gameWins == gameLosses){
             isDraw = true;
         }
+
+        player1.addMatch(this);
+        player2.addMatch(this);
     }
 
     public TournamentPlayer getWinner(){
@@ -56,5 +60,10 @@ public class Match {
 
     public Boolean isDraw(){
         return isDraw;
+    }
+
+    public String toString(){
+        String loser = player1.equals(winner) ? player2.getUserID() : player1.getUserID();
+        return winner.getUserID() + " " + loser + " " + gameWins + "-" + gameLosses;
     }
 }

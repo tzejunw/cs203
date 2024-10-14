@@ -21,14 +21,17 @@ application.register_blueprint(tournament, url_prefix='/tournament')
 
 # this method is executed for every page that is loaded
 @application.context_processor
-def inject_logout_status():
-
+def inject_login_status():
     jwt_cookie = request.cookies.get('jwt')
-    userName = "user"
+    userName = request.cookies.get('userName')
     is_admin = False  # Default to False
 
+    registration = request.cookies.get('registration')
+    if registration: # registration not completed
+        print("registration not completed")
+        return {'registration': True}
+
     if jwt_cookie:  
-        userName = request.cookies.get('userName')
         try:
             # Decode without verifying the signature
             decoded_jwt = jwt.decode(jwt_cookie, options={"verify_signature": False})

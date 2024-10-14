@@ -26,6 +26,10 @@ public class TournamentPlayer{
 
     }
 
+    public String getUserID(){
+        return playerID;
+    }
+
     public int getCurMatchPts() {
         return curMatchPts;
     }
@@ -111,7 +115,7 @@ public class TournamentPlayer{
     }
 
     public double getCurGW(){
-        return getTotalGamePoints() / (double)roundsPlayed();
+        return getTotalGamePoints() / ((double)roundsPlayed() * 3);
     }
 
     public double getOMW(){
@@ -137,7 +141,7 @@ public class TournamentPlayer{
             if (!m.isBye()){
                 TournamentPlayer opp = m.getP1().equals(this) ? m.getP2() : m.getP1();
                 
-                OGW += getCurGW() < 0.33 ? 0.33 : getCurGW();    
+                OGW += opp.getCurGW() < 0.33 ? 0.33 : getCurGW();    
             }
         }
 

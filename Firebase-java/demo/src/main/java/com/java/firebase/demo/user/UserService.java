@@ -40,6 +40,10 @@ import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
 
 @Service
 public class UserService {
+    public void createRecordInFirestore(User user, String uid) throws ExecutionException, InterruptedException, FirestoreException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        dbFirestore.collection("user").document(uid).set(user);
+    }
     // This takes one of the specified json fields, here .getEmail(), and sets it as
     // the documentId (document identifier) if you want firebase to generate
     // documentId for us, leave .document() blank
@@ -86,14 +90,15 @@ public class UserService {
         user.setUserName(register.getUserName().toLowerCase());
         user.setName(register.getName());
         user.setBirthday(register.getBirthday());
-        user.setUserStatus("player");
-        user.setEmail(register.getEmail()); // Should we exclude email being added to Firestore?
         user.setGender(register.getGender());
 
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("user").document(userAuthRecord.getUid())
-                .set(user);
-        return collectionsApiFuture.get().getUpdateTime().toString();
+        createRecordInFirestore(user, userAuthRecord.getUid());
+        return "Successfully added user.";
+    }
+
+    public void createFirestoreRecord(User user, String uid)
+            throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
+        createRecordInFirestore(user, uid);
     }
 
     // Method to send email verification
@@ -261,15 +266,6 @@ public class UserService {
         }
         throw new IllegalArgumentException("User not found.");
     }
-
-    // public String updateEmail(String newEmail, String uid)
-    //         throws ExecutionException, InterruptedException, FirebaseAuthException {
-    //     if (!newEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$"))
-    //         throw new IllegalArgumentException("Invalid email format");
-    //     UpdateRequest request = new UserRecord.UpdateRequest(uid).setEmail(newEmail);
-    //     FirebaseAuth.getInstance().updateUser(request);
-    //     return "Successfully updated user";
-    // }
 
     public String updatePassword(String newPassword, String uid)
             throws ExecutionException, InterruptedException, FirebaseAuthException {

@@ -19,10 +19,23 @@ class TournamentForm(FlaskForm):
 
 @admin.route('/view_tournaments')
 def view_tournaments():
+    #Get page number from query parameter, default is 1
+    page = request.args.get('page', 1, type=int)
+    page_size = 8
+
     api_url = 'http://localhost:8080/tournament/get/all'
     response = requests.get(api_url)
     tournaments = response.json()  
-    return render_template('admin/view_tournaments.html', tournaments=tournaments)
+
+    #calculate total number of pages
+    total_tournaments = len(tournaments)
+    total_pages = (total_tournaments + page_size - 1) // page_size
+
+    start = (page - 1) * page_size
+    end = start + page_size
+    tournaments_page = tournaments[start:end]
+
+    return render_template('admin/view_tournaments.html', tournaments=tournaments_page, page=page, total_pages=total_pages)
 
 @admin.route('/create_tournament', methods=['GET', 'POST'])
 def create_tournament():
@@ -30,7 +43,6 @@ def create_tournament():
     jwt_cookie = request.cookies.get('jwt')
 
     print("Form Data:", form.data)  # Add this line
-
 
     if form.validate_on_submit():
         tournament_data = {
@@ -65,3 +77,29 @@ def create_tournament():
             flash("Error creating tournament: " + response.text, "danger")
 
     return render_template('admin/create_tournament.html', form=form)
+
+@admin.route('/delete_tournament/<string:tournament_name>', methods=['POST'])
+def delete_tournament(tournament_name):
+
+    jwt_cookie = request.cookies.get('jwt')
+
+    api_url = f'http://localhost:8080/tournament/delete?tournamentName={tournament_name}'
+
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',
+        'Content-Type': 'application/json'
+    }
+    
+    response = requests.delete(api_url, headers=headers)
+
+    print("Response Status Code:", response.status_code)
+    print("Response Content:", response.text)
+
+    # Handle response
+    if response.status_code == 200 or response.status_code == 204:
+        flash(f"{tournament_name} deleted successfully!", "success")
+        return redirect(url_for('admin.view_tournaments'))
+    else:
+        flash("Error deleting tournament: " + response.text, "danger")
+        return redirect(url_for('admin.view_tournaments'))
+

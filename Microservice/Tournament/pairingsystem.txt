@@ -63,7 +63,6 @@ Ranking will then be determined by following priority
 3 GW%
 4 Opp GW%
 
-
 After ranking, If total odd number, assign bye randomly among those with lowest scores
 
 starting at the bottom bracket ( players with lowest scores )
