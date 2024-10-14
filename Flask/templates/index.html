@@ -15,39 +15,35 @@
 </div>
 
 <div class="container-fluid p-5">
-    <div class="row">
+    <!-- First tournament in larger section below the main banner -->
+    {% if tournaments|length > 0 %}
+    <div class="row mb-5">
         <div class="col-md-7">
-          <img src="{{url_for('static',filename='img/home/tournament-1.jpg')}}" alt="Magic Character" class="img-fluid">
+            <img src="{{ tournaments[0].imageUrl if tournaments[0].imageUrl else url_for('static',filename='img/home/default-tournament.jpg') }}" alt="Main Tournament Image" class="img-fluid">
         </div>
         <div class="col-md-5 bg-light p-3">
-          <h2>Tournament 1</h2>
-          <p>Join the upcoming tournament</p>
-          <button type="button" class="btn btn-warning" style="color: ">Join</button>
+            <h2>{{ tournaments[0].tournamentName }}</h2>
+            <p>{{ tournaments[0].tournamentDesc if tournaments[0].tournamentDesc else 'Join the upcoming tournament' }}</p>
+            <button type="button" class="btn btn-warning">Join</button>
         </div>
     </div>
+    {% endif %}
 
     <!-- Ongoing Tournaments Section -->
-    <br>
-    <br>
     <h3>Ongoing Tournaments</h3>
     <br>
     <div class="row">
-        {% for tournament in tournaments[:4] %}
+        {% for tournament in tournaments[1:5] %} <!-- Limit to the next 4 tournaments -->
         <div class="col-md-3">
             <div class="card">
-                <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="card-img-top" alt="Tournament 1">
+                <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="card-img-top" alt="Tournament Image">
                 <div class="card-body">
                     <h5 class="card-title">{{ tournament.tournamentName }}</h5>
                     <p class="card-text">{{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}</p>
                 </div>
             </div>
         </div>
-        
-    {% endfor %}
-        </div>
+        {% endfor %}
     </div>
 </div>
-
-
-
 {% endblock %}
