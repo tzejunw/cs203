@@ -32,45 +32,18 @@
     <h3>Ongoing Tournaments</h3>
     <br>
     <div class="row">
-        <!-- Tournament 1 -->
+        {% for tournament in tournaments[:4] %}
         <div class="col-md-3">
             <div class="card">
-                <img src="{{url_for('static',filename='img/home/tournament-1.jpg')}}" class="card-img-top" alt="Tournament 1">
+                <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="card-img-top" alt="Tournament 1">
                 <div class="card-body">
-                    <h5 class="card-title">Tournament 1</h5>
-                    <p class="card-text">Brief description of Tournament 1.</p>
+                    <h5 class="card-title">{{ tournament.tournamentName }}</h5>
+                    <p class="card-text">{{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}</p>
                 </div>
             </div>
         </div>
-        <!-- Tournament 2 -->
-        <div class="col-md-3">
-            <div class="card">
-                <img src="{{url_for('static',filename='img/home/tournament-2.jpg')}}" class="card-img-top" alt="Tournament 2">
-                <div class="card-body">
-                    <h5 class="card-title">Tournament 2</h5>
-                    <p class="card-text">Brief description of Tournament 2.</p>
-                </div>
-            </div>
-        </div>
-        <!-- Tournament 3 -->
-        <div class="col-md-3">
-            <div class="card">
-                <img src="{{url_for('static',filename='img/home/tournament-3.jpg')}}" class="card-img-top" alt="Tournament 3">
-                <div class="card-body">
-                    <h5 class="card-title">Tournament 3</h5>
-                    <p class="card-text">Brief description of Tournament 3.</p>
-                </div>
-            </div>
-        </div>
-        <!-- Tournament 4 -->
-        <div class="col-md-3">
-            <div class="card">
-                <img src="{{url_for('static',filename='img/home/tournament-4.jpg')}}" class="card-img-top" alt="Tournament 4">
-                <div class="card-body">
-                    <h5 class="card-title">Tournament 4</h5>
-                    <p class="card-text">Brief description of Tournament 4.</p>
-                </div>
-            </div>
+        
+    {% endfor %}
         </div>
     </div>
 </div>

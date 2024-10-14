@@ -7,6 +7,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField ,SubmitField 
 from wtforms.validators import InputRequired
 from werkzeug.security import generate_password_hash 
+import requests
 
 import jwt 
 
@@ -49,7 +50,12 @@ def inject_login_status():
 
 @application.route('/')
 def index():
-    return render_template('index.html')
+
+    api_url = 'http://localhost:8080/tournament/get/all'
+    response = requests.get(api_url) 
+    tournaments = response.json() 
+
+    return render_template('index.html', tournaments = tournaments)
 
 @application.errorhandler(400)
 def bad_request(e):
