@@ -29,11 +29,11 @@ public class playerComparator implements Comparator<TournamentPlayer>{
             return -1;
         }
 
-        if (p1.getOMW()> p2.getOMW()){{
+        if (p1.getOMW()> p2.getOMW()){
             return 1;
         }
 
-        if (p1.getOMW() < p2.getOMW()){{
+        if (p1.getOMW() < p2.getOMW()){
             return -1;
         }
 
@@ -52,8 +52,8 @@ public class playerComparator implements Comparator<TournamentPlayer>{
             return -1;
         }
 
-        //return p1.getUserID().compareTo(p2.getUserID());
-        return 0;
+        return -p1.getUserID().compareTo(p2.getUserID());
+        //return 0;
     }
 }
 

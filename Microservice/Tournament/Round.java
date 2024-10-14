@@ -33,11 +33,15 @@ public class Round {
         return false;
     }
 
+    public ArrayList<List<TournamentPlayer>> getBracket(){
+        return brackets;
+    }
 
-    public void generateMatches(ArrayList<Match> matches){
+
+    public void generateMatches(ArrayList<Match> m){
         this.createBrackets(new ArrayList<List<TournamentPlayer>>());
     
-        this.matches = matches;
+        //this.matches = matches;
 
         
         boolean isMatched;
@@ -47,10 +51,8 @@ public class Round {
             List<TournamentPlayer> bracketcopy = new ArrayList<TournamentPlayer>(bracket);
             Collections.shuffle(bracketcopy);
             HashSet<TournamentPlayer> matched = new HashSet<TournamentPlayer>();
-            //while (bracket.size() != 2)
-            for (TournamentPlayer p1: bracket){
-                
 
+            for (TournamentPlayer p1: bracket){
                 
                 //TournamentPlayer p1 = bracket.get(0);
                 Iterator<TournamentPlayer> bracketIt = bracketcopy.iterator();
@@ -59,26 +61,22 @@ public class Round {
 
                 while(bracketIt.hasNext() && !isMatched && !matched.contains(p1)){
                     TournamentPlayer p2 = bracketIt.next();
-                    if (!p1.hasPlayed(p2) && !p1.equals(p2) && !matched.contains(p2) && !matched.contains(p1)){
+                    if (!p1.hasPlayed(p2) && !p1.equals(p2) && !matched.contains(p2)){
                         matches.add(new Match(p1, p2));
                         matched.add(p2);
                         matched.add(p1);
                         isMatched = true;
                     }
-                    // if ( bracketcopy.contains(p1) || bracketcopy.contains(p2) || bracket.contains(p1) || bracket.contains(p2)){
-                    //     System.out.println("fck");
-                    // }
-
 
                 }
 
-                if (!isMatched){
-                    matches.add(new Match(p1, bracketcopy.get(bracketcopy.size()-1)));
+                // if (!isMatched){
+                //     matches.add(new Match(p1, bracketcopy.get(bracketcopy.size()-1)));
 
-                    matched.add(p1);
-                    matched.add(bracketcopy.get(bracketcopy.size()-1));
+                //     matched.add(p1);
+                //     matched.add(bracketcopy.get(bracketcopy.size()-1));
                     
-                }
+                // }
                 
             }
 
@@ -106,6 +104,8 @@ public class Round {
 
     public void createBrackets(ArrayList<List<TournamentPlayer>> brackets){
 
+        matches = new ArrayList<Match>();
+
         this.brackets = brackets;
         stillplaying =  new ArrayList<TournamentPlayer>(prevRoundStandings.getSortedPlayers());
 
@@ -113,8 +113,8 @@ public class Round {
         stillplaying.removeIf(p -> !p.isPlaying());
 
         if (stillplaying.size()%2  == 1){
-            matches.add(new Match(stillplaying.get(stillplaying.size()-1)));
-            stillplaying.remove(stillplaying.size()-1);
+            matches.add(new Match(stillplaying.get(0)));
+            stillplaying.remove(0);
             
         }
 

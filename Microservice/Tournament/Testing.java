@@ -47,77 +47,126 @@ public class Testing {
 
         ArrayList<Match> testMatches = new ArrayList<Match>();
 
-        HashSet<TournamentPlayer> nodups = new HashSet<TournamentPlayer>();
+        HashSet<String> nodups = new HashSet<String>();
+
+        ArrayList<TournamentPlayer> players = new ArrayList<TournamentPlayer>();
+        
 
         records.remove(0);
-        
-        for (List<String> i : records){
 
+        for (List<String> i : records){
 
             TournamentPlayer p1 = new TournamentPlayer(i.get(0), new ArrayList<Match>());
             TournamentPlayer p2 = new TournamentPlayer(i.get(2), new ArrayList<Match>());
             
             Match m = null;
             
-            if (!nodups.contains(p1)){
+            if (!nodups.contains(p1.getUserID()) && !nodups.contains(p2.getUserID())){
                 m = new Match(p1, p2);
-                nodups.add(p2);
-                nodups.add(p1);
-                p1.addMatch(m);
-                p2.addMatch(m);
+                nodups.add(p2.getUserID());
+                nodups.add(p1.getUserID());
+
+                players.add(p1);
+                players.add(p2);
+
+                if (i.get(3).charAt(0)== '2'){
+                    m.update(p1, 2, (int)(i.get(3).charAt(2))- (int)'0');
+                }
+                else if(i.get(3).charAt(2) == '2'){
+                    m.update(p2, 2, (int)(i.get(3).charAt(0))- (int)'0');
+                }
+                testMatches.add(m);
+
             }
             
-
-            if (i.get(3).charAt(0)== '2'){
-                m.update(p1, 2, (int)(i.get(3).charAt(2))- (int)'0');
-            }
-            if(i.get(3).charAt(2) == '2'){
-                m.update(p2, 2, (int)(i.get(3).charAt(0))- (int)'0');
-            }
-            testMatches.add(m);
-
         }
+        TournamentPlayer bye = new TournamentPlayer("byeman", new ArrayList<Match>());
+        bye.addMatch(new Match(bye));
+        players.add(bye);
+        System.out.println(nodups.size());
+        System.out.println("total players: " + players.size());
 
+        
+        
+        
 
-        ArrayList<TournamentPlayer> players = new ArrayList<TournamentPlayer>();
-        players.addAll(nodups);
+        Round testRound = new Round(1, players);
 
-        Round testRound = new Round(2, players);
+        Standings s = testRound.generateStandings();
 
-        int winners = 0;
-        for ( TournamentPlayer p : testRound.generateStandings().getSortedPlayers()){
-            //System.out.println(p.getUserID() +" " + p.getCurMatchPts());
-            winners += p.getCurMatchPts()/3;
-        }
-        //System.out.println(winners);''
-
-        testRound.generateStandings();
-        testRound.generateMatches(new ArrayList<Match>());
-
-        // for (Match m : testRound.getRoundMatches()){
-        //     m.update(m.getP1(), 2, 0);
-        //     m.getP1().addMatch(m);
-        //     m.getP2().addMatch(m);
-            
+        // for ( TournamentPlayer p : s.getSortedPlayers()){
+        //     System.out.println(p.getUserID() + " - " + p.getCurMatchPts());
         // }
 
-        // testRound.generateStandings();
-        // testRound.generateMatches(new ArrayList<Match>());
+        testRound.generateMatches(new ArrayList<Match>());
 
-        
+        System.out.println("b4 " + testRound.getRoundMatches().size());
 
-        System.out.println(testRound.getRoundMatches().size());
-
-        for (Match m : testRound.getRoundMatches()){
-            System.out.println(m.getP1().getUserID() +" vs " + m.getP2().getUserID());
-            System.out.println(m.getP1().getTotalMatchPoints() + " - " + m.getP2().getTotalMatchPoints());
+        for ( Match m : testRound.getRoundMatches()){
+            //System.out.println(m.getP1().getUserID() + " " + m.getP1().getCurMatchPts() + " vs " + m.getP2().getUserID()+ " " + m.getP2().getCurMatchPts());
+            m.update(m.getP1(), 2, 0);
         }
 
-
-
-
-
         
+
+        // for ( TournamentPlayer p : s.getSortedPlayers()){
+        //     System.out.println(p.getUserID() + " - " + p.getCurMatchPts());
+        // }
+
+        for ( int i =0 ; i <4; i++){
+        s = testRound.generateStandings();
+        testRound.generateMatches(new ArrayList<Match>());
+
+        for ( Match m : testRound.getRoundMatches()){
+            // System.out.println(m.getP1().getUserID() + " " + m.getP1().getCurMatchPts() + " vs " + m.getP2().getUserID()+ " " + m.getP2().getCurMatchPts());
+           m.update(m.getP1(), 2, 0);
+        }
+        }
+
+        System.out.println("after " + testRound.getRoundMatches().size());
+
+        int count = 0;
+
+        System.out.println();
+
+        ArrayList<Integer> l = new ArrayList<Integer>();
+        for ( Match m : testRound.getRoundMatches()){
+
+            if (m.isBye()){
+                System.out.println(m.getP1().getUserID() + " is bye");
+            }else{
+                System.out.println(m.getP1().getUserID() + " " + m.getP1().getCurMatchPts() + " vs " + m.getP2().getUserID()+ " " + m.getP2().getCurMatchPts());
+                count += m.getP1().getCurMatchPts() != m.getP2().getCurMatchPts() ? 1 : 0; 
+                if (m.getP1().getCurMatchPts() != m.getP2().getCurMatchPts()) {
+                    l.add(m.getP1().getCurMatchPts());
+                    l.add(m.getP2().getCurMatchPts());
+                }
+            }
+            
+            //m.update(m.getP1(), 2, 0);
+
+
+            
+        }
+
+        System.out.println();
+
+        for (List<TournamentPlayer> b : testRound.getBracket()){
+            if (b != null && b.size() > 0){
+                System.out.println(b.get(0).getCurMatchPts() + " : " + b.size());
+            }
+            
+        }
+
+        System.out.println("total downpairs: " + count);
+
+        System.out.println(l);
+
+
+
+
+
+
 
 
     }

@@ -162,6 +162,12 @@ public class TournamentPlayer{
         return false;
     }
 
+    public void printmatches(){
+        for (Match m : pastMatches){
+            System.out.println(m.getP1().getUserID() +" vs " + m.getP2().getUserID());
+        }
+    }
+
     
 
 
