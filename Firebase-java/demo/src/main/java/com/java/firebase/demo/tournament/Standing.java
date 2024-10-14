@@ -10,7 +10,8 @@ public class Standing {
     private int rank;
     private String name;
     private String matchRecord;
-    private long omw;
     private int points;
-    private long gw;
+    private double omw;
+    private double gw;
+    private double ogw;
 }

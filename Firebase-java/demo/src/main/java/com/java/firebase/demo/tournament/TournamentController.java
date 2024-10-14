@@ -25,6 +25,15 @@ public class TournamentController {
         return tournamentService.createTournament(tournament);
     }
 
+    // @PostMapping("/tournament/start") // to be implemeted
+    // public String startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
+    //     return tournamentService.startTournament(tournamentName);
+    // }
+
+    // /tournamnet/end
+    // update inProgress field to false
+    // this will only happen afeter stadnigns are updated. 
+
     @GetMapping("/tournament/get") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
     public Tournament getTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
         return tournamentService.getTournament(tournamentName);
@@ -66,6 +75,24 @@ public class TournamentController {
     @DeleteMapping("/tournament/round/delete")
     public String deleteRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
         return tournamentService.deleteRound(tournamentName, roundName);
+
+    //TODO
+    // /tournament/round/end 
+    // get all matches which have been updated with score (finished) this will be json returned. 
+    // convert the json to objects in java!! (hard)
+
+    // calls algo.roundend(match objects). feed match objects into algo function.
+    // algo function returns all standings as objects (each object is one record)
+    // commit those record to firebase!.
+    // say good
+
+    // /tournament/round/startnextround
+    // give participatingtournamentplayers java objects (need list of prev matches) and standings java objects to algo
+    // sometingliek algo.startnextround(everything above)
+    // it will return next round matches, java object. convert that to json.
+    // commmit that to firebase. 
+    // say ok
+
 }
 
     @PostMapping("/tournament/round/match/create")
@@ -114,4 +141,6 @@ public class TournamentController {
     public String deleteStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
         return tournamentService.deleteStanding(tournamentName, roundName, rank);
     }
+
+    
 }
