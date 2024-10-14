@@ -17,6 +17,7 @@ public class Tournament {
     private String tournamentDesc;
     private String location;
     private String imageUrl;
+    private String inProgress;
     
     // List of participating players (e.g., could be just player IDs, or Player objects)
     // i think this isnt how were supposed to do it
