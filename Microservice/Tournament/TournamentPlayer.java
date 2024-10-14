@@ -3,10 +3,8 @@ import java.util.List;
 
 public class TournamentPlayer{
 
-    private String playerId;
     private List<Match> pastMatches;
     private String playerID;
-    private Boolean isPlaying;
 
     private int curMatchPts;
     private double curOMW;
@@ -14,7 +12,6 @@ public class TournamentPlayer{
     private double curOGW;
     private boolean stillPlaying;
     
-
     private final int matchWinPts = 3;
     private final int gameWinPts = 3;
     private final int drawPts = 1;
