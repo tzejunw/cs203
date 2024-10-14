@@ -2,68 +2,71 @@
 {% block title %}Update Tournament{% endblock %}
 
 {% block content %}
-<h2 class="p-2 ">Update Tournament</h2>
+<main role="main" class="container">
+    <div class="my-5 p-5 bg-white rounded box-shadow">
+        <h2 class="p-2 ">Update Tournament</h2>
 
+        <form method="POST" action="{{ url_for('admin.update_tournament') }}">
+            {{ form.hidden_tag() }}
 
-<form method="POST" action="{{ url_for('admin.update_tournament') }}">
-    {{ form.hidden_tag() }}
-    
-    <div class="form-group p-2">
-        {{ form.tournamentName.label(class="form-label") }}
-        {{ form.tournamentName(class="form-control", readonly=True, style="background-color: #e9ecef;") }}
-        {% for error in form.tournamentName.errors %}
-            <div class="text-danger">{{ error }}</div>
-        {% endfor %}
-    </div>
-    
-    <div class="d-inline-block form-group p-2 w-25">
-        {{ form.startDate.label(class="form-label") }}
-        {{ form.startDate(class="form-control", type="date") }}
-        {% for error in form.startDate.errors %}
-            <div class="text-danger">{{ error }}</div>
-        {% endfor %}
-    </div>
+            <div class="form-group p-2">
+                {{ form.tournamentName.label(class="form-label") }}
+                {{ form.tournamentName(class="form-control", readonly=True, style="background-color: #e9ecef;") }}
+                {% for error in form.tournamentName.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
 
-    <div class="d-inline-block form-group p-2 w-25">
-        {{ form.endDate.label(class="form-label") }}
-        {{ form.endDate(class="form-control", type="date") }}
-        {% for error in form.endDate.errors %}
-            <div class="text-danger">{{ error }}</div>
-        {% endfor %}
-    </div>
+            <div class="d-inline-block form-group p-2 w-25">
+                {{ form.startDate.label(class="form-label") }}
+                {{ form.startDate(class="form-control", type="date") }}
+                {% for error in form.startDate.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
 
-    <div class="form-group p-2 w-25">
-        {{ form.registrationDeadline.label(class="form-label") }}
-        {{ form.registrationDeadline(class="form-control", type="date") }}
-        {% for error in form.registrationDeadline.errors %}
-            <div class="text-danger">{{ error }}</div>
-        {% endfor %}
-    </div>
-    
-    <div class="form-group p-2">
-        {{ form.tournamentDesc.label(class="form-label") }}
-        {{ form.tournamentDesc(class="form-control") }}
-        {% for error in form.tournamentDesc.errors %}
-            <div class="text-danger">{{ error }}</div>
-        {% endfor %}
-    </div>
-    
-    <div class="form-group p-2">
-        {{ form.location.label(class="form-label") }}
-        {{ form.location(class="form-control") }}
-        {% for error in form.location.errors %}
-            <div class="text-danger">{{ error }}</div>
-        {% endfor %}
-    </div>
-    
-    <div class="form-group p-2">
-        {{ form.imageUrl.label(class="form-label") }}
-        {{ form.imageUrl(class="form-control") }}
-        {% for error in form.imageUrl.errors %}
-            <div class="text-danger">{{ error }}</div>
-        {% endfor %}
-    </div>
+            <div class="d-inline-block form-group p-2 w-25">
+                {{ form.endDate.label(class="form-label") }}
+                {{ form.endDate(class="form-control", type="date") }}
+                {% for error in form.endDate.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
 
-    <input type="submit" value="Update Tournament" class="btn btn-primary m-2">
-</form>
+            <div class="form-group p-2 w-25">
+                {{ form.registrationDeadline.label(class="form-label") }}
+                {{ form.registrationDeadline(class="form-control", type="date") }}
+                {% for error in form.registrationDeadline.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group p-2">
+                {{ form.tournamentDesc.label(class="form-label") }}
+                {{ form.tournamentDesc(class="form-control") }}
+                {% for error in form.tournamentDesc.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group p-2">
+                {{ form.location.label(class="form-label") }}
+                {{ form.location(class="form-control") }}
+                {% for error in form.location.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group p-2">
+                {{ form.imageUrl.label(class="form-label") }}
+                {{ form.imageUrl(class="form-control") }}
+                {% for error in form.imageUrl.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <input type="submit" value="Update Tournament" class="btn btn-primary m-2">
+        </form>
+    </div>
+</main>
 {% endblock %}
