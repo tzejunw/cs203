@@ -10,11 +10,11 @@ public class Match {
     public Match(TournamentPlayer player1, TournamentPlayer player2){
         this.player1 = player1;
         this.player2 = player2;
-
     }
 
     public Match(TournamentPlayer player){
         player1 = player;
+        winner = player;
         isBye = true;
         gameWins = 2;
         gameLosses = 0;
@@ -22,16 +22,22 @@ public class Match {
 
     public void update(TournamentPlayer winner, int gameWins, int gameLosses){
 
-        this.winner = winner;
+        if (!isBye){
+            this.winner = winner;
 
-        this.gameLosses = gameLosses;
-        this.gameWins = gameWins;
-        if (gameWins == gameLosses){
-            isDraw = true;
+            this.gameLosses = gameLosses;
+            this.gameWins = gameWins;
+    
+            if (gameWins == gameLosses){
+                isDraw = true;
+            }
+    
+            player1.addMatch(this);
+            player2.addMatch(this);
+
         }
 
-        player1.addMatch(this);
-        player2.addMatch(this);
+
     }
 
     public TournamentPlayer getWinner(){
