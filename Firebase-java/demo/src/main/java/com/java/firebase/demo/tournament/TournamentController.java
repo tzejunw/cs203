@@ -25,10 +25,10 @@ public class TournamentController {
         return tournamentService.createTournament(tournament);
     }
 
-    @PostMapping("/tournament/start") // to be implemeted
-    public String startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
-        return tournamentService.startTournament(tournamentName);
-    }
+    // @PostMapping("/tournament/start") // to be implemeted
+    // public String startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
+    //     return tournamentService.startTournament(tournamentName);
+    // }
 
     // /tournamnet/end
     // update inProgress field to false
