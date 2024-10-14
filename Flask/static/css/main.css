@@ -19196,6 +19196,15 @@ table.career tr td img {
   font-weight: 600;
 }
 
+.home-button{
+  background-color: #DC5743;
+  color: white;
+}
+
+.home-shadow {
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.015);; /* Adjust the shadow size and color */
+}
+
 /* CSS for TOURNAMENT PAGE */
 
 .tournament-join-btn {
@@ -19405,16 +19414,16 @@ table.career tr td img {
   color: black; /* Adjust color as needed */
 }
 
-.bg-black {
+.pairing-bg-black {
   background-color: black;
   border: 1px solid black;
 }
 
-.bg-orange {
+.pairing-bg-orange {
   background-color: #DC5743;
 }
 
-.bg-light {
+.pairing-bg-light {
   background-color: #e9ecef;
   border: 1px solid #615f5a;
 }

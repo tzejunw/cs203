@@ -17,14 +17,14 @@
 <div class="container-fluid p-5">
     <!-- First tournament in larger section below the main banner -->
     {% if tournaments|length > 0 %}
-    <div class="row mb-5">
-        <div class="col-md-7">
+    <div class="row mb-5 home-shadow">
+        <div class="col-md-7"> <!-- Adjusted width to col-md-7 -->
             <img src="{{ tournaments[0].imageUrl if tournaments[0].imageUrl else url_for('static',filename='img/home/default-tournament.jpg') }}" alt="Main Tournament Image" class="img-fluid">
         </div>
-        <div class="col-md-5 bg-light p-3">
+        <div class="col-md-5 bg-light p-3"> <!-- Kept the width consistent -->
             <h2>{{ tournaments[0].tournamentName }}</h2>
             <p>{{ tournaments[0].tournamentDesc if tournaments[0].tournamentDesc else 'Join the upcoming tournament' }}</p>
-            <button type="button" class="btn btn-warning">Join</button>
+            <button type="button" class="btn btn-warning home-button">View Tournament</button>
         </div>
     </div>
     {% endif %}
