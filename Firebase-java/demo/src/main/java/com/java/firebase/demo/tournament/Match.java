@@ -54,21 +54,7 @@ public class Match {
         this.winner = winner;
     }
 
-    public TournamentPlayer getP1(){
-        return player1;
-    }
 
-    public void setP1(TournamentPlayer player1) {
-        this.player1 = player1;
-    }
-
-    public TournamentPlayer getP2(){
-        return player2;
-    }
-
-    public void setP2(TournamentPlayer player2) {
-        this.player2 = player2;
-    }
 
     public int getGameWins(){
         return gameWins;
@@ -78,17 +64,10 @@ public class Match {
         return gameLosses;
     }
 
-    public Boolean isBye(){
-        return isBye;
-    }
-
-    public Boolean isDraw(){
-        return isDraw;
-    }
 
     public String toString(){
-        String loser = player1.equals(winner) ? player2.getUserID() : player1.getUserID();
-        return winner.getUserID() + " " + loser + " " + gameWins + "-" + gameLosses;
+        String loser = player1.equals(winner) ? player2.getPlayerID() : player1.getPlayerID();
+        return winner.getPlayerID() + " " + loser + " " + gameWins + "-" + gameLosses;
     }
 }
 

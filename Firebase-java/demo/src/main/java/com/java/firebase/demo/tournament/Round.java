@@ -52,7 +52,7 @@ public class Round {
         int i = 0;
         while ( i < a.size()){
             TournamentPlayer q = a.get(i);
-            if (p.getUserID().equals(q.getUserID())){
+            if (p.getPlayerID().equals(q.getPlayerID())){
                 a.remove(i);
                 return true;
             }

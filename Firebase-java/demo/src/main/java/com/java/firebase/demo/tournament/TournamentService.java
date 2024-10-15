@@ -1,5 +1,6 @@
 package com.java.firebase.demo.tournament;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -186,40 +187,50 @@ public class TournamentService {
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
-    public String createPlayer(String tournamentName, TournamentPlayer player) {
+    public String createPlayer(String tournamentName,  Match match) throws InterruptedException, ExecutionException {
         // Reference to the participatingPlayers collection
         DocumentReference tournamentDocRef = firestore.collection("tournament")
-                                                        .document(tournamentName);
+                                                        .document("Eternal Weekend Test 16102024");
 
     
         // Create or update the player document
-        DocumentReference playerDocRef = tournamentDocRef.collection("participatingPlayers").document(player.getPlayerID());
-    
-        // Set the player's data (this will overwrite existing data)
-        playerDocRef.set(player);
+        DocumentReference playerDocRef = tournamentDocRef.collection("participatingPlayers").document("ianpasta");
+        ApiFuture<WriteResult> playerResult = playerDocRef.set(new HashMap<>()); // Creating with an empty map
+        playerResult.get();
 
-    
         // Create pastMatches collection in that document
         // Here we create an initial empty document for pastMatches
-        playerDocRef.collection("pastMatches").document("emptyPastMatchDoc").set(new HashMap<>());
+        DocumentReference pastMatchDocRef = tournamentDocRef.collection("participatingPlayers")
+                                                            .document("ianpasta")
+                                                            .collection("pastMatches")
+                                                            .document("emptyPastMatchDoc");
+        ApiFuture<WriteResult> pastMatchResult = pastMatchDocRef.set(new HashMap<>());
+        pastMatchResult.get();
+
+        // to create matches
+        DocumentReference matchRef = playerDocRef.collection("pastMatches").document("match1");
+        ApiFuture<WriteResult> matchResult = matchRef.set(match);
+        matchResult.get();
+
+        //playerDocRef.collection("pastMatches").document("emptyPastMatchDoc").set(new HashMap<>());
     
         // Add matches from the player's pastMatches list
-        if (player.getPastMatches() != null && !player.getPastMatches().isEmpty()) {
-            for (Match match : player.getPastMatches()) {
-                // You might want to convert the Match object to a Map if needed
-                addMatchToPastMatches(playerDocRef, match);
-            }
-        }
+        // if (player.getPastMatches() != null && !player.getPastMatches().isEmpty()) {
+        //     for (Match match : player.getPastMatches()) {
+        //         // You might want to convert the Match object to a Map if needed
+        //         addMatchToPastMatches(playerDocRef, match);
+        //     }
+        // }
     
         // Return a success message
         return "Player created successfully";
     }
     
 
-    public void addMatchToPastMatches(DocumentReference playerDocRef, Match match) {
-        playerDocRef.set(match);
-        System.out.println("add match to past matches executed");
-    }
+    // public void addMatchToPastMatches(DocumentReference playerDocRef, Match match) {
+    //     playerDocRef.set(match);
+    //     System.out.println("add match to past matches executed");
+    // }
     
     
 
@@ -336,7 +347,7 @@ public class TournamentService {
         int matchCounter = 0;
         for (Match match : matches) {
             String documentId = (tournamentName.trim() + "_" + round.getRoundNumber() + "_" 
-            + match.getP1().getUserID().trim() + "_" + match.getP2().getUserID().trim()).replaceAll("\\s+", "_");
+            + match.getPlayer1().getPlayerID().trim() + "_" + match.getPlayer2().getPlayerID().trim()).replaceAll("\\s+", "_");
             matchUpdate = roundDocRef.collection("match").document(documentId).set(match);
             matchCounter++;
             matchUpdate.get();
@@ -438,7 +449,7 @@ public class TournamentService {
     // now for matches, winner wins losses isDraw isBye can be empty for now, but must be updated later. 
     public String createMatch(String tournamentName, int roundNumber, Match match) throws ExecutionException, InterruptedException{
         String documentId = (tournamentName.trim() + "_" + roundNumber + "_" 
-        + match.getP1().getUserID().trim() + "_" + match.getP2().getUserID().trim()).replaceAll("\\s+", "_");
+        + match.getPlayer1().getPlayerID().trim() + "_" + match.getPlayer2().getPlayerID().trim()).replaceAll("\\s+", "_");
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                                  .document(tournamentName)
                                                                  .collection("round")

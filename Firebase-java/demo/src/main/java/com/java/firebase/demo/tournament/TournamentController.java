@@ -28,8 +28,8 @@ public class TournamentController {
     // add player to tournament
 
     @PostMapping("/tournament/createplayer")
-    public String addParticipatingPlayer(@RequestParam String tournamentName, TournamentPlayer player) {
-        return tournamentService.createPlayer(tournamentName, player);
+    public String addParticipatingPlayer(@RequestParam String tournamentName, @RequestBody Match match) throws InterruptedException, ExecutionException {
+        return tournamentService.createPlayer(tournamentName, match);
     }
 
     // @PostMapping("/tournament/start") // to be implemeted

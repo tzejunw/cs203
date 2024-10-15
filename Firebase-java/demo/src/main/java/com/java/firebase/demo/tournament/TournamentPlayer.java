@@ -6,7 +6,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Setter
 @Getter
 public class TournamentPlayer{
@@ -24,12 +23,34 @@ public class TournamentPlayer{
     private final int gameWinPts = 3;
     private final int drawPts = 1;
 
-    public TournamentPlayer( String userID, List<Match> matches){
-        pastMatches = matches;
-        playerID = userID;
-        stillPlaying = true;
+    public TournamentPlayer(){
 
     }
+
+    public TournamentPlayer(String playerID, List<Match> pastMatches) {
+        this.playerID = playerID;
+        this.pastMatches = pastMatches;
+        stillPlaying = true;
+    }
+
+    // Getters and Setters
+    public String getPlayerID() {
+        return playerID;
+    }
+
+    public void setPlayerID(String playerID) {
+        this.playerID = playerID;
+    }
+
+    public List<Match> getPastMatches() {
+        return pastMatches;
+    }
+
+    public void setPastMatches(List<Match> pastMatches) {
+        this.pastMatches = pastMatches;
+    }
+
+
 
     public int getCurMatchPts() {
         return curMatchPts;
@@ -60,7 +81,7 @@ public class TournamentPlayer{
 
     public int getTotalMatchPoints(){
 
-        //return pastMatches.stream().filter(m -> (getP1().equals(this) && isP1Winner) && (getP2().equals(this) && !isP1Winner)).map(m :: getGameWins).stream().reduce(0, (a, b) -> a + b, Integer::sum);
+        //return pastMatches.stream().filter(m -> (getPlayer1().equals(this) && isP1Winner) && (getPlayer2().equals(this) && !isP1Winner)).map(m :: getGameWins).stream().reduce(0, (a, b) -> a + b, Integer::sum);
 
         int matchWins = 0;
 
@@ -94,7 +115,7 @@ public class TournamentPlayer{
         int draws = 0;
 
         for ( Match m: pastMatches){
-            if (m.isDraw()){
+            if (m.getIsDraw()){
                 draws++;
             }
         }
@@ -108,7 +129,7 @@ public class TournamentPlayer{
     public int getByes(){
         int byes = 0;
         for ( Match m : pastMatches){
-            if (m.isBye()){
+            if (m.getIsBye()){
                 byes++;
             }
         }
@@ -124,8 +145,8 @@ public class TournamentPlayer{
         double OMW = 0;
 
         for ( Match m : pastMatches){
-            if (!m.isBye()){
-                TournamentPlayer opp = m.getP1().equals(this) ? m.getP2() : m.getP1();
+            if (!m.getIsBye()){
+                TournamentPlayer opp = m.getPlayer1().equals(this) ? m.getPlayer2() : m.getPlayer1();
                 double oppOMW = (double)opp.getTotalMatchPoints() / opp.roundsPlayed() > 0.33 ? (double)opp.getTotalMatchPoints() / opp.roundsPlayed() : 0.33;
                 OMW +=  oppOMW;    
             }
@@ -139,8 +160,8 @@ public class TournamentPlayer{
         double OGW = 0;
 
         for ( Match m : pastMatches){
-            if (!m.isBye()){
-                TournamentPlayer opp = m.getP1().equals(this) ? m.getP2() : m.getP1();
+            if (!m.getIsBye()){
+                TournamentPlayer opp = m.getPlayer1().equals(this) ? m.getPlayer2() : m.getPlayer1();
                 
                 OGW += opp.getCurGW() < 0.33 ? 0.33 : getCurGW();    
             }
@@ -159,7 +180,7 @@ public class TournamentPlayer{
 
     public boolean hasPlayed(TournamentPlayer player){
         for ( Match m : pastMatches){
-            if (player.equals(m.getP1()) || player.equals(m.getP2())){
+            if (player.equals(m.getPlayer1()) || player.equals(m.getPlayer2())){
                 return true;
             }
         }
