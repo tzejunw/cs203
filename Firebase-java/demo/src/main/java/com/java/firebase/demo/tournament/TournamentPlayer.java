@@ -3,6 +3,12 @@ package com.java.firebase.demo.tournament;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
+
+@Setter
+@Getter
 public class TournamentPlayer{
 
     private List<Match> pastMatches;

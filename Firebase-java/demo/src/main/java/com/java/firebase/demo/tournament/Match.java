@@ -1,5 +1,11 @@
 package com.java.firebase.demo.tournament;
 
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class Match {
     private TournamentPlayer player1;
     private TournamentPlayer player2;
@@ -44,12 +50,24 @@ public class Match {
         return winner;
     }
 
+    public void setWinner(TournamentPlayer winner) {
+        this.winner = winner;
+    }
+
     public TournamentPlayer getP1(){
         return player1;
     }
 
+    public void setP1(TournamentPlayer player1) {
+        this.player1 = player1;
+    }
+
     public TournamentPlayer getP2(){
         return player2;
+    }
+
+    public void setP2(TournamentPlayer player2) {
+        this.player2 = player2;
     }
 
     public int getGameWins(){

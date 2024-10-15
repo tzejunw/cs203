@@ -156,7 +156,7 @@ public class TournamentService {
         DocumentReference round1DocRef = firestore.collection("tournament")
                                                     .document(tournament.getTournamentName())
                                                     .collection("round")
-                                                    .document("Round 1");
+                                                    .document("1");
         
         ApiFuture<WriteResult> round1Result = round1DocRef.set(new HashMap<>()); // Creating with an empty map
         round1Result.get(); // Wait for completion
@@ -284,7 +284,7 @@ public class TournamentService {
         int matchCounter = 0;
         for (Match match : matches) {
             String documentId = (tournamentName.trim() + "_" + round.getRoundNumber() + "_" 
-            + match.getP1().getUserID().trim() + "_" + match.getP1().getUserID().trim()).replaceAll("\\s+", "_");
+            + match.getP1().getUserID().trim() + "_" + match.getP2().getUserID().trim()).replaceAll("\\s+", "_");
             matchUpdate = roundDocRef.collection("match").document(documentId).set(match);
             matchCounter++;
             matchUpdate.get();
@@ -386,7 +386,7 @@ public class TournamentService {
     // now for matches, winner wins losses isDraw isBye can be empty for now, but must be updated later. 
     public String createMatch(String tournamentName, int roundNumber, Match match) throws ExecutionException, InterruptedException{
         String documentId = (tournamentName.trim() + "_" + roundNumber + "_" 
-        + match.getP1().getUserID().trim() + "_" + match.getP1().getUserID().trim()).replaceAll("\\s+", "_");
+        + match.getP1().getUserID().trim() + "_" + match.getP2().getUserID().trim()).replaceAll("\\s+", "_");
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                                  .document(tournamentName)
                                                                  .collection("round")

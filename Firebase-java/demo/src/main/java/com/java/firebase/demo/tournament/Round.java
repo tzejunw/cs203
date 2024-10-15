@@ -2,8 +2,14 @@ package com.java.firebase.demo.tournament;
 
 import java.util.*;
 
+import lombok.Getter;
+import lombok.Setter;
+
+
+@Setter
+@Getter
 public class Round {
-    private ArrayList<Match> matches;
+    private ArrayList<Match> matches = new ArrayList<>();;
     private Standings prevRoundStandings;
     private int roundNumber;
     private ArrayList<TournamentPlayer> players;
@@ -12,6 +18,8 @@ public class Round {
 
     public Round() {
         // Initialize your fields if needed, or leave empty
+        this.matches = new ArrayList<>();
+
     }
 
     public Round(int roundNumber, ArrayList<TournamentPlayer> tournamentPlayers){
@@ -29,7 +37,7 @@ public class Round {
         return roundNumber;
     }
     
-
+    // IAN is it ok if you stick to getMatches() naming convention
     public ArrayList<Match> getRoundMatches(){
         return matches;
     }

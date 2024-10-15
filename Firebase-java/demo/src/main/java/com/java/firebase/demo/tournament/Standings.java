@@ -2,9 +2,18 @@ package com.java.firebase.demo.tournament;
 
 import java.util.*;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class Standings {
     
     ArrayList<TournamentPlayer> TournamentPlayers;
+
+    public Standings() {
+        TournamentPlayers = new ArrayList<>();
+    }
 
     public Standings(ArrayList<TournamentPlayer> TournamentPlayers){
         this.TournamentPlayers= TournamentPlayers;

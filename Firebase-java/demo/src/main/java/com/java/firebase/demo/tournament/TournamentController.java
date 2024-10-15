@@ -45,7 +45,7 @@ public class TournamentController {
     }
 
 
-    @PutMapping("/tournament/update") // takes another tournament json
+    @PutMapping("/tournament/update") // takes another tournament json. DO NOT TRY TO give it an incomplete json. FOLLOW THE VALIDATION RULES
     public String updateTournament(@RequestBody Tournament tournament) throws InterruptedException, ExecutionException {
         return tournamentService.updateTournament(tournament);
     }
