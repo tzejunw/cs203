@@ -24,9 +24,11 @@ public class Standings {
         Collections.sort( TournamentPlayers, new playerComparator());
     }
 
-    public List<TournamentPlayer> getSortedPlayers(){
+    public List<TournamentPlayer> getStandings(){
         return TournamentPlayers;
     }
+
+
 
 
 
