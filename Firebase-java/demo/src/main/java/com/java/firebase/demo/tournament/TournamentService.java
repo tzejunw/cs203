@@ -6,6 +6,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -168,9 +169,59 @@ public class TournamentService {
         
         // Add an empty document to "standings"
         round1DocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
-        
+
+        // Create the "participatingPlayers" subcollection under the tournament document, with empty guy
+        DocumentReference playerDocRef = firestore.collection("tournament")
+                                                    .document(tournament.getTournamentName())
+                                                    .collection("participatingPlayers")
+                                                    .document("emptyPlayerDoc");
+        ApiFuture<WriteResult> playerResult = playerDocRef.set(new HashMap<>()); // Creating with an empty map
+        playerResult.get();
+
+        // Add an empty document to "pastMatches"
+        playerDocRef.collection("pastMatches").document("emptyPastMatchDoc").set(new HashMap<>());
+
+        playerDocRef.update("playerID", "");
+                                                    
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
+
+    public String createPlayer(String tournamentName, TournamentPlayer player) {
+        // Reference to the participatingPlayers collection
+        DocumentReference tournamentDocRef = firestore.collection("tournament")
+                                                        .document(tournamentName);
+
+    
+        // Create or update the player document
+        DocumentReference playerDocRef = tournamentDocRef.collection("participatingPlayers").document(player.getPlayerID());
+    
+        // Set the player's data (this will overwrite existing data)
+        playerDocRef.set(player);
+
+    
+        // Create pastMatches collection in that document
+        // Here we create an initial empty document for pastMatches
+        playerDocRef.collection("pastMatches").document("emptyPastMatchDoc").set(new HashMap<>());
+    
+        // Add matches from the player's pastMatches list
+        if (player.getPastMatches() != null && !player.getPastMatches().isEmpty()) {
+            for (Match match : player.getPastMatches()) {
+                // You might want to convert the Match object to a Map if needed
+                addMatchToPastMatches(playerDocRef, match);
+            }
+        }
+    
+        // Return a success message
+        return "Player created successfully";
+    }
+    
+
+    public void addMatchToPastMatches(DocumentReference playerDocRef, Match match) {
+        playerDocRef.set(match);
+        System.out.println("add match to past matches executed");
+    }
+    
+    
 
     //starttournament
     // which calls object funtion like algo.starttournament, with arguments containing every participlating tournery player
@@ -219,6 +270,7 @@ public class TournamentService {
         }
         return null;
     }
+
 
     public List<Tournament> getAllTournaments() throws ExecutionException, InterruptedException {
         // Retrieve all documents from the "tournament" collection

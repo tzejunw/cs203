@@ -22,7 +22,7 @@ public class Tournament {
     // List of participating players (e.g., could be just player IDs, or Player objects)
     // i think this isnt how were supposed to do it
     private List<String> adminList;
-    private List<String> participatingPlayers;
+    private List<TournamentPlayer> participatingPlayers;
     private List<Round> rounds;
     
 }

@@ -31,10 +31,6 @@ public class TournamentPlayer{
 
     }
 
-    public String getUserID(){
-        return playerID;
-    }
-
     public int getCurMatchPts() {
         return curMatchPts;
     }
