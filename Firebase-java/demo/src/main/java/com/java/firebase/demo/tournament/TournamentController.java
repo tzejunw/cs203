@@ -25,10 +25,10 @@ public class TournamentController {
         return tournamentService.createTournament(tournament);
     }
 
-    @PostMapping("/tournament/start") // to be implemeted
-    public String startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
-        return tournamentService.startTournament(tournamentName);
-    }
+    // @PostMapping("/tournament/start") // to be implemeted
+    // public String startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
+    //     return tournamentService.startTournament(tournamentName);
+    // }
 
     // /tournamnet/end
     // update inProgress field to false
@@ -68,13 +68,13 @@ public class TournamentController {
     }
 
     @GetMapping("/tournament/round/get") // The argument here determines what it expects as the key in Postman
-    public Round getRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
-        return tournamentService.getRound(tournamentName, roundName);
+    public Round getRound(@RequestParam String tournamentName, @RequestParam int roundNumber) throws InterruptedException, ExecutionException {
+        return tournamentService.getRound(tournamentName, roundNumber);
     }
     // no put mapping for rounds, no fields
     @DeleteMapping("/tournament/round/delete")
-    public String deleteRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
-        return tournamentService.deleteRound(tournamentName, roundName);
+    public String deleteRound(@RequestParam String tournamentName, @RequestParam int roundNumber) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteRound(tournamentName, roundNumber);
 
     //TODO
     // /tournament/round/end 
@@ -96,50 +96,50 @@ public class TournamentController {
 }
 
     @PostMapping("/tournament/round/match/create")
-    public String createMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Match match) throws InterruptedException, ExecutionException{
-        return tournamentService.createMatch(tournamentName, roundName, match);
+    public String createMatch(@RequestParam String tournamentName, @RequestParam int roundNumber, @RequestBody Match match) throws InterruptedException, ExecutionException{
+        return tournamentService.createMatch(tournamentName, roundNumber, match);
     }
 
     @GetMapping("/tournament/round/match/get") // The argument here determines what it expects as the key in Postman
-    public Match getMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player1, @RequestParam String player2) throws InterruptedException, ExecutionException {
-        return tournamentService.getMatch(tournamentName, roundName, player1, player2);
+    public Match getMatch(@RequestParam String tournamentName, @RequestParam int roundNumber, @RequestParam String player1, @RequestParam String player2) throws InterruptedException, ExecutionException {
+        return tournamentService.getMatch(tournamentName, roundNumber, player1, player2);
     }
 
     @PutMapping("/tournament/round/match/update")
     public String updateMatch(@RequestParam String tournamentName, 
-                              @RequestParam String roundName, 
+                              @RequestParam int roundNumber, 
                               @RequestParam String player1, 
                               @RequestParam String player2, 
                               @RequestBody Match match) throws InterruptedException, ExecutionException {
-        return tournamentService.updateMatch(tournamentName, roundName, player1, player2, match);
+        return tournamentService.updateMatch(tournamentName, roundNumber, player1, player2, match);
     }
         
     @DeleteMapping("/tournament/round/match/delete")
     public String deleteMatch(@RequestParam String tournamentName, 
-                              @RequestParam String roundName, 
+                              @RequestParam int roundNumber, 
                               @RequestParam String player1, 
                               @RequestParam String player2) throws InterruptedException, ExecutionException {
-        return tournamentService.deleteMatch(tournamentName, roundName, player1, player2);
+        return tournamentService.deleteMatch(tournamentName, roundNumber, player1, player2);
     }
     
     @PostMapping("/tournament/round/standing/create")
-    public String createStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Standing standing) throws InterruptedException, ExecutionException {
-        return tournamentService.createStanding(tournamentName, roundName, standing);
+    public String createStanding(@RequestParam String tournamentName, @RequestParam int roundNumber, @RequestBody Standing standing) throws InterruptedException, ExecutionException {
+        return tournamentService.createStanding(tournamentName, roundNumber, standing);
     }
     
     @GetMapping("/tournament/round/standing/get")
-    public Standing getStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
-        return tournamentService.getStanding(tournamentName, roundName, rank);
+    public Standing getStanding(@RequestParam String tournamentName, @RequestParam int roundNumber, @RequestParam int rank) throws InterruptedException, ExecutionException {
+        return tournamentService.getStanding(tournamentName, roundNumber, rank);
     }
     
     @PutMapping("/tournament/round/standing/update")
-    public String updateStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Standing standing) throws InterruptedException, ExecutionException {
-        return tournamentService.updateStanding(tournamentName, roundName, standing);
+    public String updateStanding(@RequestParam String tournamentName, @RequestParam int roundNumber, @RequestBody Standing standing) throws InterruptedException, ExecutionException {
+        return tournamentService.updateStanding(tournamentName, roundNumber, standing);
     }
     
     @DeleteMapping("/tournament/round/standing/delete")
-    public String deleteStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
-        return tournamentService.deleteStanding(tournamentName, roundName, rank);
+    public String deleteStanding(@RequestParam String tournamentName, @RequestParam int roundNumber, @RequestParam int rank) throws InterruptedException, ExecutionException {
+        return tournamentService.deleteStanding(tournamentName, roundNumber, rank);
     }
 
     

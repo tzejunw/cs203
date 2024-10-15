@@ -8,9 +8,12 @@
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Match.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Round.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Standing.java
+/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Standings.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Tournament.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/TournamentController.java
+/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/TournamentPlayer.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/TournamentService.java
+/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/playerComparator.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/EmailConfig.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/EmailService.java
 /Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Exceptions/RestExceptionHandler.java

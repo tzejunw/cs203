@@ -9,6 +9,10 @@ public class Match {
     private Boolean isDraw;
     private Boolean isBye = false;
 
+    public Match() {
+        // Initialize your fields if needed, or leave empty
+    }
+
     public Match(TournamentPlayer player1, TournamentPlayer player2){
         this.player1 = player1;
         this.player2 = player2;

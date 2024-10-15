@@ -202,8 +202,9 @@ public class TournamentService {
 
                 // call getRound() on each roundId
                 List<Round> rounds = new ArrayList<>();
-                for (int roundNumber : roundIds) {
-                    Round round = getRound(tournamentName, roundNumber);
+                for (String roundNumber : roundIds) {
+                    int integerRoundNumber = Integer.parseInt(roundNumber);
+                    Round round = getRound(tournamentName, integerRoundNumber);
                     rounds.add(round);
                 }
 
@@ -273,17 +274,17 @@ public class TournamentService {
         DocumentReference roundDocRef = firestore.collection("tournament")
                                                                  .document(tournamentName)
                                                                  .collection("round")
-                                                                 .document(round.getRoundName());
+                                                                 .document(String.valueOf(round.getRoundNumber()));
         // add some field to Round x
         ApiFuture<WriteResult> roundResult = roundDocRef.set(new HashMap<>()); // Creating with an empty map
         roundResult.get(); // Wait for completion
         // iteratively create matches and to firestore. A round may or may not contain matches
         ApiFuture<WriteResult> matchUpdate =  roundDocRef.collection("match").document("emptyMatchDoc").set(new HashMap<>());
-        List<Match> matches = round.getMatches();
+        List<Match> matches = round.getRoundMatches();
         int matchCounter = 0;
         for (Match match : matches) {
-            String documentId = (tournamentName.trim() + "_" + round.getRoundName().trim() + "_" 
-            + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
+            String documentId = (tournamentName.trim() + "_" + round.getRoundNumber() + "_" 
+            + match.getP1().getUserID().trim() + "_" + match.getP1().getUserID().trim()).replaceAll("\\s+", "_");
             matchUpdate = roundDocRef.collection("match").document(documentId).set(match);
             matchCounter++;
             matchUpdate.get();
@@ -292,7 +293,7 @@ public class TournamentService {
         // Add an empty document to "standings"
         ApiFuture<WriteResult> standingsUpdate =  roundDocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
         
-        return round.getRoundName() + "," + matchCounter +  " matches, empty standings collection, created in " + tournamentName + "at " + standingsUpdate.get().getUpdateTime().toString();
+        return "Round " + round.getRoundNumber() + "," + matchCounter +  " matches, empty standings collection, created in " + tournamentName + "at " + standingsUpdate.get().getUpdateTime().toString();
     }
 
     public Round getRound(String tournamentName, int roundNumber) throws ExecutionException, InterruptedException {
@@ -323,13 +324,14 @@ public class TournamentService {
                 System.out.println("Found " + matchQuerySnapshot.size() + " match documents, one of which is a empty placeholder");
                 
                 // Map documents to Match objects
-                List<Match> matches = matchQuerySnapshot.getDocuments().stream()
+                List<Match> matchList = matchQuerySnapshot.getDocuments().stream()
                                                         .map(doc -> doc.toObject(Match.class))
                                                         .collect(Collectors.toList());
-                round.setMatches(matches);
+                ArrayList<Match> matches = new ArrayList<>(matchList);
+                round.setRoundMatches(matches);
             } else {
                 System.out.println("No match documents found");
-                round.setMatches(new ArrayList<>()); // Set empty list if no matches found
+                round.setRoundMatches(new ArrayList<>()); // Set empty list if no matches found
             }
             
             return round;
@@ -384,7 +386,7 @@ public class TournamentService {
     // now for matches, winner wins losses isDraw isBye can be empty for now, but must be updated later. 
     public String createMatch(String tournamentName, int roundNumber, Match match) throws ExecutionException, InterruptedException{
         String documentId = (tournamentName.trim() + "_" + roundNumber + "_" 
-        + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
+        + match.getP1().getUserID().trim() + "_" + match.getP1().getUserID().trim()).replaceAll("\\s+", "_");
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                                  .document(tournamentName)
                                                                  .collection("round")

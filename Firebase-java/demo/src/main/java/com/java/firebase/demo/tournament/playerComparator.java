@@ -1,5 +1,7 @@
 import java.util.Comparator;
 
+import com.java.firebase.demo.tournament.TournamentPlayer;
+
 public class playerComparator implements Comparator<TournamentPlayer> {
 
     public int compare(TournamentPlayer p1, TournamentPlayer p2) {

@@ -10,6 +10,10 @@ public class Round {
     private ArrayList<List<TournamentPlayer>> brackets;
     private ArrayList<TournamentPlayer> stillplaying;
 
+    public Round() {
+        // Initialize your fields if needed, or leave empty
+    }
+
     public Round(int roundNumber, ArrayList<TournamentPlayer> tournamentPlayers){
         players = tournamentPlayers;
         stillplaying = players;
@@ -20,11 +24,20 @@ public class Round {
     public void setRoundNumber(int roundNumber) {
         this.roundNumber = roundNumber;
     }
+
+    public int getRoundNumber(){
+        return roundNumber;
+    }
     
 
     public ArrayList<Match> getRoundMatches(){
         return matches;
     }
+
+    public void setRoundMatches(ArrayList<Match> matches) {
+        this.matches = matches;
+    }
+    
 
     public boolean removePlayer( List<TournamentPlayer> a, TournamentPlayer p){
 
