@@ -1,4 +1,4 @@
-package com.java.firebase.demo.algo;\
+package com.java.firebase.demo.algo;
 import java.util.*;
 
 
@@ -79,7 +79,7 @@ public class AlgoRound {
     }
 
     public AlgoStandings generateStandings(){
-        prevRoundStandings = new Standings(players);
+        prevRoundStandings = new AlgoStandings(players);
         return prevRoundStandings;
     }
 
