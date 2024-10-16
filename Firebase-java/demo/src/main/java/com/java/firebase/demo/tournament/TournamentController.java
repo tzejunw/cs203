@@ -49,6 +49,11 @@ public class TournamentController {
     // update inProgress field to false
     // this will only happen afeter stadnigns are updated. 
 
+    @PostMapping("/tournament/end")
+    public String endTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
+        return tournamentService.endTournament(tournamentName);
+    }
+
     @GetMapping("/tournament/get") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
     public Tournament getTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
         return tournamentService.getTournament(tournamentName);

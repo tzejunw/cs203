@@ -242,6 +242,19 @@ public ParticipatingPlayer getPlayer(String tournamentName, String participating
     return participatingPlayer;
 }
 
+public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
+    // Get the reference to the participatingPlayer's document
+    DocumentReference tournamentDocRef = firestore.collection("tournament")
+                                              .document(tournamentName);
+
+    // Use arrayUnion to add the matchId to the pastMatches array field
+    ApiFuture<WriteResult> updateResult = tournamentDocRef.update("inProgress", false);
+
+    // Wait for the update to complete
+    updateResult.get();
+
+    return "Tournament ended";
+}
 
 
 
