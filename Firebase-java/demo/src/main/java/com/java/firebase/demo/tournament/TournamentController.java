@@ -25,6 +25,21 @@ public class TournamentController {
         return tournamentService.createTournament(tournament);
     }
 
+    @PostMapping("/tournament/createplayer")
+    public String createPlayer(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
+        return tournamentService.createPlayer(tournamentName, participatingPlayerName);
+    }
+
+    @PostMapping("/tournament/updateplayermatch")
+    public String updatePlayerMatch(@RequestParam String tournamentName, @RequestParam String participatingPlayerName, @RequestParam String matchId) throws InterruptedException, ExecutionException {
+        return tournamentService.updatePlayerMatch(tournamentName, participatingPlayerName, matchId);
+    }
+
+    @GetMapping("/tournament/getplayer")
+    public ParticipatingPlayer getPlayer(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
+        return tournamentService.getPlayer(tournamentName, participatingPlayerName);
+    }
+
     // @PostMapping("/tournament/start") // to be implemeted
     // public String startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
     //     return tournamentService.startTournament(tournamentName);
