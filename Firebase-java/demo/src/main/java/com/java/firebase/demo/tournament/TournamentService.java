@@ -82,6 +82,9 @@ public class TournamentService {
     public boolean isValidAddress(String address) {
         Dotenv dotenv = Dotenv.load();
         String map_api_key = dotenv.get("GOOGLE_MAP_API_KEY");
+        if (Strings.isNullOrEmpty(map_api_key)){
+            System.out.println("Ensure GOOGLE_MAP_API_KEY is added as a env var");
+        }
         String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + map_api_key;
 
         try {
