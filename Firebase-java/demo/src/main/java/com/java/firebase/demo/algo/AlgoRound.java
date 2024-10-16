@@ -5,7 +5,7 @@ import java.util.*;
 
 public class AlgoRound {
     private ArrayList<AlgoMatch> AlgoMatches;
-    private Standings prevRoundStandings;
+    private AlgoStandings prevRoundStandings;
     private int roundNumber;
     private ArrayList<AlgoTournamentPlayer> players;
     private ArrayList<List<AlgoTournamentPlayer>> brackets;
@@ -78,7 +78,7 @@ public class AlgoRound {
         
     }
 
-    public Standings generateStandings(){
+    public AlgoStandings generateStandings(){
         prevRoundStandings = new Standings(players);
         return prevRoundStandings;
     }
@@ -143,7 +143,7 @@ public class AlgoRound {
         brackets.add(bracket);
     }
 
-    public Standings getStandings(){
+    public AlgoStandings getStandings(){
         return prevRoundStandings;
     }
 
