@@ -171,11 +171,6 @@ public class TournamentService {
         
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
-
-    //starttournament
-    // which calls object funtion like algo.starttournament, with arguments containing every participlating tournery player
-    // expects back a list of matches
-    // update match subcollection in tournry object with the given list of matches (meaning call tournament/match/create many timesto persist in fb)
     
     // For this Firebase doc, the tournamentName is the documentId.
     // The key in the GET request must be "documentid", and the value is the tournamentName
