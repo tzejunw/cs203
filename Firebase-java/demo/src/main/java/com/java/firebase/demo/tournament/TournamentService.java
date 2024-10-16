@@ -27,13 +27,6 @@ import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import com.google.common.base.Strings;
 
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import java.util.concurrent.ExecutionException;
-
-import com.google.cloud.firestore.FieldValue;
-import java.util.concurrent.ExecutionException;
-
 import io.github.cdimascio.dotenv.Dotenv;
 
 @Service
@@ -82,9 +75,6 @@ public class TournamentService {
     public boolean isValidAddress(String address) {
         Dotenv dotenv = Dotenv.load();
         String map_api_key = dotenv.get("GOOGLE_MAP_API_KEY");
-        if (Strings.isNullOrEmpty(map_api_key)){
-            System.out.println("Ensure GOOGLE_MAP_API_KEY is added as a env var");
-        }
         String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + map_api_key;
 
         try {
@@ -181,85 +171,6 @@ public class TournamentService {
         
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
-
-    
-    public String createPlayer(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
-        DocumentReference playerDocRef = firestore.collection("tournament")
-                                                  .document(tournamentName)
-                                                  .collection("participatingPlayers")
-                                                  .document(participatingPlayerName); // Concatenated Id
-        
-        ApiFuture<WriteResult> playerResult = playerDocRef.set(new HashMap<>()); // Creating with an empty map
-        playerResult.get(); 
-    
-        // Add a string to represent the past match
-        String pastMatchID = "dummy"; // Example past match ID
-    
-        // Update the pastMatches array field in the document
-        ApiFuture<WriteResult> updateResult = playerDocRef.update("pastMatches", FieldValue.arrayUnion(pastMatchID));
-    
-        // Wait for the update to complete
-        updateResult.get();
-    
-        return "Player with past matches added successfully";
-    }
-
-    public String updatePlayerMatch(String tournamentName, String participatingPlayerName, String matchId) throws InterruptedException, ExecutionException {
-        // Get the reference to the participatingPlayer's document
-        DocumentReference playerDocRef = firestore.collection("tournament")
-                                                  .document(tournamentName)
-                                                  .collection("participatingPlayers")
-                                                  .document(participatingPlayerName);
-    
-        // Use arrayUnion to add the matchId to the pastMatches array field
-        ApiFuture<WriteResult> updateResult = playerDocRef.update("pastMatches", FieldValue.arrayUnion(matchId));
-    
-        // Wait for the update to complete
-        updateResult.get();
-    
-        return "Match ID added successfully to pastMatches";
-    }
-
-
-
-public ParticipatingPlayer getPlayer(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
-    // Reference to the player's document in the participatingPlayers subcollection
-    DocumentReference playerDocRef = firestore.collection("tournament")
-                                              .document(tournamentName)
-                                              .collection("participatingPlayers")
-                                              .document(participatingPlayerName);
-
-    // Get the document snapshot (representing the player's data)
-    DocumentSnapshot document = playerDocRef.get().get();
-    ParticipatingPlayer participatingPlayer;
-    // Check if the document exists
-    if (document.exists()) {
-        // Return the document data as a JSON string or formatted output
-        System.out.println("Player documetn found");
-        participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
-    } else {
-        System.out.println("player not found");
-        participatingPlayer = new ParticipatingPlayer();
-        participatingPlayer.setPastMatches(new ArrayList<>());
-    }
-    return participatingPlayer;
-}
-
-public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
-    // Get the reference to the participatingPlayer's document
-    DocumentReference tournamentDocRef = firestore.collection("tournament")
-                                              .document(tournamentName);
-
-    // Use arrayUnion to add the matchId to the pastMatches array field
-    ApiFuture<WriteResult> updateResult = tournamentDocRef.update("inProgress", false);
-
-    // Wait for the update to complete
-    updateResult.get();
-
-    return "Tournament ended";
-}
-
-
 
     //starttournament
     // which calls object funtion like algo.starttournament, with arguments containing every participlating tournery player

@@ -53,7 +53,7 @@ public class playerComparator implements Comparator<TournamentPlayer>{
         }
 
         return -p1.getUserID().compareTo(p2.getUserID());
-
+        //return 0;
     }
 }
 

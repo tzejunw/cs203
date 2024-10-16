@@ -141,28 +141,6 @@ public class UserService {
         }
     }
 
-    public String resendVerificationEmail(String email) {
-        System.out.println(email);
-        try {
-            // Trigger the email verification
-            String verificationLink = firebaseAuth.generateEmailVerificationLink(email);
-
-            System.out.println(verificationLink);
-
-            // Create an instance of EmailService
-            EmailService emailService = new EmailService();
-
-            // Use the EmailService to send the verification email
-            emailService.sendVerificationEmail(email, verificationLink);
-            return verificationLink;
-
-        } catch (FirebaseAuthException e) {
-            // Handle exceptions if sending the email fails
-            e.printStackTrace();
-        }
-        return "";
-    }
-
     // Verify the Firebase ID token and decode it
     public String getIdToken(String bearerToken) throws FirebaseAuthException {
         try {

@@ -15,7 +15,7 @@ public class Round {
         
     }
 
-    public ArrayList<Match> getMatches(){
+    public ArrayList<Match> getRoundMatches(){
         return matches;
     }
 
@@ -24,7 +24,7 @@ public class Round {
         int i = 0;
         while ( i < a.size()){
             TournamentPlayer q = a.get(i);
-            if (p.getPlayerID().equals(q.getPlayerID())){
+            if (p.getUserID().equals(q.getUserID())){
                 a.remove(i);
                 return true;
             }
@@ -54,6 +54,7 @@ public class Round {
 
             for (TournamentPlayer p1: bracket){
                 
+                //TournamentPlayer p1 = bracket.get(0);
                 Iterator<TournamentPlayer> bracketIt = bracketcopy.iterator();
                 isMatched = false;
                 
@@ -68,9 +69,18 @@ public class Round {
                     }
 
                 }
+
+                // if (!isMatched){
+                //     matches.add(new Match(p1, bracketcopy.get(bracketcopy.size()-1)));
+
+                //     matched.add(p1);
+                //     matched.add(bracketcopy.get(bracketcopy.size()-1));
+                    
+                // }
                 
             }
 
+            // matches.add(new Match(bracket.get(0), bracketcopy.get(1)));
         }
         
     }
@@ -97,7 +107,7 @@ public class Round {
         matches = new ArrayList<Match>();
 
         this.brackets = brackets;
-        stillplaying =  new ArrayList<TournamentPlayer>(prevRoundStandings.getStandings());
+        stillplaying =  new ArrayList<TournamentPlayer>(prevRoundStandings.getSortedPlayers());
 
 
         stillplaying.removeIf(p -> !p.isPlaying());

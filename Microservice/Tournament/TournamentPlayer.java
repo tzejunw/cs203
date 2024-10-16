@@ -23,7 +23,7 @@ public class TournamentPlayer{
 
     }
 
-    public String getPlayerID(){
+    public String getUserID(){
         return playerID;
     }
 
@@ -82,7 +82,7 @@ public class TournamentPlayer{
             }
         }
 
-        return gameWins * gameWinPts;
+        return gameWins;
     }
 
     public int getDraws(){
@@ -121,7 +121,7 @@ public class TournamentPlayer{
 
         for ( Match m : pastMatches){
             if (!m.isBye()){
-                TournamentPlayer opp = m.getPlayer1().equals(this) ? m.getPlayer2() : m.getPlayer1();
+                TournamentPlayer opp = m.getP1().equals(this) ? m.getP2() : m.getP1();
                 double oppOMW = (double)opp.getTotalMatchPoints() / opp.roundsPlayed() > 0.33 ? (double)opp.getTotalMatchPoints() / opp.roundsPlayed() : 0.33;
                 OMW +=  oppOMW;    
             }
@@ -136,7 +136,7 @@ public class TournamentPlayer{
 
         for ( Match m : pastMatches){
             if (!m.isBye()){
-                TournamentPlayer opp = m.getPlayer1().equals(this) ? m.getPlayer2() : m.getPlayer1();
+                TournamentPlayer opp = m.getP1().equals(this) ? m.getP2() : m.getP1();
                 
                 OGW += opp.getCurGW() < 0.33 ? 0.33 : getCurGW();    
             }
@@ -155,7 +155,7 @@ public class TournamentPlayer{
 
     public boolean hasPlayed(TournamentPlayer player){
         for ( Match m : pastMatches){
-            if (player.equals(m.getPlayer1()) || player.equals(m.getPlayer2())){
+            if (player.equals(m.getP1()) || player.equals(m.getP2())){
                 return true;
             }
         }
@@ -164,7 +164,7 @@ public class TournamentPlayer{
 
     public void printmatches(){
         for (Match m : pastMatches){
-            System.out.println(m.getPlayer1().getPlayerID() +" vs " + m.getPlayer2().getPlayerID());
+            System.out.println(m.getP1().getUserID() +" vs " + m.getP2().getUserID());
         }
     }
 

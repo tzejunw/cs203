@@ -54,21 +54,6 @@ public class Testing {
 
         records.remove(0);
 
-        // for (List<String> i : records){
-
-        //     if (!nodups.contains(i.get(0)) && !nodups.contains(i.get(2))){
-        //         System.out.println(i.get(0)+","+i.get(2)+","+i.get(3));
-
-        //     }
-
-            
-        //     nodups.add(i.get(0));
-        //     nodups.add(i.get(2));
-        // }
-
-
-
- 
         for (List<String> i : records){
 
             TournamentPlayer p1 = new TournamentPlayer(i.get(0), new ArrayList<Match>());
@@ -76,10 +61,10 @@ public class Testing {
             
             Match m = null;
             
-            if (!nodups.contains(p1.getPlayerID()) && !nodups.contains(p2.getPlayerID())){
+            if (!nodups.contains(p1.getUserID()) && !nodups.contains(p2.getUserID())){
                 m = new Match(p1, p2);
-                nodups.add(p2.getPlayerID());
-                nodups.add(p1.getPlayerID());
+                nodups.add(p2.getUserID());
+                nodups.add(p1.getUserID());
 
                 players.add(p1);
                 players.add(p2);
@@ -95,16 +80,6 @@ public class Testing {
             }
             
         }
-
-        for (String id : nodups){
-            System.out.println(id);
-        }
-
-        // for ( Match m : testMatches){
-        //     System.out.println( m.getPlayer1().getPlayerID() +","+ m.getPlayer2().getPlayerID()  +","+ m.getWinner().getPlayerID() +","+m.getGameWins()  +","+ m.getGameLosses());
-        // }
-
-        /* 
         TournamentPlayer bye = new TournamentPlayer("byeman", new ArrayList<Match>());
         bye.addMatch(new Match(bye));
         players.add(bye);
@@ -120,7 +95,7 @@ public class Testing {
         Standings s = testRound.generateStandings();
 
         // for ( TournamentPlayer p : s.getSortedPlayers()){
-        //     System.out.println(p.getPlayerID() + " - " + p.getCurMatchPts());
+        //     System.out.println(p.getUserID() + " - " + p.getCurMatchPts());
         // }
 
         testRound.generateMatches(new ArrayList<Match>());
@@ -128,14 +103,14 @@ public class Testing {
         System.out.println("b4 " + testRound.getRoundMatches().size());
 
         for ( Match m : testRound.getRoundMatches()){
-            //System.out.println(m.getPlayer1().getPlayerID() + " " + m.getPlayer1().getCurMatchPts() + " vs " + m.getPlayer2().getPlayerID()+ " " + m.getPlayer2().getCurMatchPts());
-            m.update(m.getPlayer1(), 2, 0);
+            //System.out.println(m.getP1().getUserID() + " " + m.getP1().getCurMatchPts() + " vs " + m.getP2().getUserID()+ " " + m.getP2().getCurMatchPts());
+            m.update(m.getP1(), 2, 0);
         }
 
         
 
         // for ( TournamentPlayer p : s.getSortedPlayers()){
-        //     System.out.println(p.getPlayerID() + " - " + p.getCurMatchPts());
+        //     System.out.println(p.getUserID() + " - " + p.getCurMatchPts());
         // }
 
         for ( int i =0 ; i <4; i++){
@@ -143,8 +118,8 @@ public class Testing {
         testRound.generateMatches(new ArrayList<Match>());
 
         for ( Match m : testRound.getRoundMatches()){
-            // System.out.println(m.getPlayer1().getPlayerID() + " " + m.getPlayer1().getCurMatchPts() + " vs " + m.getPlayer2().getPlayerID()+ " " + m.getPlayer2().getCurMatchPts());
-           m.update(m.getPlayer1(), 2, 0);
+            // System.out.println(m.getP1().getUserID() + " " + m.getP1().getCurMatchPts() + " vs " + m.getP2().getUserID()+ " " + m.getP2().getCurMatchPts());
+           m.update(m.getP1(), 2, 0);
         }
         }
 
@@ -158,17 +133,17 @@ public class Testing {
         for ( Match m : testRound.getRoundMatches()){
 
             if (m.isBye()){
-                System.out.println(m.getPlayer1().getPlayerID() + " is bye");
+                System.out.println(m.getP1().getUserID() + " is bye");
             }else{
-                System.out.println(m.getPlayer1().getPlayerID() + " " + m.getPlayer1().getCurMatchPts() + " vs " + m.getPlayer2().getPlayerID()+ " " + m.getPlayer2().getCurMatchPts());
-                count += m.getPlayer1().getCurMatchPts() != m.getPlayer2().getCurMatchPts() ? 1 : 0; 
-                if (m.getPlayer1().getCurMatchPts() != m.getPlayer2().getCurMatchPts()) {
-                    l.add(m.getPlayer1().getCurMatchPts());
-                    l.add(m.getPlayer2().getCurMatchPts());
+                System.out.println(m.getP1().getUserID() + " " + m.getP1().getCurMatchPts() + " vs " + m.getP2().getUserID()+ " " + m.getP2().getCurMatchPts());
+                count += m.getP1().getCurMatchPts() != m.getP2().getCurMatchPts() ? 1 : 0; 
+                if (m.getP1().getCurMatchPts() != m.getP2().getCurMatchPts()) {
+                    l.add(m.getP1().getCurMatchPts());
+                    l.add(m.getP2().getCurMatchPts());
                 }
             }
             
-            //m.update(m.getPlayer1(), 2, 0);
+            //m.update(m.getP1(), 2, 0);
 
 
             
@@ -192,7 +167,7 @@ public class Testing {
 
 
 
-*/
+
 
     }
 }
