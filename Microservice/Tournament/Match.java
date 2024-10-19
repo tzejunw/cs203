@@ -1,6 +1,3 @@
-
-
-
 public class Match {
     private TournamentPlayer player1;
     private TournamentPlayer player2;
@@ -43,17 +40,15 @@ public class Match {
 
     }
 
-
-
     public TournamentPlayer getWinner(){
         return winner;
     }
 
-    public TournamentPlayer getPlayer1(){
+    public TournamentPlayer getP1(){
         return player1;
     }
 
-    public TournamentPlayer getPlayer2(){
+    public TournamentPlayer getP2(){
         return player2;
     }
 
@@ -74,11 +69,7 @@ public class Match {
     }
 
     public String toString(){
-
-        if (isBye){
-            return winner.getPlayerID() + " wins with bye";
-        }
-        String loser = player1.equals(winner) ? player2.getPlayerID() : player1.getPlayerID();
-        return winner.getPlayerID() + " " + loser + " " + gameWins + "-" + gameLosses;
+        String loser = player1.equals(winner) ? player2.getUserID() : player1.getUserID();
+        return winner.getUserID() + " " + loser + " " + gameWins + "-" + gameLosses;
     }
 }

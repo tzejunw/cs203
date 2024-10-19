@@ -43,4 +43,3 @@ public class playerComparator implements Comparator<AlgoTournamentPlayer>{
 
     }
 }
-

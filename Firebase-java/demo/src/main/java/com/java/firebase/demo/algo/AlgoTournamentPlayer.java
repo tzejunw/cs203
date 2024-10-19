@@ -170,16 +170,4 @@ public class AlgoTournamentPlayer{
             System.out.println(m.getPlayer1().getPlayerID() +" vs " + m.getPlayer2().getPlayerID());
         }
     }
-
-    
-
-
-    
-
-
-
-    
-
-    
-
 }

@@ -25,34 +25,26 @@ public class TournamentController {
         return tournamentService.createTournament(tournament);
     }
 
-    @PostMapping("/tournament/createplayer")
+    @PostMapping("/tournament/player/create")
     public String createPlayer(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
         return tournamentService.createPlayer(tournamentName, participatingPlayerName);
     }
 
-    @PostMapping("/tournament/updateplayermatch")
+    @PostMapping("/tournament/player/updatematch")
     public String updatePlayerMatch(@RequestParam String tournamentName, @RequestParam String participatingPlayerName, @RequestParam String matchId) throws InterruptedException, ExecutionException {
         return tournamentService.updatePlayerMatch(tournamentName, participatingPlayerName, matchId);
     }
 
-    @GetMapping("/tournament/getplayer")
+    @GetMapping("/tournament/player/get")
     public ParticipatingPlayer getPlayer(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
         return tournamentService.getPlayer(tournamentName, participatingPlayerName);
     }
-
-    // @PostMapping("/tournament/start") // to be implemeted
-    // public String startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
-    //     return tournamentService.startTournament(tournamentName);
-    // }
-
-    // /tournamnet/end
-    // update inProgress field to false
-    // this will only happen afeter stadnigns are updated. 
 
     @PostMapping("/tournament/end")
     public String endTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
         return tournamentService.endTournament(tournamentName);
     }
+
 
     @GetMapping("/tournament/get") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
     public Tournament getTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
