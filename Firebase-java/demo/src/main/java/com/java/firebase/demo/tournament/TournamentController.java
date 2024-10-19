@@ -1,5 +1,6 @@
 package com.java.firebase.demo.tournament;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,11 @@ public class TournamentController {
     public ParticipatingPlayer getPlayer(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
         return tournamentService.getPlayer(tournamentName, participatingPlayerName);
     }
+
+    @GetMapping("/tournament/player/get/matches")
+    public List<Match> getPlayerPastMatches(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
+        return tournamentService.getPlayerPastMatches(tournamentName, participatingPlayerName);
+    }    
 
     @PostMapping("/tournament/end")
     public String endTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
