@@ -1,13 +1,17 @@
 package com.java.firebase.demo.tournament;
 
 import com.java.firebase.demo.user.User;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.List;
 
 @Setter
 @Getter
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tournament {
     private String tournamentName; // also used as documentId
     private String startDate; 
