@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
@@ -475,7 +476,16 @@ public String endTournament(String tournamentName) throws InterruptedException, 
     // TODO some input validation for match? we have to make sure that match is created with two valid userNames
     // now for matches, winner wins losses isDraw isBye can be empty for now, but must be updated later. 
 
-    public String createMatchId(String tournamentName, String roundName, Match match ) {
+    public String roundEnd(String tournamentName, String roundName) throws ExecutionException, InterruptedException{
+        Round round = getRound(tournamentName, roundName);
+        
+        processRoundData(tournamentName, round); //based on the matches in the round, go and update FB player's matches with the ID
+
+
+        return "Matches Assigned to participatingPlayer's pastMatches";
+    }
+
+    public String generateMatchId(String tournamentName, String roundName, Match match ) {
         String matchId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
         + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
         return matchId;
@@ -498,10 +508,37 @@ public String endTournament(String tournamentName) throws InterruptedException, 
     
         return result;
     }
+
+public void processRoundData(String tournamentName, Round round) throws InterruptedException, ExecutionException {
+    String roundName = round.getRoundName(); // Get round name from the Round object
+    List<Match> matches = round.getMatches(); // Get matches from the Round object
+
+    for (Match match : matches) {
+        String player1 = match.getPlayer1(); // Get player1
+        String player2 = match.getPlayer2(); // Get player2
+
+        if (player1 == null && player2 == null) {
+            System.out.println("ignoring the empty match doc");
+            continue;
+        }
+
+        // Generate matchId using your existing method
+        String matchId = generateMatchId(tournamentName, roundName, match);
+
+        // Update matches for each player if they are not null
+        if (player1 != null) {
+            updatePlayerMatch(tournamentName, player1, matchId);
+        }
+        if (player2 != null) {
+            updatePlayerMatch(tournamentName, player2, matchId);
+        }
+    }
+}
+    
     
 
     public String createMatch(String tournamentName, String roundName, Match match) throws ExecutionException, InterruptedException{
-        String documentId = createMatchId(tournamentName, roundName, match);
+        String documentId = generateMatchId(tournamentName, roundName, match);
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                                  .document(tournamentName)
                                                                  .collection("round")
@@ -596,13 +633,13 @@ public String endTournament(String tournamentName) throws InterruptedException, 
     // // CRUD for Standings (nested under Round -> Tournament)
 
     public String createStanding(String tournamentName, String roundName, Standing standing) throws ExecutionException, InterruptedException {
-        String documentId = String.valueOf(standing.getRank()); // Using rank as the document ID
+        //String documentId = String.valueOf(standing.getRank()); // Using rank as the document ID
         DocumentReference standingDocRef = firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
                                                       .document(roundName)
                                                       .collection("standing")
-                                                      .document(documentId);
+                                                      .document();
     
         ApiFuture<WriteResult> standingResult = standingDocRef.set(standing);
         standingResult.get(); // Wait for completion
@@ -627,6 +664,30 @@ public String endTournament(String tournamentName) throws InterruptedException, 
         } else {
             return null; // Or handle error
         }
+    }
+
+    public List<Standing> getAllStanding(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
+        // Retrieve all documents from the "tournament" collection
+        ApiFuture<QuerySnapshot> future = firestore.collection("tournament")
+                                                    .document(tournamentName)
+                                                    .collection("round")
+                                                    .document(roundName)
+                                                    .collection("standing")
+                                                    .get();
+        
+        // QuerySnapshot contains all documents in the collection
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        
+        // Create a list to hold the Tournament objects
+        List<Standing> standings = new ArrayList<>();
+        
+        // Convert each document to a Tournament object and add it to the list
+        for (DocumentSnapshot document : documents) {
+            Standing standing = document.toObject(Standing.class);
+            standings.add(standing);
+        }
+        
+        return standings;
     }
         
     public String updateStanding(String tournamentName, String roundName, Standing updatedStanding) throws ExecutionException, InterruptedException {

@@ -6,12 +6,11 @@ import lombok.Setter;
 @Setter
 @Getter
 
-public class Standing {
+public class Standing { // a standing is a tournament Player, minus some attributes
     private int rank;
-    private String name;
-    private String matchRecord;
-    private int points;
-    private double omw;
-    private double gw;
-    private double ogw;
+    private String playerID;
+    private int curMatchPts;
+    private double curOMW;
+    private int curGamePts;
+    private double curOGW;
 }
