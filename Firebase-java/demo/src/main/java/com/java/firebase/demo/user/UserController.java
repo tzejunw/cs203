@@ -47,6 +47,11 @@ public class UserController {
         userService.createUserDetails(user, uid);
         return ResponseEntity.ok().body("Success");
     }
+    
+    @PostMapping("/user/resendVerification") // expects a User object in body raw JSON
+    public ResponseEntity<String> resendVerificationLink(@RequestParam String email) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
+        return ResponseEntity.ok().body(userService.sendVerificationEmail(email));
+    }
 
     @PostMapping("/user/login") // expects a User object in body raw JSON
     public ResponseEntity<String> login(@RequestBody Login login) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
@@ -97,15 +102,6 @@ public class UserController {
         return ResponseEntity.ok().body("Profile successfully updated!");
     }
 
-    // Segregated for backend simplicity
-    // @PutMapping("/user/updateEmail")
-    // public ResponseEntity<String> updateEmail(@RequestBody UpdateEmail updateEmail, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
-    //     String uid = userService.getIdToken(request.getHeader("Authorization"));
-    //     userService.updateEmail(updateEmail.getEmail(), uid);
-    //     return ResponseEntity.ok().body("Email successfully updated!");
-    // }
-
-    // Segregated for frontend simplicity
     @PutMapping("/user/updatePassword")
     public ResponseEntity<String> updatePassword(@RequestBody UpdatePassword updatePassword, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
