@@ -36,8 +36,8 @@ public class UserController {
     // }
 
     @PostMapping("/user/create") // expects a User object in body raw JSON
-    public ResponseEntity<String> createUser(@RequestBody Register register) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
-        String uid = userService.createUser(register);
+    public ResponseEntity<String> createUser(@RequestBody UserCredentials userCredentials) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
+        String uid = userService.createUser(userCredentials);
         return ResponseEntity.ok().body(uid);
     }
 
@@ -54,8 +54,8 @@ public class UserController {
     }
 
     @PostMapping("/user/login") // expects a User object in body raw JSON
-    public ResponseEntity<String> login(@RequestBody Login login) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
-        String bearerToken = userService.login(login);
+    public ResponseEntity<String> login(@RequestBody UserCredentials userCredentials) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
+        String bearerToken = userService.login(userCredentials);
         return ResponseEntity.ok().body(bearerToken);
     }
 

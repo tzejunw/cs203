@@ -31,6 +31,7 @@ import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
+import com.google.common.base.Strings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -38,6 +39,8 @@ import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.UpdateRequest;
 import com.google.firebase.cloud.FirestoreClient;
 import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 
 @Service
@@ -50,22 +53,28 @@ public class UserService {
         this.firebaseAuth = firebaseAuth;
     }
 
-    public String createUser(Register register) throws ExecutionException, InterruptedException, FirebaseAuthException{
-        if (!isPasswordValid(register.getPassword()))
-            throw new IllegalArgumentException("Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
+    /**
+         * Creates a new user account in Firebase Authentication. 
+         * Main connection with UserController.
+         * @param email The user's email address.
+         * @param password The user's password.
+         * @return The UID of the newly created user.
+    */
+    public String createUser(UserCredentials userCredentials) throws ExecutionException, InterruptedException, FirebaseAuthException{
+        validateCredentials(userCredentials.getEmail(), userCredentials.getPassword());
         
-        String uid = createAccountInAuth(register.getEmail(), register.getPassword());
+        String uid = createAccountInAuth(userCredentials.getEmail(), userCredentials.getPassword());
         
         // Send email verification to the user
-        sendVerificationEmail(register.getEmail());
+        sendVerificationEmail(userCredentials.getEmail());
 
         // setAdminAuthority(uid); // Uncomment to make the next registration an admin user.
         return uid;
     }
 
+    // Create an account in Firebase Authentication
+    // Returns Unique ID (uid)
     public String createAccountInAuth(String email, String password) throws ExecutionException, InterruptedException, FirebaseAuthException {
-        // Create an account in Firebase Authentication
-        // Returns Unique ID (uid)
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                 .setEmail(email)
                 .setPassword(password)
@@ -74,13 +83,21 @@ public class UserService {
         return userAuthRecord.getUid();
     }
 
+    /**
+     * Sets the "admin" custom claim for the specified user.
+     * @param uid The UID of the user.
+    */
     public void setAdminAuthority(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
         Map<String, Object> claims = new HashMap<>();
         claims.put("admin", true);
-        // claims.put("player", true);
         firebaseAuth.setCustomUserClaims(uid, claims);
     }
 
+    /**
+     * Creates a new document in the "user" collection with the specified UID and user data.
+     * @param user The user object containing the user's data.
+     * @param uid The user's UID.
+     */
     public void createUserDetails(User user, String uid)
             throws ExecutionException, InterruptedException, FirebaseAuthException, FirestoreException {
         if (!(user.getGender().equals("Male") || user.getGender().equals("Female")))
@@ -119,7 +136,7 @@ public class UserService {
     // Method to send email verification
     public String sendVerificationEmail(String email) throws FirebaseAuthException {
         // Trigger the email verification
-        String verificationLink = firebaseAuth.generateEmailVerificationLink(email); //user.getEmail()
+        String verificationLink = firebaseAuth.generateEmailVerificationLink(email);
 
         System.out.println(verificationLink);
 
@@ -142,24 +159,27 @@ public class UserService {
             }
             String idToken = bearerToken.substring(7); // Remove "Bearer " from the header
 
-            // Verify the token and get the user's UID
-            FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
+            // Verify the token with firebase auth and get the user's UID
+            FirebaseToken decodedToken = verifyIdToken(idToken);
             return decodedToken.getUid();
         } catch (Exception e) {
-            return e.getMessage();
-        }
-    }
-
-    public FirebaseToken verifyIdToken(String idToken) throws FirebaseAuthException {
-        try {
-            return firebaseAuth.verifyIdToken(idToken);
-        } catch (FirebaseAuthException e) {
             throw e;
         }
     }
 
-    private static final String FIREBASE_API_KEY = "AIzaSyBItH-UkQG9U1UfRILfioF7K_VeEw_Zbjo";
+    public FirebaseToken verifyIdToken(String idToken) throws FirebaseAuthException {
+        return firebaseAuth.verifyIdToken(idToken);
+    }
 
+    Dotenv dotenv = Dotenv.load();
+    private final String FIREBASE_API_KEY = dotenv.get("FIREBASE_API_KEY");
+
+    /**
+     * Parses a JSON response and extracts the specified field.
+     * @param response The HTTP response containing the JSON data.
+     * @param fieldName The name of the field to extract.
+     * @return The value of the specified field, or null if the field does not exist.
+    */
     public String parseJSON(ResponseEntity<String> response, String fieldName) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonResponse = mapper.readTree(response.getBody());
@@ -167,31 +187,44 @@ public class UserService {
         return field;
     }
 
+    /**
+     * Verifies the ID token and retrieves the user record to check if email is verified.
+     * @param idToken The ID token to verify.
+     * @return The user record associated with the ID token.
+    */
     public boolean isEmailVerified(String idToken) throws Exception {
-        FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
+        FirebaseToken decodedToken = verifyIdToken(idToken);
         UserRecord userRecord = firebaseAuth.getUser(decodedToken.getUid());
         return userRecord.isEmailVerified();
     }
 
-    // Retrieves the idToken on login (email & password)
-    public String login(Login login)
-            throws ExecutionException, InterruptedException, JsonProcessingException, Exception {
-        // Basic Validation
-        if (login.getEmail() == null || !login.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
-        if (login.getPassword() == null || login.getPassword().length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters long");
-        }
-
-        // Creates a JSON template to send to Firebase Auth Client
-        String requestPayload = String.format("{\"email\":\"%s\",\"password\":\"%s\",\"returnSecureToken\":true}",
-                login.getEmail(), login.getPassword());
+    /**
+     * Validates the user credentials and ensures the email is verified before granting access.
+     * @param email The user's email address.
+     * @param password The user's password.
+    */
+    public String login(UserCredentials userCredentials)
+        throws ExecutionException, InterruptedException, JsonProcessingException, Exception {
+        validateCredentials(userCredentials.getEmail(), userCredentials.getPassword());
+        
+        // Sets the content type header to application/json, as well as it's required variables.
+        String requestPayload = String.format("{\"email\":\"%s\",\"password\":\"%s\",\"returnSecureToken\":true}", userCredentials.getEmail(), userCredentials.getPassword());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create the request entity
+        // Creates an HTTP entity containing the request payload and headers
         HttpEntity<String> entity = new HttpEntity<>(requestPayload, headers);
+        
+        String token = sendLoginRequest(entity);
+
+        if (!isEmailVerified(token)) {
+            System.out.println("Email not verified");
+            throw new IllegalArgumentException("Please verify your account via your email to continue.");
+        }
+
+        return token;
+    }
+
+    private String sendLoginRequest(HttpEntity<String> entity) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
 
         try {
@@ -201,39 +234,39 @@ public class UserService {
                     entity,
                     String.class);
 
-            // Parse the response
             if (response.getStatusCode() == HttpStatus.OK) {
-                String token = parseJSON(response, "idToken");
-                if (!isEmailVerified(token)){
-                    System.out.println("Email not verified");
-                    throw new IllegalArgumentException("Please verify your account via your email to continue.");
-                }
-                return token;
+                return parseJSON(response, "idToken");
             }
+
             throw new Exception("Something went wrong");
         } catch (HttpClientErrorException e) {
-            // Handle HTTP client errors (4xx)
             if (e.getMessage().contains("too-many-requests")) {
-                throw new TooManyRequestsException(
-                        "Too many requests detected. Please try again later.");
+                throw new TooManyRequestsException("Too many requests detected. Please try again later.");
             }
             if (e.getStatusCode() == HttpStatus.FORBIDDEN && e.getMessage().contains("blocked")) {
                 throw new AccessDeniedException(e.getMessage());
             }
-            // throw new IllegalArgumentException(e.getMessage());
             throw new IllegalArgumentException("Email or password is incorrect.");
         } catch (HttpServerErrorException e) {
-            // Handle HTTP server errors (5xx)
             throw new HttpServerErrorException(e.getStatusCode(), e.getMessage());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
+    /**
+     * Revokes all refresh tokens associated with the specified user.
+     * @param uid The user's UID.
+    */
     public void logoutUser(String uid) throws FirebaseAuthException {
         firebaseAuth.revokeRefreshTokens(uid);
     }
 
+    /**
+     * Checks if a user with the specified UID exists in the Firestore database.
+     * @param uid The user's UID.
+     * @return True if the user exists, false otherwise.
+    */
     public Boolean userExists(String uid) throws ExecutionException, InterruptedException {
         DocumentReference documentReference = firestore.collection("user").document(uid);
         ApiFuture<DocumentSnapshot> future = documentReference.get();
@@ -241,7 +274,11 @@ public class UserService {
         return document.exists();
     }
 
-    // For this Firebase doc, the uid is the documentId.
+    /**
+     * Retrieves a user from the Firestore database by their UID.
+     * @param uid The user's UID.
+     * @return The user object, or null if the user does not exist.
+    */
     public User getUser(String uid) throws ExecutionException, InterruptedException, Exception {
         DocumentReference documentReference = firestore.collection("user").document(uid); // get the doc
         ApiFuture<DocumentSnapshot> future = documentReference.get();
@@ -366,6 +403,18 @@ public class UserService {
             return false;
         }
         return true;
+    }
+
+    private void validateCredentials(String email, String password) {
+        if (Strings.isNullOrEmpty(email)) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+        if (Strings.isNullOrEmpty(password)) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+        if (!isPasswordValid(password)){
+            throw new IllegalArgumentException("Password should be between 8-32 characters, at least 1 uppercase, 1 lowercase letter, 1 digit and 1 special character.");
+        }
     }
 
     // Username checks

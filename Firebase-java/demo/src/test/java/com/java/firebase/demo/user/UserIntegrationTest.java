@@ -129,11 +129,11 @@ public class UserIntegrationTest {
     @Test
     public void testLogin_Success() throws Exception {
         URI uri = new URI(baseUrl + port + "/user/login");
-        Login login = new Login();
-        login.setEmail("user@gmail.com");
-        login.setPassword("1@Secured");
+        UserCredentials userCredentials = new UserCredentials();
+        userCredentials.setEmail("user@gmail.com");
+        userCredentials.setPassword("1@Secured");
 
-        ResponseEntity<String> result = restTemplate.postForEntity(uri, login, String.class);
+        ResponseEntity<String> result = restTemplate.postForEntity(uri, userCredentials, String.class);
 		
 		assertEquals(200, result.getStatusCode().value());
     }
@@ -141,21 +141,21 @@ public class UserIntegrationTest {
     @Test
     public void testLogin_Failure() throws Exception {
         URI uri = new URI(baseUrl + port + "/user/login");
-        Login login = new Login();
-        login.setEmail("garychia14+test@gmail.com");
-        login.setPassword("WrongPassword");
+        UserCredentials userCredentials = new UserCredentials();
+        userCredentials.setEmail("garychia14+test@gmail.com");
+        userCredentials.setPassword("WrongPassword");
 
-        ResponseEntity<String> result = restTemplate.postForEntity(uri, login, String.class);
+        ResponseEntity<String> result = restTemplate.postForEntity(uri, userCredentials, String.class);
 		assertEquals(400, result.getStatusCode().value());
     }
 
     public String login(String email) throws Exception {
         URI url = new URI(baseUrl + port + "/user/login");
-        Login login = new Login();
-        login.setEmail(email);
-        login.setPassword("1@Secured");
+        UserCredentials userCredentials = new UserCredentials();
+        userCredentials.setEmail(email);
+        userCredentials.setPassword("1@Secured");
 
-        ResponseEntity<String> result = restTemplate.postForEntity(url, login, String.class);
+        ResponseEntity<String> result = restTemplate.postForEntity(url, userCredentials, String.class);
         assertEquals(200, result.getStatusCode().value());
 		
         return result.getBody();
