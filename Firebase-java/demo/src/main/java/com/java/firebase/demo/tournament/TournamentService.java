@@ -3,9 +3,6 @@ package com.java.firebase.demo.tournament;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -38,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.util.*;
+import com.java.firebase.demo.algo.*;
 
 @Service
 public class TournamentService {
@@ -724,5 +722,95 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
     
         return "Standing with rank " + rank + " deleted from " + tournamentName + ", " + roundName;
     }
+
+    public boolean startTournament( String tournament) throws ExecutionException, InterruptedException{
+        
+        Tournament tourney = getTournament(tournament);
+
+        if (tourney != null){
+            tourney.setInProgress("true");
+            updateTournament(tourney);
+            List<String> players= tourney.getParticipatingPlayers();
+
+            ArrayList<AlgoTournamentPlayer> playerObjs = new ArrayList<AlgoTournamentPlayer>();
+
+            for (String s : players){
+                playerObjs.add(new AlgoTournamentPlayer(s, new ArrayList<AlgoMatch>()));
+            }
+
+            AlgoRound rd1 = new AlgoRound(1, playerObjs);
+
+            ArrayList<AlgoMatch> Rd1Matches = rd1.getAlgoMatches();
+
+
+            for (AlgoMatch algoMatch : Rd1Matches){
+                
+                // create new match 
+
+                Match match = new Match();
+                String player1Name = algoMatch.getPlayer1().getPlayerID();
+
+                // if is bye
+
+                if (algoMatch.isBye()){
+                    match.setPlayer1(player1Name);
+                    match.setBye(true);
+
+                    //updates player match record
+                    updatePlayerMatch(tournament,player1Name ,createMatchId(tournament, "round1",match));
+                    
+                }else{
+
+                    String player2Name = algoMatch.getPlayer2().getPlayerID();
+                    match.setPlayer1(player1Name);
+                    match.setPlayer2(player2Name);
+                    match.setBye(false);
+
+                    //updates player match record
+                    updatePlayerMatch(tournament,player1Name ,createMatchId(tournament, "round1",match));
+                    updatePlayerMatch(tournament, player2Name, createMatchId(tournament,"round1", match));
+
+                }
+
+                createMatch(tournament, "round1", match);
+
+            }
+
+            return true;
+        }   
+
+        return false;
+
+    }
+
+    public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
+
+        Tournament tourney = getTournament(tournament);
+
+        if (tourney != null){
+
+            List<String> players= tourney.getParticipatingPlayers();
+            ArrayList<AlgoTournamentPlayer> algoPlayers = new ArrayList<AlgoTournamentPlayer>();
+            
+            for (String playerName : players){
+                ParticipatingPlayer playerData = getPlayer(tournament, playerName);
+                AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerData.getUserName(), new ArrayList<AlgoMatch>());
+
+                ArrayList<String> playerMatchIDs = playerData.getPastMatches();
+
+                for ( String matchID : playerMatchIDs){
+                    Match matchObj = getMatch(tournament, tournament, playerName, playerName)
+                }
+
+            }
+
+            AlgoRound algoRound = new AlgoRound(tourney.getCurrentRound(), );
+
+        }
+        return false;
+    }
+
+
+
     
 }
