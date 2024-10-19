@@ -36,9 +36,8 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.UpdateRequest;
-import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
-
 import com.google.firebase.cloud.FirestoreClient;
+import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
 
 
 @Service
@@ -58,7 +57,7 @@ public class UserService {
         String uid = createAccountInAuth(register.getEmail(), register.getPassword());
         
         // Send email verification to the user
-        sendVerificationEmail(uid);
+        sendVerificationEmail(register.getEmail());
 
         // setAdminAuthority(uid); // Uncomment to make the next registration an admin user.
         return uid;
@@ -117,29 +116,22 @@ public class UserService {
     //     System.out.println("Created " + userName);
     // }
 
-    
     // Method to send email verification
-    public void sendVerificationEmail(String uid) {
+    public String sendVerificationEmail(String email) throws FirebaseAuthException {
+        // Trigger the email verification
+        String verificationLink = firebaseAuth.generateEmailVerificationLink(email); //user.getEmail()
 
-        try {
-            UserRecord user = firebaseAuth.getUser(uid);
+        System.out.println(verificationLink);
 
-            // Trigger the email verification
-            String verificationLink = firebaseAuth.generateEmailVerificationLink(user.getEmail());
+        // Create an instance of EmailService
+        EmailService emailService = new EmailService();
 
-            System.out.println(verificationLink);
-
-            // Create an instance of EmailService
-            EmailService emailService = new EmailService();
-
-            // Use the EmailService to send the verification email
-            emailService.sendVerificationEmail(user.getEmail(), verificationLink);
-
-        } catch (FirebaseAuthException e) {
-            // Handle exceptions if sending the email fails
-            e.printStackTrace();
-        }
+        // Use the EmailService to send the verification email
+        emailService.sendVerificationEmail(email, verificationLink);
+        
+        return verificationLink;
     }
+    
 
     // Verify the Firebase ID token and decode it
     public String getIdToken(String bearerToken) throws FirebaseAuthException {

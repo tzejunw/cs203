@@ -87,6 +87,12 @@ public class TournamentController {
     @DeleteMapping("/tournament/round/delete")
     public String deleteRound(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
         return tournamentService.deleteRound(tournamentName, roundName);
+    }
+
+    @GetMapping("/tournament/round/end")
+    public String roundEnd(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException{
+        return tournamentService.roundEnd(tournamentName, roundName);
+    }
 
     //TODO
     // /tournament/round/end 
@@ -105,7 +111,6 @@ public class TournamentController {
     // commmit that to firebase. 
     // say ok
 
-}
 
     @PostMapping("/tournament/round/match/create")
     public String createMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Match match) throws InterruptedException, ExecutionException{
@@ -142,6 +147,11 @@ public class TournamentController {
     @GetMapping("/tournament/round/standing/get")
     public Standing getStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
         return tournamentService.getStanding(tournamentName, roundName, rank);
+    }
+
+    @GetMapping("/tournament/round/standing/get/all")
+    public List<Standing> getAllStanding(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException {
+        return tournamentService.getAllStanding(tournamentName, roundName);
     }
     
     @PutMapping("/tournament/round/standing/update")
