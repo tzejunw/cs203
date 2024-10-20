@@ -8,5 +8,5 @@ import lombok.Setter;
 @Getter
 public class ParticipatingPlayer {
     public String userName;
-    public ArrayList<String> pastMatches;
+    public List<String> pastMatches;
 }

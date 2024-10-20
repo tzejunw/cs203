@@ -19568,3 +19568,7 @@ table.career tr td img {
   background-color: #dc3545 !important;
   color: white;
 }
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+  background-color: lightgray;
+}

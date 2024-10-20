@@ -1,7 +1,7 @@
 import os
 from . import tournament
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, flash, render_template, request, redirect, url_for
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField ,SubmitField 
 from wtforms.validators import InputRequired
@@ -116,3 +116,36 @@ def view_players():
 def tournament_matches():
     return render_template('tournament/matches.html')
 
+@tournament.route('/create_player', methods=['GET', 'POST'])
+def create_player():
+
+    tournamentName = request.args.get('tournamentName', type = str)
+    jwt_cookie = request.cookies.get('jwt')
+    headers = {
+            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+        }
+
+    # if request.method == 'GET':
+    api_url = 'http://localhost:8080/user/get'
+    response = requests.get(api_url, headers=headers)
+    
+    if response.status_code == 200:
+        user_data = response.json()
+        userName = user_data.get('userName')
+        flash("fetched name", "success")
+        print('HELLO ' + user_data.get('userName'))
+    else:
+        print("API call failed with status code:", response.status_code)
+        print("Response text:", response.text)
+
+
+    # api_url = f'http://localhost:8080/tournament/player/create?tournamentName={tournamentName}&participatingPlayerName={userName}'
+    # response = requests.post(api_url, headers=headers)
+
+    # if response.status_code == 200:
+    #     flash("userName enrolled in tournament", "success")
+    # else:
+    #     print("API call failed with status code:", response.status_code)
+    #     print("Response text:", response.text)
+
+    return redirect(request.referrer)# stay on current page
