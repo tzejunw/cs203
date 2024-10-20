@@ -799,7 +799,9 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 ArrayList<String> playerMatchIDs = playerData.getPastMatches();
 
                 for ( String matchID : playerMatchIDs){
-                    Match matchObj = getMatch(tournament, tournament, playerName, playerName)
+                    Match matchObj = getMatch(tournament, tournament, playerName, playerName);
+                    AlgoMatch algoMatch = new AlgoMatch( );
+
                 }
 
             }
