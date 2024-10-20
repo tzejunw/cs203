@@ -81,9 +81,10 @@ def view_tournament(tournament_name):
     # Check if the user has joined this specific tournament
     if tournament_name not in session['joinedTournaments']:
         session['joinedTournaments'][tournament_name] = False
+        
+    #clear all sessions, reset 'Joined' buttons to 'Join Now', COMMENT out after reset
+    #session.clear() 
 
-    #session.clear() clear all sessions, reset 'Joined' buttons to 'Join Now'
-    
     if response.status_code == 200:
         tournament = response.json()
         return render_template('tournament/tournament.html', tournament=tournament, GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY)
@@ -126,6 +127,41 @@ def view_players():
 def tournament_matches():
     return render_template('tournament/matches.html')
 
+@tournament.route('/my_tournament', methods=['GET'])
+def my_tournament():
+
+    tournaments = []  # empty list to hold tournament data
+
+    jwt_cookie = request.cookies.get('jwt')
+    headers = {
+            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+    }
+
+    #session.clear() 
+
+    if 'joinedTournaments' in session:
+        #return a dictionary that stores tournament name and boolean value e.g. {'Commander’s Conclave': True}, this indicate which tournaments user has join
+        joined_tournaments = session['joinedTournaments'] 
+        tournament_names = list(joined_tournaments.keys())
+        #print(tournament_names)
+
+        if(tournament_names):
+            for name in tournament_names:
+                api_url = f'http://localhost:8080/tournament/get?tournamentName={name}'
+                response = requests.get(api_url, headers=headers)
+
+                if response.status_code == 200:
+                    tournament_data = response.json()
+                    tournaments.append(tournament_data)  # Append each tournament data to the list
+                else:
+                    # Handle errors if necessary, e.g., logging or appending a placeholder
+                    print(response.status_code)
+            
+            return render_template('tournament/my_tournament.html', tournaments = tournaments)
+    
+    flash("You have yet to join any tournaments", "danger")
+    return redirect(request.referrer) 
+
 
 @tournament.route('/create_player', methods=['GET', 'POST'])
 def create_player():
@@ -160,5 +196,5 @@ def create_player():
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
         
-
-    return redirect(request.referrer) #stay on current page
+    #stay on current page
+    return redirect(request.referrer) 
