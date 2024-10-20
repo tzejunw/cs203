@@ -46,8 +46,18 @@
                     {% if is_admin %}
                         <a href="#" class="bg-success btn tournament-join-btn w-100 mt-3">View Players</a>
                     {% else %}
-                        <a href="{{url_for('tournament.create_player', tournamentName=tournament.tournamentName)}}" class="btn tournament-join-btn w-100 mt-3">Join Now</a>
+                        {% if not session.get('joinedTournaments', {}).get(tournament.tournamentName, False) %}
+                            <a href="{{ url_for('tournament.create_player', tournamentName=tournament.tournamentName) }}" class="btn tournament-join-btn w-100 mt-3">Join Now</a>
+                        {% else %}
+                            <a href="#" class="bg-success btn tournament-join-btn w-100 mt-3">Joined</a>
+                        {% endif %}
                     {% endif %}
+
+                    <!-- {% if is_admin %}
+                        <a href="#" class="bg-success btn tournament-join-btn w-100 mt-3">View Players</a>
+                    {% else %}
+                       <a href="{{url_for('tournament.create_player', tournamentName=tournament.tournamentName)}}" class="btn tournament-join-btn w-100 mt-3">Join Now</a>
+                    {% endif %} -->
                 </div>
             </div>
        

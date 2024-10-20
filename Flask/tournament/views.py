@@ -1,7 +1,7 @@
 import os
 from . import tournament
 
-from flask import Flask, flash, render_template, request, redirect, url_for
+from flask import Flask, flash, render_template, request, redirect, session, url_for
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField ,SubmitField 
 from wtforms.validators import InputRequired
@@ -73,6 +73,16 @@ def view_tournament(tournament_name):
     GOOGLE_MAP_API_KEY = os.getenv('GOOGLE_MAP_API_KEY')
     api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
     response = requests.get(api_url)
+
+    # session holds a dictionary for joined tournaments
+    if 'joinedTournaments' not in session:
+        session['joinedTournaments'] = {}
+
+    # Check if the user has joined this specific tournament
+    if tournament_name not in session['joinedTournaments']:
+        session['joinedTournaments'][tournament_name] = False
+
+    #session.clear() clear all sessions, reset 'Joined' buttons to 'Join Now'
     
     if response.status_code == 200:
         tournament = response.json()
@@ -143,11 +153,12 @@ def create_player():
     api_url = f'http://localhost:8080/tournament/player/create?tournamentName={tournamentName}&participatingPlayerName={userName}'
     response = requests.post(api_url, headers=headers)
 
-    print('BYEBYE')
     if response.status_code == 200:
         flash("Successfully joined tournament", "success")
+        session['joinedTournaments'][tournamentName] = True
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
+        
 
     return redirect(request.referrer) #stay on current page
