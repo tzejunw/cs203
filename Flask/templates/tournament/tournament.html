@@ -42,7 +42,12 @@
                         <li><strong>Organizer:</strong> {{ tournament.adminList | join(', ') }}</li>
                         <li><strong>Current Players:</strong> {{ tournament.numberOfPlayers }}</li>
                     </ul>
-                    <a href="{{url_for('tournament.create_player', tournamentName=tournament.tournamentName)}}" class="btn tournament-join-btn w-100 mt-3">Join Now</a>
+                    
+                    {% if is_admin %}
+                        <a href="#" class="bg-success btn tournament-join-btn w-100 mt-3">View Players</a>
+                    {% else %}
+                        <a href="{{url_for('tournament.create_player', tournamentName=tournament.tournamentName)}}" class="btn tournament-join-btn w-100 mt-3">Join Now</a>
+                    {% endif %}
                 </div>
             </div>
        

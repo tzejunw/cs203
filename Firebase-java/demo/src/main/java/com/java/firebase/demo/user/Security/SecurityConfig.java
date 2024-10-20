@@ -10,6 +10,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import com.google.api.Http;
+
 import jakarta.servlet.Filter;
 
 @Configuration
@@ -39,6 +41,7 @@ public class SecurityConfig {
                     .requestMatchers("/user/**").authenticated()
                     
                     // Tournament Route
+                    .requestMatchers(HttpMethod.POST,"tournament/player/create").authenticated() //allow users to join tournament themselves
                     .requestMatchers("/tournament/get/all", "/tournament/get").permitAll()
                     .requestMatchers("/tournament/**").hasRole("ADMIN")
 
