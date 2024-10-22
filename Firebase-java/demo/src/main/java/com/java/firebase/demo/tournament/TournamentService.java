@@ -793,34 +793,100 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
     }
 
-    // public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
+    public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
 
-    //     Tournament tourney = getTournament(tournament);
+        Tournament tourney = getTournament(tournament);
 
-    //     if (tourney != null){
+        if (tourney != null){
 
-    //         List<String> players= tourney.getParticipatingPlayers();
-    //         ArrayList<AlgoTournamentPlayer> algoPlayers = new ArrayList<AlgoTournamentPlayer>();
+            List<String> players= tourney.getParticipatingPlayers();
+            ArrayList<AlgoTournamentPlayer> algoPlayers = new ArrayList<AlgoTournamentPlayer>();
+
+            HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches = new HashMap<AlgoTournamentPlayer , List<String>>();
+            HashMap<String , AlgoTournamentPlayer > playerIDToObj = new HashMap<String , AlgoTournamentPlayer>();
             
-    //         for (String playerName : players){
-    //             ParticipatingPlayer playerData = getPlayer(tournament, playerName);
-    //             AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerData.getUserName(), new ArrayList<AlgoMatch>());
+            for (String playerName : players){
+                ParticipatingPlayer playerData = getPlayer(tournament, playerName);
+                AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerData.getUserName(), new ArrayList<AlgoMatch>());
+                algoPlayers.add(algoPlayer);
+                playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
+                playerIDToObj.put(playerData.getUserName(), algoPlayer);
+            }
 
-    //             ArrayList<String> playerMatchIDs = playerData.getPastMatches();
+            for (AlgoTournamentPlayer player : algoPlayers){
 
-                for ( String matchID : playerMatchIDs){
-                    Match matchObj = getMatch(tournament, tournament, playerName, playerName);
-                    AlgoMatch algoMatch = new AlgoMatch( );
+                for ( String matchID : playerToPastMatches.get(player)){
+
+                    Match matchData = getMatch(matchID);
+                    AlgoMatch algoMatchtoAdd;
+
+                    if (matchData.isBye()){
+                        algoMatchtoAdd = new AlgoMatch( playerIDToObj.get(matchData.getPlayer1()));
+                        
+
+
+                    }else{
+                        AlgoTournamentPlayer p1 = playerIDToObj.get(matchData.getPlayer1());
+                        AlgoTournamentPlayer p2 = playerIDToObj.get(matchData.getPlayer2());
+                            
+                        algoMatchtoAdd = new AlgoMatch(p1,p2);
+                        int wins = matchData.getWins();
+                        int losses = matchData.getLosses();
+                        algoMatchtoAdd.update(playerIDToObj.get(matchData.getWinner()), wins, losses );
+
+                    }
+
+                    player.addMatch(algoMatchtoAdd);
 
                 }
+            }
 
-    //         }
+            
 
-    //         //AlgoRound algoRound = new AlgoRound(tourney.getCurrentRound(), );
+            AlgoRound algoRound = new AlgoRound(Integer.parseInt(tourney.getCurrentRound()), algoPlayers);
+            algoRound.generateStandings();
 
-    //     }
-    //     return false;
-    // }
+            int rank = 1;
+
+            for (AlgoTournamentPlayer player : algoPlayers){
+                
+                Standing playerCurStanding = new Standing();
+                
+                playerCurStanding.setRank(rank++);
+                playerCurStanding.setCurGamePts(player.getCurMatchPts());
+                playerCurStanding.setCurMatchPts(player.getCurMatchPts());
+                playerCurStanding.setCurOGW(player.getCurOGW());
+                playerCurStanding.setCurOMW(player.getCurOMW());
+
+                createStanding(tournament, tourney.getCurrentRound(), playerCurStanding);
+
+            }
+
+            ArrayList<AlgoMatch> roundMatches = new ArrayList<AlgoMatch>();
+
+            algoRound.generateAlgoMatches();
+
+            for ( AlgoMatch matchObj : algoRound.getAlgoMatches()){
+
+                Match newMatch = new Match();
+
+                newMatch.setPlayer1(matchObj.getPlayer1().getPlayerID());
+
+                if (matchObj.isBye()){
+                    newMatch.setBye(true);
+                }else{
+                    newMatch.setPlayer2(matchObj.getPlayer2().getPlayerID());
+                }
+
+                createMatch(tournament, tourney.getCurrentRound(), newMatch);
+
+            }
+
+
+
+        }
+        return false;
+    }
 
 
 
