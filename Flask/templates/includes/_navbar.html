@@ -52,6 +52,11 @@
                                 <li><a href="{{url_for('tournament.view_results')}}">View Results</a></li>
                                 <li><a href="{{url_for('tournament.tournament_matches')}}">View tournament matches</a></li> -->
                             </ul>
+                            {% if not is_admin %}
+                                <ul>
+                                    <li><a href="{{url_for('tournament.my_tournament')}}">My Tournament</a></li>
+                                </ul>
+                            {% endif %}
                         </div>
 
                         <!-- <div class="col-md-3">
