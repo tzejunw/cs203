@@ -10,9 +10,9 @@ from . import admin
 
 class TournamentForm(FlaskForm):
     tournamentName = StringField('Tournament Name', validators=[InputRequired()])
-    startDate = StringField('Start Date (MM/DD/YYYY)', validators=[InputRequired()])
-    endDate = StringField('End Date (MM/DD/YYYY)', validators=[InputRequired()])
-    registrationDeadline = StringField('Registration Deadline (MM/DD/YYYY)', default=None)
+    startDate = StringField('Start Date', validators=[InputRequired()])
+    endDate = StringField('End Date', validators=[InputRequired()])
+    registrationDeadline = StringField('Registration Deadline', default=None)
     tournamentDesc = StringField('Tournament Description')
     location = StringField('Location')
     imageUrl = StringField('Image URL', validators=[InputRequired()])

@@ -3,6 +3,10 @@ package com.java.firebase.demo.tournament;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -10,13 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
@@ -24,18 +28,11 @@ import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import com.google.common.base.Strings;
-
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import java.util.concurrent.ExecutionException;
-
-import com.google.cloud.firestore.FieldValue;
-import java.util.concurrent.ExecutionException;
+import com.java.firebase.demo.algo.AlgoMatch;
+import com.java.firebase.demo.algo.AlgoRound;
+import com.java.firebase.demo.algo.AlgoTournamentPlayer;
 
 import io.github.cdimascio.dotenv.Dotenv;
-
-import java.util.*;
-import com.java.firebase.demo.algo.*;
 
 @Service
 public class TournamentService {
@@ -254,6 +251,18 @@ public ParticipatingPlayer getPlayer(String tournamentName, String participating
     return participatingPlayer;
 }
 
+public List<Match> getPlayerPastMatches(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
+    ParticipatingPlayer player = getPlayer(tournamentName, participatingPlayerName);
+    List<String> pastMatchIds = player.getPastMatches();
+    List<Match> pastMatches = new ArrayList<>();
+    for (String matchId : pastMatchIds) {
+        Map<String, String> matchMap = splitMatchId(matchId);
+        Match match = getMatch(tournamentName, matchMap.get("roundName"), matchMap.get("player1"), matchMap.get("player2"));
+        pastMatches.add(match);
+    }
+    return pastMatches;
+}
+
 public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
     // Get the reference to the participatingPlayer's document
     DocumentReference tournamentDocRef = firestore.collection("tournament")
@@ -374,7 +383,7 @@ public String endTournament(String tournamentName) throws InterruptedException, 
         int matchCounter = 0;
         for (Match match : matches) {
             String documentId = (tournamentName.trim() + "_" + round.getRoundName().trim() + "_" 
-            + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
+            + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "-");
             matchUpdate = roundDocRef.collection("match").document(documentId).set(match);
             matchCounter++;
             matchUpdate.get();
@@ -485,11 +494,12 @@ public String endTournament(String tournamentName) throws InterruptedException, 
 
     public String generateMatchId(String tournamentName, String roundName, Match match ) {
         String matchId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
-        + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "_");
+        + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "-");
         return matchId;
     }
 
     public Map<String, String> splitMatchId(String matchId) {
+        System.out.println(matchId);
         String[] parts = matchId.split("_");
     
         // Validate if the matchId is properly formatted
@@ -555,7 +565,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         System.out.println("getMatch starting");
         // Generate the same documentId used in createMatch
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
-                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
+                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "-");
         System.out.println("DocumentId to be searched: " + documentId);
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
@@ -581,7 +591,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
     public String updateMatch(String tournamentName, String roundName, String player1, String player2, Match updatedMatch) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and player names
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
-                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
+                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "-");
         
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
@@ -609,7 +619,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
     public String deleteMatch(String tournamentName, String roundName, String player1, String player2) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and player names
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
-                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "_");
+                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "-");
     
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
@@ -757,7 +767,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                     match.setBye(true);
 
                     //updates player match record
-                    updatePlayerMatch(tournament,player1Name ,createMatchId(tournament, "round1",match));
+                    updatePlayerMatch(tournament,player1Name ,generateMatchId(tournament, "round1",match));
                     
                 }else{
 
@@ -767,8 +777,8 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                     match.setBye(false);
 
                     //updates player match record
-                    updatePlayerMatch(tournament,player1Name ,createMatchId(tournament, "round1",match));
-                    updatePlayerMatch(tournament, player2Name, createMatchId(tournament,"round1", match));
+                    updatePlayerMatch(tournament,player1Name ,generateMatchId(tournament, "round1",match));
+                    updatePlayerMatch(tournament, player2Name, generateMatchId(tournament,"round1", match));
 
                 }
 
@@ -789,25 +799,147 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
         if (tourney != null){
 
+
+            // input all participating players into algoObjs
+
             List<String> players= tourney.getParticipatingPlayers();
             ArrayList<AlgoTournamentPlayer> algoPlayers = new ArrayList<AlgoTournamentPlayer>();
+
+            HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches = new HashMap<AlgoTournamentPlayer , List<String>>();
+            HashMap<String , AlgoTournamentPlayer > playerIDToObj = new HashMap<String , AlgoTournamentPlayer>();
             
             for (String playerName : players){
                 ParticipatingPlayer playerData = getPlayer(tournament, playerName);
                 AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerData.getUserName(), new ArrayList<AlgoMatch>());
+                algoPlayers.add(algoPlayer);
+                playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
+                playerIDToObj.put(playerData.getUserName(), algoPlayer);
+            }
 
-                ArrayList<String> playerMatchIDs = playerData.getPastMatches();
+            // update all algoMatchObjs with appropriate player objs
 
-                for ( String matchID : playerMatchIDs){
-                    Match matchObj = getMatch(tournament, tournament, playerName, playerName)
+
+            for (AlgoTournamentPlayer player : algoPlayers){
+
+                int rdno = 1;
+
+                for ( String matchID : playerToPastMatches.get(player)){
+
+                    Match matchData = getMatch(tournament,""+rdno++ , matchID);
+                    AlgoMatch algoMatchtoAdd;
+
+                    if (matchData.isBye()){
+                        algoMatchtoAdd = new AlgoMatch( playerIDToObj.get(matchData.getPlayer1()));
+
+                    }else{
+                        AlgoTournamentPlayer p1 = playerIDToObj.get(matchData.getPlayer1());
+                        AlgoTournamentPlayer p2 = playerIDToObj.get(matchData.getPlayer2());
+                            
+                        algoMatchtoAdd = new AlgoMatch(p1,p2);
+                        int wins = matchData.getWins();
+                        int losses = matchData.getLosses();
+                        algoMatchtoAdd.update(playerIDToObj.get(matchData.getWinner()), wins, losses );
+
+                    }
+
+                    player.addMatch(algoMatchtoAdd);
+
                 }
+            }
+
+            // generate standings and update DB
+
+            AlgoRound algoRound = new AlgoRound(Integer.parseInt(tourney.getCurrentRound()), algoPlayers);
+            algoRound.generateStandings();
+
+            int rank = 1;
+
+            for (AlgoTournamentPlayer player : algoPlayers){
+                
+                Standing playerCurStanding = new Standing();
+                
+                playerCurStanding.setRank(rank++);
+                playerCurStanding.setCurGamePts(player.getCurMatchPts());
+                playerCurStanding.setCurMatchPts(player.getCurMatchPts());
+                playerCurStanding.setCurOGW(player.getCurOGW());
+                playerCurStanding.setCurOMW(player.getCurOMW());
+
+                createStanding(tournament, tourney.getCurrentRound(), playerCurStanding);
 
             }
 
-            AlgoRound algoRound = new AlgoRound(tourney.getCurrentRound(), );
+
+            // generate rounds and update DB
+
+            List<Match> roundMatches = new ArrayList<Match>();
+
+            algoRound.generateAlgoMatches();
+
+            for ( AlgoMatch matchObj : algoRound.getAlgoMatches()){
+
+                Match newMatch = new Match();
+
+                newMatch.setPlayer1(matchObj.getPlayer1().getPlayerID());
+
+                if (matchObj.isBye()){
+                    newMatch.setBye(true);
+                }else{
+                    newMatch.setPlayer2(matchObj.getPlayer2().getPlayerID());
+                }
+
+                roundMatches.add(newMatch);
+
+            }
+
+            // DB specific functionality to update the rounds
+
+            Round newRound = new Round();
+            newRound.setMatches(roundMatches);
+            newRound.setRoundName(tournament + (1+tourney.getCurrentRound()));
+            newRound.setStandings(new ArrayList<Standing>());
+
+            tourney.setCurrentRound(""+Integer.parseInt(tourney.getCurrentRound())+1);
+            List<Round> toUpdateNewRound =tourney.getRounds();
+            toUpdateNewRound.add(newRound);
+            tourney.setRounds(toUpdateNewRound);
+            updateTournament(tourney);
+            createRound(tournament,newRound);
+
+
+            return true;
+
 
         }
         return false;
+    }
+
+
+
+    // specific getter for specific match
+
+    public Match getMatch(String tournamentName, String roundName, String documentId) throws ExecutionException, InterruptedException {
+        System.out.println("getMatch starting");
+        // Generate the same documentId used in createMatch
+        System.out.println("DocumentId to be searched: " + documentId);
+        DocumentReference matchDocRef = firestore.collection("tournament")
+                                                   .document(tournamentName)
+                                                   .collection("round")
+                                                   .document(roundName)
+                                                   .collection("match")
+                                                   .document(documentId);
+    
+        // Fetch the match document
+        ApiFuture<DocumentSnapshot> future = matchDocRef.get();
+        DocumentSnapshot document = future.get();
+    
+        if (document.exists()) {
+            System.out.println("Document exists");
+            // Convert the document back to a Match object
+            return document.toObject(Match.class);
+        } else {
+            System.out.println("Match not found for: " + documentId);
+            return null; // Or throw an exception depending on how you want to handle it
+        }
     }
 
 

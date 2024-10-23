@@ -39,7 +39,7 @@ public class SecurityConfig {
                     .requestMatchers("/user/**").authenticated()
                     
                     // Tournament Route
-                    .requestMatchers(HttpMethod.POST,"/tournament/player/create").authenticated()
+                    .requestMatchers(HttpMethod.POST,"tournament/player/create").authenticated() //allow users to join tournament themselves
                     .requestMatchers("/tournament/get/all", "/tournament/get").permitAll()
                     .requestMatchers("/tournament/**").hasRole("ADMIN")
 

@@ -41,7 +41,7 @@ public class AlgoRound {
     }
 
 
-    public void generateAlgoMatches(ArrayList<AlgoMatch> m){
+    public void generateAlgoMatches(){
         this.createBrackets(new ArrayList<List<AlgoTournamentPlayer>>());
     
         //this.AlgoMatches = AlgoMatches;
