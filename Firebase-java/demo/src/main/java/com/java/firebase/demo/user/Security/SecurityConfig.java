@@ -10,8 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.google.api.Http;
-
 import jakarta.servlet.Filter;
 
 @Configuration
@@ -37,7 +35,7 @@ public class SecurityConfig {
                     // .requestMatchers("/tournament/**").permitAll()    
 
                     // User Route
-                    .requestMatchers(HttpMethod.POST, "/user/create", "/user/login", "/user/masscreate").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/user/create", "/user/login", "/user/resendVerification", "/user/verifyEmail", "/user/masscreate").permitAll()
                     .requestMatchers("/user/**").authenticated()
                     
                     // Tournament Route

@@ -48,9 +48,16 @@ public class UserController {
         return ResponseEntity.ok().body("Success");
     }
     
-    @PostMapping("/user/resendVerification") // expects a User object in body raw JSON
+    @PostMapping("/user/resendVerification") 
     public ResponseEntity<String> resendVerificationLink(@RequestParam String email) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
-        return ResponseEntity.ok().body(userService.sendVerificationEmail(email));
+        userService.sendVerificationEmail(email);
+        return ResponseEntity.ok().body("Success");
+    }
+
+    @PostMapping("/user/verifyEmail") 
+    public ResponseEntity<String> verifyEmail(@RequestBody VerifyEmail verifyEmail) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
+        userService.verifyUserEmail(verifyEmail.getUid());
+        return ResponseEntity.ok().body("Success");
     }
 
     @PostMapping("/user/login") // expects a User object in body raw JSON

@@ -149,6 +149,11 @@ public class UserService {
         return verificationLink;
     }
     
+    // Method to mock verifying of email processed on firebase.
+    public void verifyUserEmail(String uid) throws FirebaseAuthException {
+        UpdateRequest request = new UpdateRequest(uid).setEmailVerified(true);
+        firebaseAuth.updateUser(request);
+    }
 
     // Verify the Firebase ID token and decode it
     public String getIdToken(String bearerToken) throws FirebaseAuthException {
