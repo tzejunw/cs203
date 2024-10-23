@@ -253,6 +253,32 @@ public ParticipatingPlayer getPlayer(String tournamentName, String participating
     return participatingPlayer;
 }
 
+public List<String> getAllPlayer(String tournamentName) throws ExecutionException, InterruptedException {
+    // Retrieve all documents from the "tournament" collection
+    ApiFuture<QuerySnapshot> future = firestore.collection("tournament")
+                                                .document(tournamentName)
+                                                .collection("participatingPlayers")
+                                                .get();
+    
+    // QuerySnapshot contains all documents in the collection
+    List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+    
+    // Create a list to hold the Tournament objects
+    List<String> players = new ArrayList<>();
+    
+    // Convert each document to a Tournament object and add it to the list
+    for (DocumentSnapshot document : documents) {
+        String playerId = document.getId();
+        System.out.println(playerId);
+        if (!playerId.equals("emptyPlayerDoc")) {
+            players.add(playerId);
+        }
+
+    }
+    
+    return players;
+}
+
 public List<Match> getPlayerPastMatches(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
     ParticipatingPlayer player = getPlayer(tournamentName, participatingPlayerName);
     List<String> pastMatchIds = player.getPastMatches();
@@ -316,6 +342,33 @@ public String endTournament(String tournamentName) throws InterruptedException, 
                 tournament.setRounds(new ArrayList<>()); // Set empty list if no rounds found
             }
 
+            CollectionReference playerCollection = documentReference.collection("participatingPlayers");
+            ApiFuture<QuerySnapshot> playerFuture = playerCollection.get();
+            QuerySnapshot playerSnapshot = playerFuture.get();
+
+            if (!playerSnapshot.isEmpty()) {
+                System.out.println("Found " + playerSnapshot.size() + " player documents");
+
+                // Get the IDs of the round documents
+                List<String> playerIds = playerSnapshot.getDocuments().stream()
+                    .map(doc -> doc.getId()) // Get the document ID
+                    .collect(Collectors.toList());
+
+                // call getRound() on each roundId
+                List<String> players = new ArrayList<>();
+                for (String playerName : playerIds) {
+                    //ParticipatingPlayer player = getPlayer(tournamentName, playerName);
+                    System.out.println("Found Player: " + playerName);
+                    players.add(playerName);
+                }
+
+                // Assuming the Tournament class has a method to set the list of round IDs
+                tournament.setParticipatingPlayers(players); // or tournament.roundIds = roundIds;
+            } else {
+                System.out.println("No player documents found");
+                tournament.setParticipatingPlayers(new ArrayList<>()); // Set empty list if no rounds found
+            }
+
             return tournament;
         }
         return null;
@@ -339,6 +392,41 @@ public String endTournament(String tournamentName) throws InterruptedException, 
         
         return tournaments;
     }
+
+    public List<String> getAllTournamentNames() throws ExecutionException, InterruptedException {
+        // Retrieve all documents from the "tournament" collection
+        ApiFuture<QuerySnapshot> future = firestore.collection("tournament").get();
+        
+        // QuerySnapshot contains all documents in the collection
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        
+        // Create a list to hold the Tournament objects
+        List<String> tournaments = new ArrayList<>();
+        
+        // Convert each document to a Tournament object and add it to the list
+        for (DocumentSnapshot document : documents) {
+            String tournament = document.getId();
+
+            tournaments.add(tournament);
+        }
+        
+        return tournaments;
+    }
+
+    public List<String> getAllTournamentForPlayer(String playerName) throws ExecutionException, InterruptedException{
+        List<String> result = new ArrayList<>();
+        List<String> allTournamentNames = getAllTournamentNames();
+        for (String tournament : allTournamentNames) {
+            List<String> tournamentPlayers = getAllPlayer(tournament);
+            for (String player : tournamentPlayers) {
+                if (player.equals(playerName)) {
+                    result.add(tournament);
+                    continue;
+                }
+            }
+        }
+        return result;
+    }    
     
 
     public String updateTournament(Tournament tournament) throws ExecutionException, InterruptedException { 

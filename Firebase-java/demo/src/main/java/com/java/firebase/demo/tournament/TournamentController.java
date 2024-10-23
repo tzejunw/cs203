@@ -41,10 +41,20 @@ public class TournamentController {
         return tournamentService.getPlayer(tournamentName, participatingPlayerName);
     }
 
+    @GetMapping("/tournament/get/forplayer") // Adjust the route path as needed
+    public List<String> getAllTournamentForPlayer(@RequestParam String playerName) throws InterruptedException, ExecutionException {
+        return tournamentService.getAllTournamentForPlayer(playerName);
+    }
+
     @GetMapping("/tournament/player/get/matches")
     public List<Match> getPlayerPastMatches(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
         return tournamentService.getPlayerPastMatches(tournamentName, participatingPlayerName);
     }    
+
+    @PostMapping("/tournament/start")
+    public boolean startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
+        return tournamentService.startTournament(tournamentName);
+    }
 
     @PostMapping("/tournament/end")
     public String endTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
