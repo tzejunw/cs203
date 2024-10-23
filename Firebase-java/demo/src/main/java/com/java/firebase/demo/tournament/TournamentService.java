@@ -30,9 +30,11 @@ import com.google.cloud.firestore.WriteResult;
 import com.google.common.base.Strings;
 import com.java.firebase.demo.algo.AlgoMatch;
 import com.java.firebase.demo.algo.AlgoRound;
+import com.java.firebase.demo.algo.AlgoStandings;
 import com.java.firebase.demo.algo.AlgoTournamentPlayer;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.validation.metadata.ExecutableDescriptor;
 
 @Service
 public class TournamentService {
@@ -488,8 +490,20 @@ public String endTournament(String tournamentName) throws InterruptedException, 
         
         processRoundData(tournamentName, round); //based on the matches in the round, go and update FB player's matches with the ID
 
+        Tournament tournament = getTournament(tournamentName);
+        if (tournament != null){
 
-        return "Matches Assigned to participatingPlayer's pastMatches";
+            tournament.setCurrentRound(""+Integer.parseInt(tournament.getCurrentRound())+1);
+
+            return "Matches Assigned to participatingPlayer's pastMatches";
+
+        }else{
+            return "Tournament not found";
+        }
+        
+        
+
+       
     }
 
     public String generateMatchId(String tournamentName, String roundName, Match match ) {
@@ -767,7 +781,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                     match.setBye(true);
 
                     //updates player match record
-                    updatePlayerMatch(tournament,player1Name ,generateMatchId(tournament, "round1",match));
+                    updatePlayerMatch(tournament,player1Name ,generateMatchId(tournament, "1",match));
                     
                 }else{
 
@@ -777,16 +791,17 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                     match.setBye(false);
 
                     //updates player match record
-                    updatePlayerMatch(tournament,player1Name ,generateMatchId(tournament, "round1",match));
-                    updatePlayerMatch(tournament, player2Name, generateMatchId(tournament,"round1", match));
+                    updatePlayerMatch(tournament,player1Name ,generateMatchId(tournament, "1",match));
+                    updatePlayerMatch(tournament, player2Name, generateMatchId(tournament,"1", match));
 
                 }
 
-                createMatch(tournament, "round1", match);
+                createMatch(tournament, "1", match);
 
             }
 
             return true;
+
         }   
 
         return false;
@@ -852,9 +867,12 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             AlgoRound algoRound = new AlgoRound(Integer.parseInt(tourney.getCurrentRound()), algoPlayers);
             algoRound.generateStandings();
 
+            AlgoStandings prevRoundStandings = algoRound.getStandings();
+
+
             int rank = 1;
 
-            for (AlgoTournamentPlayer player : algoPlayers){
+            for (AlgoTournamentPlayer player : prevRoundStandings.getStandings()){
                 
                 Standing playerCurStanding = new Standing();
                 
@@ -879,10 +897,14 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
                 Match newMatch = new Match();
 
-                newMatch.setPlayer1(matchObj.getPlayer1().getPlayerID());
+                String p1name = matchObj.getPlayer1().getPlayerID();
+
+                newMatch.setPlayer1(p1name);
 
                 if (matchObj.isBye()){
                     newMatch.setBye(true);
+                    newMatch.setWins(2);
+                    newMatch.setWinner(p1name);
                 }else{
                     newMatch.setPlayer2(matchObj.getPlayer2().getPlayerID());
                 }
@@ -891,18 +913,11 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             }
 
-            // DB specific functionality to update the rounds
+            // DB specific functionality to add the round
 
             Round newRound = new Round();
             newRound.setMatches(roundMatches);
-            newRound.setRoundName(tournament + (1+tourney.getCurrentRound()));
-            newRound.setStandings(new ArrayList<Standing>());
-
-            tourney.setCurrentRound(""+Integer.parseInt(tourney.getCurrentRound())+1);
-            List<Round> toUpdateNewRound =tourney.getRounds();
-            toUpdateNewRound.add(newRound);
-            tourney.setRounds(toUpdateNewRound);
-            updateTournament(tourney);
+            newRound.setRoundName(1+tourney.getCurrentRound());
             createRound(tournament,newRound);
 
 
