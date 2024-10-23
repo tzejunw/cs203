@@ -815,15 +815,15 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             for (AlgoTournamentPlayer player : algoPlayers){
 
+                int rdno = 1;
+
                 for ( String matchID : playerToPastMatches.get(player)){
 
-                    Match matchData = getMatch(matchID);
+                    Match matchData = getMatch(tournament,""+rdno++ , matchID);
                     AlgoMatch algoMatchtoAdd;
 
                     if (matchData.isBye()){
                         algoMatchtoAdd = new AlgoMatch( playerIDToObj.get(matchData.getPlayer1()));
-                        
-
 
                     }else{
                         AlgoTournamentPlayer p1 = playerIDToObj.get(matchData.getPlayer1());
@@ -864,7 +864,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             }
 
-            
+
             
 
             List<Match> roundMatches = new ArrayList<Match>();
@@ -895,12 +895,40 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             createRound(tournament,newRound);
 
 
-            
-
+            return true;
 
 
         }
         return false;
+    }
+
+
+
+    // specific getter for specific match
+
+    public Match getMatch(String tournamentName, String roundName, String documentId) throws ExecutionException, InterruptedException {
+        System.out.println("getMatch starting");
+        // Generate the same documentId used in createMatch
+        System.out.println("DocumentId to be searched: " + documentId);
+        DocumentReference matchDocRef = firestore.collection("tournament")
+                                                   .document(tournamentName)
+                                                   .collection("round")
+                                                   .document(roundName)
+                                                   .collection("match")
+                                                   .document(documentId);
+    
+        // Fetch the match document
+        ApiFuture<DocumentSnapshot> future = matchDocRef.get();
+        DocumentSnapshot document = future.get();
+    
+        if (document.exists()) {
+            System.out.println("Document exists");
+            // Convert the document back to a Match object
+            return document.toObject(Match.class);
+        } else {
+            System.out.println("Match not found for: " + documentId);
+            return null; // Or throw an exception depending on how you want to handle it
+        }
     }
 
 
