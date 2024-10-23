@@ -844,6 +844,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             
 
             AlgoRound algoRound = new AlgoRound(Integer.parseInt(tourney.getCurrentRound()), algoPlayers);
+            List<Standing> prevRoundStandings = new ArrayList<Standing>();
             algoRound.generateStandings();
 
             int rank = 1;
@@ -858,11 +859,15 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 playerCurStanding.setCurOGW(player.getCurOGW());
                 playerCurStanding.setCurOMW(player.getCurOMW());
 
-                createStanding(tournament, tourney.getCurrentRound(), playerCurStanding);
+                //createStanding(tournament, tourney.getCurrentRound(), playerCurStanding);
+                prevRoundStandings.add(playerCurStanding);
 
             }
 
-            ArrayList<AlgoMatch> roundMatches = new ArrayList<AlgoMatch>();
+            
+            
+
+            List<Match> roundMatches = new ArrayList<Match>();
 
             algoRound.generateAlgoMatches();
 
@@ -878,9 +883,19 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                     newMatch.setPlayer2(matchObj.getPlayer2().getPlayerID());
                 }
 
-                createMatch(tournament, tourney.getCurrentRound(), newMatch);
+                roundMatches.add(newMatch);
 
             }
+
+            Round newRound = new Round();
+            newRound.setMatches(roundMatches);
+            newRound.setRoundName(tournament + (1+tourney.getCurrentRound()));
+            newRound.setStandings(null);
+
+            createRound(tournament,newRound);
+
+
+            
 
 
 
