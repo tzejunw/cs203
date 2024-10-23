@@ -35,10 +35,11 @@ public class SecurityConfig {
                     // .requestMatchers("/tournament/**").permitAll()    
 
                     // User Route
-                    .requestMatchers(HttpMethod.POST, "/user/create", "/user/login", "/user/masscreate").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/user/create", "/user/login", "/user/resendVerification", "/user/verifyEmail", "/user/masscreate").permitAll()
                     .requestMatchers("/user/**").authenticated()
                     
                     // Tournament Route
+                    .requestMatchers(HttpMethod.POST,"/tournament/player/create").authenticated()
                     .requestMatchers("/tournament/get/all", "/tournament/get").permitAll()
                     .requestMatchers("/tournament/**").hasRole("ADMIN")
 

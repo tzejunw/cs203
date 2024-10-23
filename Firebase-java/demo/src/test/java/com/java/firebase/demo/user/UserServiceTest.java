@@ -315,25 +315,27 @@ public class UserServiceTest {
         verifyNoInteractions(dbFirestore);  // Firestore shouldn't be interacted with in this case
     }
 
-    // @Test
-    // public void testDeleteUser() throws ExecutionException, InterruptedException, FirebaseAuthException {
-    //     String uid = "testUid";
+    @Test
+    public void testDeleteUser_Success() throws ExecutionException, InterruptedException, FirebaseAuthException {
+        String uid = "testUid";
 
-    //     // Mocking the deleteUser method
-    //     doNothing().when(firebaseAuth).deleteUser(uid);
+        // Mock Firestore collection behavior
+        CollectionReference mockCollection = mock(CollectionReference.class);
+        DocumentReference mockDocument = mock(DocumentReference.class);
+        ApiFuture<WriteResult> writeResult = mock(ApiFuture.class);
 
-    //     // Mocking the Firestore delete operation
-    //     ApiFuture<WriteResult> writeResult = mock(ApiFuture.class);
-    //     when(dbFirestore.collection("user").document(uid).delete()).thenReturn(writeResult);
+        when(dbFirestore.collection("user")).thenReturn(mockCollection);
+        when(mockCollection.document(uid)).thenReturn(mockDocument);
+        when(mockDocument.delete()).thenReturn(writeResult);
 
-    //     // Call the method to test
-    //     String result = userService.deleteUser(uid);
+        // Call the method to test
+        String result = userService.deleteUser(uid);
 
-    //     // Verify the interactions and assert the result
-    //     verify(firebaseAuth).deleteUser(uid);
-    //     verify(dbFirestore.collection("user").document(uid)).delete();
-    //     assertEquals("Successfully deleted " + uid, result);
-    // }
+        // Verify interactions and assert result
+        verify(firebaseAuth).deleteUser(uid);
+        verify(mockDocument).delete();
+        assertEquals("Successfully deleted " + uid, result);
+    }
 
     @Test
     public void testPasswordTooShort() {

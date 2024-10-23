@@ -20,13 +20,13 @@ C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\EmailConfig.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\EmailService.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Exceptions\RestExceptionHandler.java
+C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Exceptions\SendEmailVerificationFailedException.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Exceptions\TooManyRequestsException.java
-C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Login.java
-C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Register.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Security\FirebaseTokenFilter.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Security\SecurityConfig.java
-C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UpdateEmail.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UpdatePassword.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\User.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserController.java
+C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserCredentials.java
 C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserService.java
+C:\Users\ASUS\Desktop\School\CS203_Project\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\VerifyEmail.java
