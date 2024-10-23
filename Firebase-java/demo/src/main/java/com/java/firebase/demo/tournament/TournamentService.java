@@ -799,6 +799,9 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
         if (tourney != null){
 
+
+            // input all participating players into algoObjs
+
             List<String> players= tourney.getParticipatingPlayers();
             ArrayList<AlgoTournamentPlayer> algoPlayers = new ArrayList<AlgoTournamentPlayer>();
 
@@ -812,6 +815,9 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
                 playerIDToObj.put(playerData.getUserName(), algoPlayer);
             }
+
+            // update all algoMatchObjs with appropriate player objs
+
 
             for (AlgoTournamentPlayer player : algoPlayers){
 
@@ -841,10 +847,9 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 }
             }
 
-            
+            // generate standings and update DB
 
             AlgoRound algoRound = new AlgoRound(Integer.parseInt(tourney.getCurrentRound()), algoPlayers);
-            List<Standing> prevRoundStandings = new ArrayList<Standing>();
             algoRound.generateStandings();
 
             int rank = 1;
@@ -859,13 +864,12 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 playerCurStanding.setCurOGW(player.getCurOGW());
                 playerCurStanding.setCurOMW(player.getCurOMW());
 
-                //createStanding(tournament, tourney.getCurrentRound(), playerCurStanding);
-                prevRoundStandings.add(playerCurStanding);
+                createStanding(tournament, tourney.getCurrentRound(), playerCurStanding);
 
             }
 
 
-            
+            // generate rounds and update DB
 
             List<Match> roundMatches = new ArrayList<Match>();
 
@@ -887,11 +891,18 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             }
 
+            // DB specific functionality to update the rounds
+
             Round newRound = new Round();
             newRound.setMatches(roundMatches);
             newRound.setRoundName(tournament + (1+tourney.getCurrentRound()));
-            newRound.setStandings(null);
+            newRound.setStandings(new ArrayList<Standing>());
 
+            tourney.setCurrentRound(""+Integer.parseInt(tourney.getCurrentRound())+1);
+            List<Round> toUpdateNewRound =tourney.getRounds();
+            toUpdateNewRound.add(newRound);
+            tourney.setRounds(toUpdateNewRound);
+            updateTournament(tourney);
             createRound(tournament,newRound);
 
 
