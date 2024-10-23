@@ -19205,6 +19205,13 @@ table.career tr td img {
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.015);; /* Adjust the shadow size and color */
 }
 
+.home-card {
+  
+    height: 125px; /* Set a fixed height */
+   
+
+}
+
 /* CSS for TOURNAMENT PAGE */
 
 .tournament-join-btn {
@@ -19572,3 +19579,4 @@ table.career tr td img {
 .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
   background-color: lightgray;
 }
+
