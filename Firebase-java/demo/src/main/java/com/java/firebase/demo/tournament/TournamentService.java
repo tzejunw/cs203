@@ -122,11 +122,11 @@ public class TournamentService {
             throw new IllegalArgumentException("Start date should not be earlier than the registration dateline");
         }
         if (Strings.isNullOrEmpty(tournament.getTournamentDesc())){
-            throw new IllegalArgumentException("Tournament desc should not be empty");
+            throw new IllegalArgumentException("Tournament description should not be empty");
         }
-        if (Strings.isNullOrEmpty(tournament.getImageUrl())){
-            throw new IllegalArgumentException("Tournament desc should not be empty");
-        }
+        // if (Strings.isNullOrEmpty(tournament.getImageUrl())){
+        //     throw new IllegalArgumentException("Image should not be empty");
+        // }
         if (Strings.isNullOrEmpty(tournament.getLocation()) || !isValidAddress(tournament.getLocation())){
             throw new IllegalArgumentException("Invalid location.");
         }

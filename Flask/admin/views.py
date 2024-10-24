@@ -4,6 +4,7 @@ import jwt
 from wtforms import StringField, SubmitField, DateField
 from wtforms.validators import InputRequired
 import requests
+from flask_wtf.file import FileField
 
 # Assuming you have defined your admin Blueprint somewhere else
 from . import admin
@@ -15,7 +16,7 @@ class TournamentForm(FlaskForm):
     registrationDeadline = StringField('Registration Deadline', default=None)
     tournamentDesc = StringField('Tournament Description')
     location = StringField('Location')
-    imageUrl = StringField('Image URL', validators=[InputRequired()])
+    imageUrl = FileField('Image', validators=[InputRequired()])
     submit = SubmitField('Create Tournament')
 
 def check_permission(jwt_cookie):
@@ -63,53 +64,71 @@ def create_tournament():
     
     form = TournamentForm()
 
-    print("Form Data:", form.data)  # Add this line
-
-    if form.validate_on_submit():
+    if form.validate_on_submit(): 
+        # Prepare tournament data without the image URL
         tournament_data = {
             "tournamentName": form.tournamentName.data,
             "startDate": form.startDate.data,
             "endDate": form.endDate.data,
-            "registrationDeadline": form.registrationDeadline.data if form.registrationDeadline.data else None,
+            "registrationDeadline": form.registrationDeadline.data or None,
             "tournamentDesc": form.tournamentDesc.data,
             "location": form.location.data,
-            "imageUrl": form.imageUrl.data,
-            "adminList": [],  # Replace with actual admin emails as needed
+            "adminList": [],  # You might want to populate this with actual admin data
             "participatingPlayers": [],  # Initially empty
-            "rounds": None
+            "rounds": None  # You might want to handle this appropriately
         }
+
+        print(f"Image file: {form.imageUrl.data}")
 
         api_url = 'http://localhost:8080/tournament/create'
   
         headers = {
-            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+            'Authorization': f'Bearer {jwt_cookie}',
             'Content-Type': 'application/json'
         }
+        
+        # Make the POST request to create the tournament
         response = requests.post(api_url, json=tournament_data, headers=headers)
 
-        # Print the response status code and content for debugging
-        print("Response Status Code:", response.status_code)
-        print("Response Content:", response.text)
+        if response.status_code in (200, 201):
+            # Handle image upload after tournament creation
+            image_file = form.imageUrl.data
+            if image_file:
+                # Create a multipart form-data request
+                file = {'file': (image_file.filename, image_file.stream, image_file.mimetype)}
+                # Assuming the API provides the tournament ID in the response
+                document_id = form.tournamentName.data  # Change if necessary
+                upload_url = 'http://localhost:8080/api/image/upload'
 
-        if response.status_code == 200 or response.status_code == 201:
+                upload_headers = {
+                    'Authorization': f'Bearer {jwt_cookie}'
+                }
+
+                # Make the POST request to upload the image
+                response = requests.post(upload_url, files=file, data={'documentId': document_id}, headers=upload_headers)
+
+                print(f"Image upload response: {response.status_code}, {response.text}")  # Debugging the response
+
+
+
             flash("Tournament created successfully!", "success")
-            return redirect(url_for('admin.view_tournaments'))  # Redirect after successful creation
+            return redirect(url_for('admin.view_tournaments'))
         else:
             flash("Error creating tournament: " + response.text, "danger")
 
     return render_template('admin/create_tournament.html', form=form)
 
-# TODO: Secure this route backend
-# TODO: GET validations - to ensure name exists
+
 @admin.route('/update_tournament', methods=['GET', 'POST'])
 def update_tournament():
-    form = TournamentForm()  # Create an instance of the form
     jwt_cookie = request.cookies.get('jwt')
     if not check_permission(jwt_cookie):
         return render_template('errors/403.html', message="Tournament not found"), 403
+    
+    form = TournamentForm()
 
     if request.method == 'GET':
-        tournamentName = request.args.get('tournamentName', type = str)
+        tournamentName = request.args.get('tournamentName', type=str)
         api_url = f'http://localhost:8080/tournament/get?tournamentName={tournamentName}'
         response = requests.get(api_url)
         
@@ -125,6 +144,7 @@ def update_tournament():
             print("Response ", tournament_data)
 
     if form.validate_on_submit():
+        # Prepare tournament data without the image URL
         tournament_data = {
             "tournamentName": form.tournamentName.data,
             "startDate": form.startDate.data,
@@ -132,31 +152,48 @@ def update_tournament():
             "registrationDeadline": form.registrationDeadline.data,
             "tournamentDesc": form.tournamentDesc.data,
             "location": form.location.data,
-            "imageUrl": form.imageUrl.data,
-            "adminList": [],  # Replace with actual admin emails as needed
+            "adminList": [],  # You might want to populate this with actual admin data
             "participatingPlayers": [],  # Initially empty
+            "rounds": None  # You might want to handle this appropriately
         }
+
+        print(f"Image file: {form.imageUrl.data}")
 
         api_url = 'http://localhost:8080/tournament/update'
-  
+
         headers = {
-            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+            'Authorization': f'Bearer {jwt_cookie}',
             'Content-Type': 'application/json'
         }
+        
+        # Make the PUT request to update the tournament
         response = requests.put(api_url, json=tournament_data, headers=headers)
 
-        # Print the response status code and content for debugging
-        print("Response Status Code:", response.status_code)
-        print("Response Content:", response.text)
+        if response.status_code in (200, 201):
+            # Handle image upload if an image file is present
+            image_file = form.imageUrl.data
+            if image_file:
+                # Create a multipart form-data request for image upload
+                file = {'file': (image_file.filename, image_file.stream, image_file.mimetype)}
+                document_id = form.tournamentName.data  # Assuming this is the document ID
+                upload_url = 'http://localhost:8080/api/image/upload'
 
-        if response.status_code == 200 or response.status_code == 201:
+                upload_headers = {
+                    'Authorization': f'Bearer {jwt_cookie}'
+                }
+
+                # Make the POST request to upload the image
+                upload_response = requests.post(upload_url, files=file, data={'documentId': document_id}, headers=upload_headers)
+
+                print(f"Image upload response: {upload_response.status_code}, {upload_response.text}")  # Debugging the response
+
             flash("Tournament updated successfully!", "success")
-            return redirect(url_for('admin.view_tournaments'))  # Redirect after successful creation
+            return redirect(url_for('admin.view_tournaments'))
         else:
             flash("Error updating tournament: " + response.text, "danger")
-            return render_template('admin/update_tournament.html', form=form)  # Return form in case of error
 
-    return render_template('admin/update_tournament.html',form=form)
+    return render_template('admin/update_tournament.html', form=form)
+
 
 
 @admin.route('/delete_tournament/<string:tournament_name>', methods=['POST'])
