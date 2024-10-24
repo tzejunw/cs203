@@ -852,6 +852,8 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             AlgoRound rd1 = new AlgoRound(1, playerObjs);
 
+            rd1.generateRoundOne();
+
             ArrayList<AlgoMatch> Rd1Matches = rd1.getAlgoMatches();
 
 
