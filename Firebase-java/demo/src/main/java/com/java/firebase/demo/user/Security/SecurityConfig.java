@@ -40,7 +40,7 @@ public class SecurityConfig {
                     
                     // Tournament Route
                     .requestMatchers(HttpMethod.POST,"tournament/player/create").authenticated() //allow users to join tournament themselves
-                    .requestMatchers("/tournament/get/all", "/tournament/get").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/tournament/get/all", "/tournament/get/**").permitAll()
                     .requestMatchers("/tournament/**").hasRole("ADMIN")
 
                     // Image Route
