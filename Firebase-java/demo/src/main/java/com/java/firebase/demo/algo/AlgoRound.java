@@ -15,6 +15,7 @@ public class AlgoRound {
         players = AlgoTournamentPlayers;
         stillplaying = players;
         this.roundNumber = roundNumber;
+        this.AlgoMatches = new ArrayList<AlgoMatch>();
         
     }
 
@@ -96,8 +97,6 @@ public class AlgoRound {
     }
 
     public void createBrackets(ArrayList<List<AlgoTournamentPlayer>> brackets){
-
-        AlgoMatches = new ArrayList<AlgoMatch>();
 
         this.brackets = brackets;
         stillplaying =  new ArrayList<AlgoTournamentPlayer>(prevRoundStandings.getStandings());
