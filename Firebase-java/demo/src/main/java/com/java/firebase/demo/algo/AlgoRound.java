@@ -98,8 +98,6 @@ public class AlgoRound {
 
     public void createBrackets(ArrayList<List<AlgoTournamentPlayer>> brackets){
 
-        AlgoMatches = new ArrayList<AlgoMatch>();
-
         this.brackets = brackets;
         stillplaying =  new ArrayList<AlgoTournamentPlayer>(prevRoundStandings.getStandings());
 

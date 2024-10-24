@@ -37,7 +37,7 @@ public class UserIntegrationTest {
     // Needed for tournaments integration testing.
     // @BeforeAll
     // public void setup() throws Exception {
-    //     URI url = new URI(baseUrl + port + "/user/login");
+    //     URI url = new URI(baseUrl + port + "/login");
     //     UserCredentials userCredentials = new UserCredentials();
     //     userCredentials.setEmail("garychia14+testing@gmail.com");
     //     userCredentials.setPassword("1@Secured");
@@ -51,7 +51,7 @@ public class UserIntegrationTest {
     @Test
     @Order(1)
     public void testCreateUser_invalidEmailFailure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/create");
+        URI uri = new URI(baseUrl + port + "/user");
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.setEmail("invalidEmail.com");
         userCredentials.setPassword("1@Secured");
@@ -64,7 +64,7 @@ public class UserIntegrationTest {
     @Test
     @Order(2)
     public void testCreateUser_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/create");
+        URI uri = new URI(baseUrl + port + "/user");
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.setEmail("gary1935+integrationTest@hotmail.co.uk");
         userCredentials.setPassword("1@Secured");
@@ -92,7 +92,7 @@ public class UserIntegrationTest {
     @Test
     @Order(3)
     public void testLogin_NotVerifiedFailure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/login");
+        URI uri = new URI(baseUrl + port + "/login");
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.setEmail("gary1935+integrationTest@hotmail.co.uk");
         userCredentials.setPassword("1@Secured");
@@ -105,7 +105,7 @@ public class UserIntegrationTest {
     @Test
     @Order(5)
     public void testLogin_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/login");
+        URI uri = new URI(baseUrl + port + "/login");
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.setEmail("gary1935+integrationTest@hotmail.co.uk");
         userCredentials.setPassword("1@Secured");
@@ -119,7 +119,7 @@ public class UserIntegrationTest {
     @Test
     @Order(5)
     public void testLogin_WrongPasswordFailure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/login");
+        URI uri = new URI(baseUrl + port + "/login");
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.setEmail("user30@test.com");
         userCredentials.setPassword("WrongPassword");
@@ -131,7 +131,7 @@ public class UserIntegrationTest {
     @Test
     @Order(6)
     public void testCreateUserDetails_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/createDetails");
+        URI uri = new URI(baseUrl + port + "/user/profile");
         User user = new User("integration_testing", "Nina Kan", "12/12/1990", "Female");
 
         HttpHeaders headers = new HttpHeaders();
@@ -145,7 +145,7 @@ public class UserIntegrationTest {
     @Test
     @Order(7)
     public void testCreateUserDetails_SameUserNameFailure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/createDetails");
+        URI uri = new URI(baseUrl + port + "/user/profile");
         User user = new User("integration_testing", "Nina Kan", "12/12/1990", "Female");
 
         HttpHeaders headers = new HttpHeaders();
@@ -159,7 +159,7 @@ public class UserIntegrationTest {
     @Test
     @Order(8)
     public void testgetUser_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/get");
+        URI uri = new URI(baseUrl + port + "/user");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
@@ -184,40 +184,40 @@ public class UserIntegrationTest {
 		assertEquals(401, result.getStatusCode().value());
     }
 
-    @Test
-    @Order(10)
-    public void testgetEmail_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/getEmail");
-        String email = "gary1935+integrationtest@hotmail.co.uk";
+    // @Test
+    // @Order(10)
+    // public void testgetEmail_Success() throws Exception {
+    //     URI uri = new URI(baseUrl + port + "/user/getEmail");
+    //     String email = "gary1935+integrationtest@hotmail.co.uk";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
+    //     HttpHeaders headers = new HttpHeaders();
+    //     headers.set("Authorization", "Bearer " + token);
+    //     HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
-        assertEquals(200, result.getStatusCode().value());
-        assertEquals(email, result.getBody());
-    }
+    //     ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
+    //     assertEquals(200, result.getStatusCode().value());
+    //     assertEquals(email, result.getBody());
+    // }
 
-    @Test
-    @Order(11)
-    public void testgetEmail_InvalidJWTFailure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/getEmail");
+    // @Test
+    // @Order(11)
+    // public void testgetEmail_InvalidJWTFailure() throws Exception {
+    //     URI uri = new URI(baseUrl + port + "/user/getEmail");
 
-        String jwt = "INVALID_JWT";
+    //     String jwt = "INVALID_JWT";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + jwt);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
+    //     HttpHeaders headers = new HttpHeaders();
+    //     headers.set("Authorization", "Bearer " + jwt);
+    //     HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
-		assertEquals(401, result.getStatusCode().value());
-    }
+    //     ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
+	// 	assertEquals(401, result.getStatusCode().value());
+    // }
 
     @Test
     @Order(12)
     public void testupdateUser_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/update");
+        URI uri = new URI(baseUrl + port + "/user");
         User user = new User("hahahaha", "Nina", "12/12/2000", "Female");
 
         HttpHeaders headers = new HttpHeaders();
@@ -231,7 +231,7 @@ public class UserIntegrationTest {
     @Test
     @Order(13)
     public void testupdateUser_InvalidBirthdayFailure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/update");
+        URI uri = new URI(baseUrl + port + "/user");
         User user = new User("hahahaha", "Nina", "32/12/2000", "Female");
 
         HttpHeaders headers = new HttpHeaders();
@@ -245,7 +245,7 @@ public class UserIntegrationTest {
     @Test
     @Order(14)
     public void testupdatePassword_Below8CharFailure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/updatePassword");
+        URI uri = new URI(baseUrl + port + "/user/password");
         UpdatePassword updatePassword = new UpdatePassword();
         updatePassword.setPassword("1@Secur");
 
@@ -260,7 +260,7 @@ public class UserIntegrationTest {
     @Test
     @Order(15)
     public void testupdatePassword_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/updatePassword");
+        URI uri = new URI(baseUrl + port + "/user/password");
         UpdatePassword updatePassword = new UpdatePassword();
         updatePassword.setPassword("1@Secured");
 
@@ -273,7 +273,7 @@ public class UserIntegrationTest {
     }
 
     // public String login(String email) throws Exception {
-    //     URI url = new URI(baseUrl + port + "/user/login");
+    //     URI url = new URI(baseUrl + port + "/login");
     //     UserCredentials userCredentials = new UserCredentials();
     //     userCredentials.setEmail(email);
     //     userCredentials.setPassword("1@Secured");
@@ -289,7 +289,7 @@ public class UserIntegrationTest {
     public void testdeleteUser_Success() throws Exception {
         // Need to login again upon changing the password as required by Firebase.
         testLogin_Success();
-        URI uri = new URI(baseUrl + port + "/user/delete");
+        URI uri = new URI(baseUrl + port + "/user");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
@@ -302,7 +302,7 @@ public class UserIntegrationTest {
     @Test
     @Order(17)
     public void testdeleteUser_InvalidJWTFailure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/delete");
+        URI uri = new URI(baseUrl + port + "/user");
 
         String jwt = "invalid_jwt";
 

@@ -14,7 +14,10 @@
               <center><img src="{{url_for('static',filename='img/email_confirmation.jpg')}}"></center>
               <h3 class="text-uppercase text-center">Email Confirmation</h3>
               <center>We have sent an email to <u>{{ email }}</u> to confirm the validity of your email address. 
-                After receiving the email, click on the link provided to complete your registration.</center>
+                After receiving the email, click on the link provided to complete your registration.
+              <br>
+              <!-- <p class="login-signup-text">Did not receive email? <a href="{{url_for('user.resendEmail')}}">Resend Email</a></p> -->
+              </center>
             </div>
           </div>
         </div>

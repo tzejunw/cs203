@@ -35,13 +35,17 @@ public class UserController {
     //     return ResponseEntity.ok().body("Success");
     // }
 
-    @PostMapping("/user/create") // expects a User object in body raw JSON
+    @PostMapping("/user") // expects a User object in body raw JSON
     public ResponseEntity<String> createUser(@RequestBody UserCredentials userCredentials) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
         String uid = userService.createUser(userCredentials);
         return ResponseEntity.ok().body(uid);
     }
 
-    @PostMapping("/user/createDetails") // expects a User object in body raw JSON
+    // User profile creation is separated from account creation as
+    // 1. firebase authentication does not allow storing of custom fields
+    // 2. Need to account for Google Sign-in flow
+    // 3. To speed up the function as previously it was taking 8 seconds to load.
+    @PostMapping("/user/profile") // expects a User object in body raw JSON
     public ResponseEntity<String> createUserDetails(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
         userService.createUserDetails(user, uid);
@@ -60,13 +64,13 @@ public class UserController {
         return ResponseEntity.ok().body("Success");
     }
 
-    @PostMapping("/user/login") // expects a User object in body raw JSON
+    @PostMapping("/login") // expects a User object in body raw JSON
     public ResponseEntity<String> login(@RequestBody UserCredentials userCredentials) throws InterruptedException, ExecutionException, JsonProcessingException, Exception {
         String bearerToken = userService.login(userCredentials);
         return ResponseEntity.ok().body(bearerToken);
     }
 
-    @PostMapping("/user/logout")
+    @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException, Exception {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
         userService.logoutUser(uid);
@@ -75,20 +79,20 @@ public class UserController {
 
     // Uses the token ID from login > convert it to uid > get user data from firestore
     // To test in postman: Authorization > Under Auth Type: Bearer Token > Token (put the respective token ID from login)
-    @GetMapping("/user/get") 
+    @GetMapping("/user") 
     public ResponseEntity<?> getUser(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException, Exception {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
         User user = userService.getUser(uid);
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/user/get/all") // doesnt expect anything
+    @GetMapping("/allPlayers") // doesnt expect anything
     public ResponseEntity<?> getAllUsers() throws InterruptedException, ExecutionException {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/user/get/player") // Expects String in Param
+    @GetMapping("/player") // Expects String in Param
     public ResponseEntity<?> getPlayer(@RequestParam String userName) throws InterruptedException, ExecutionException {
         User user = userService.getPlayer(userName);
         return ResponseEntity.ok(user);
@@ -96,37 +100,30 @@ public class UserController {
 
 
     // Email is seperated as further email verification (when updated) is necessary later
-    @GetMapping("/user/getEmail") 
-    public ResponseEntity<String> getUserEmail(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
-        String uid = userService.getIdToken(request.getHeader("Authorization"));
-        return ResponseEntity.ok().body(userService.getUserEmail(uid));
-    }
+    // @GetMapping("/user/getEmail") 
+    // public ResponseEntity<String> getUserEmail(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
+    //     String uid = userService.getIdToken(request.getHeader("Authorization"));
+    //     return ResponseEntity.ok().body(userService.getUserEmail(uid));
+    // }
 
-    @PutMapping("/user/update") // expects a User object in body raw JSON
+    @PutMapping("/user") // expects a User object in body raw JSON
     public ResponseEntity<String> updateUser(@RequestBody User user, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
         userService.updateUser(user, uid);
         return ResponseEntity.ok().body("Profile successfully updated!");
     }
 
-    @PutMapping("/user/updatePassword")
+    @PutMapping("/user/password")
     public ResponseEntity<String> updatePassword(@RequestBody UpdatePassword updatePassword, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
         userService.updatePassword(updatePassword.getPassword(), uid);
         return ResponseEntity.ok().body("Password successfully updated!");
     }
 
-    @DeleteMapping("/user/delete") // documentId is the user's email. The argument here determines what it expects as the key in Postman
+    @DeleteMapping("/user") // documentId is the user's email. The argument here determines what it expects as the key in Postman
     public ResponseEntity<String> deleteUser(HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException {
         String uid = userService.getIdToken(request.getHeader("Authorization"));
         userService.deleteUser(uid);
         return ResponseEntity.ok().body("Successfully deleted user!");
     }
-
-    @GetMapping("/user/test")
-    public ResponseEntity<String> testGetEndpoint(){
-        return ResponseEntity.ok("Test Get Endpoint is Working");
-    }
-    
-    
 }

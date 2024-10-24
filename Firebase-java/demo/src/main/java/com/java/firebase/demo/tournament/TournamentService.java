@@ -909,7 +909,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         if (tourney != null){
 
 
-            // input all participating players into algoObjs
+            // input all participating players into algoObjs and put them into the list algoPlayers
 
             List<String> players= tourney.getParticipatingPlayers();
             ArrayList<AlgoTournamentPlayer> algoPlayers = new ArrayList<AlgoTournamentPlayer>();
@@ -919,14 +919,19 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             
             for (String playerName : players){
                 ParticipatingPlayer playerData = getPlayer(tournament, playerName);
-                AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerData.getUserName(), new ArrayList<AlgoMatch>());
+                AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerName, new ArrayList<AlgoMatch>());
                 algoPlayers.add(algoPlayer);
+                System.out.println("player added : " + algoPlayer.getPlayerID());
+
+
+                // populate object to player map for ease of access
+
                 playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
-                playerIDToObj.put(playerData.getUserName(), algoPlayer);
+
+                playerIDToObj.put(playerName, algoPlayer);
             }
 
             // update all algoMatchObjs with appropriate player objs
-
 
             for (AlgoTournamentPlayer player : algoPlayers){
 
@@ -954,6 +959,8 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                     player.addMatch(algoMatchtoAdd);
 
                 }
+
+                //System.out.println("players inside :" + player.getPlayerID());
             }
 
             // generate standings and update DB
@@ -976,7 +983,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 playerCurStanding.setCurOGW(player.getCurOGW());
                 playerCurStanding.setCurOMW(player.getCurOMW());
 
-                createStanding(tournament, tourney.getCurrentRound(), playerCurStanding);
+                createStanding(tournament, Integer.parseInt(tourney.getCurrentRound())-1 + "", playerCurStanding);
 
             }
 
@@ -1011,7 +1018,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             Round newRound = new Round();
             newRound.setMatches(roundMatches);
-            newRound.setRoundName(1+tourney.getCurrentRound());
+            newRound.setRoundName(1+Integer.parseInt(tourney.getCurrentRound())+ "");
             createRound(tournament,newRound);
 
 
