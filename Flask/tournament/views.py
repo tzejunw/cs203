@@ -127,7 +127,7 @@ def my_tournament():
     }
 
     #fetch username
-    api_url = 'http://localhost:8080/user/get'
+    api_url = 'http://localhost:8080/user'
     response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
@@ -152,17 +152,20 @@ def my_tournament():
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
 
-    for name in tournament_names:
-        api_url = f'http://localhost:8080/tournament/get?tournamentName={name}'
-        response = requests.get(api_url, headers=headers)
-        if response.status_code == 200:
-            tournament_data = response.json()
-            tournaments.append(tournament_data)  # Append each tournament data to the list
-        else:
-            # Handle errors if necessary, e.g., logging or appending a placeholder
-            print(response.status_code)
-        
-    return render_template('tournament/my_tournament.html', tournaments = tournaments)
+    if(tournament_names):
+        for name in tournament_names:
+            api_url = f'http://localhost:8080/tournament/get?tournamentName={name}'
+            response = requests.get(api_url, headers=headers)
+            if response.status_code == 200:
+                tournament_data = response.json()
+                tournaments.append(tournament_data)  # Append each tournament data to the list
+            else:
+                # Handle errors if necessary, e.g., logging or appending a placeholder
+                print(response.status_code)
+        return render_template('tournament/my_tournament.html', tournaments = tournaments)
+    else:
+        flash("You have yet to join any tournaments", "danger")
+        return redirect(request.referrer) 
 
 
 @tournament.route('/create_player', methods=['GET', 'POST'])
@@ -175,7 +178,7 @@ def create_player():
         }
 
     #fetch username
-    api_url = 'http://localhost:8080/user/get'
+    api_url = 'http://localhost:8080/user'
     response = requests.get(api_url, headers=headers)
     
     if response.status_code == 200:
