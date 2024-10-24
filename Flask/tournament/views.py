@@ -129,18 +129,18 @@ def my_tournament():
     # Fetch username and tournament names 
     user_data, tournament_names = fetch_user_and_tournaments(headers)
 
-    if not user_data or not tournament_names:
-        flash("Failed to fetch user or tournaments", "danger")
+    if not user_data:
+        flash("Failed to fetch user", "danger")
+        return redirect(request.referrer)
+
+    if not tournament_names:
+        flash("You have yet to join any tournaments", "danger")
         return redirect(request.referrer)
 
     # Fetch tournament details for each tournament name
     tournaments = fetch_tournament_details(tournament_names, headers)
-
-    if tournaments:
-        return render_template('tournament/my_tournament.html', tournaments=tournaments)
-    else:
-        flash("You have yet to join any tournaments", "danger")
-        return redirect(request.referrer)
+    return render_template('tournament/my_tournament.html', tournaments=tournaments)
+   
 
 
 @tournament.route('/create_player', methods=['GET', 'POST'])
@@ -172,12 +172,14 @@ def create_player():
     if response.status_code == 200:
         flash("Successfully joined tournament", "success")
         #session['joinedTournaments'][tournamentName] = True
+        joinedTournament = True
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
         
     #stay on current page
-    return redirect(request.referrer) 
+    return redirect(request.referrer)
+    #return redirect(url_for('tournament.view_tournament', tournament_name=tournamentName))      
 
 
 # Helper functions
