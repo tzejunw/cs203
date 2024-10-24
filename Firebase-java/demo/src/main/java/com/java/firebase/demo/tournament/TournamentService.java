@@ -156,33 +156,30 @@ public class TournamentService {
         // Wait for the tournament document to be created
         collectionsApiFuture.get();
 
-        // call the image functions here?
-        // yes sire
-        
         // Create the "rounds" subcollection under the tournament document, with the first round
-        DocumentReference round1DocRef = firestore.collection("tournament")
-                                                    .document(tournament.getTournamentName())
-                                                    .collection("round")
-                                                    .document("1");
+        // DocumentReference round1DocRef = firestore.collection("tournament")
+        //                                             .document(tournament.getTournamentName())
+        //                                             .collection("round")
+        //                                             .document("1");
         
-        ApiFuture<WriteResult> round1Result = round1DocRef.set(new HashMap<>()); // Creating with an empty map
-        round1Result.get(); // Wait for completion
-        // Create empty subcollections "matches" and "standings" under the "round1" document
-        // Note: Firestore does not store empty collections, so you need to create at least an empty document or field
+        // ApiFuture<WriteResult> round1Result = round1DocRef.set(new HashMap<>()); // Creating with an empty map
+        // round1Result.get(); // Wait for completion
+        // // Create empty subcollections "matches" and "standings" under the "round1" document
+        // // Note: Firestore does not store empty collections, so you need to create at least an empty document or field
     
-        // Add an empty document to "match"
-        round1DocRef.collection("match").document("emptyMatchDoc").set(new HashMap<>());
+        // // Add an empty document to "match"
+        // round1DocRef.collection("match").document("emptyMatchDoc").set(new HashMap<>());
         
-        // Add an empty document to "standings"
-        round1DocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
+        // // Add an empty document to "standings"
+        // round1DocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
 
-        // Create the "rounds" subcollection under the tournament document, with the first round
-        DocumentReference participatingPlayerDocRef = firestore.collection("tournament")
-                                                    .document(tournament.getTournamentName())
-                                                    .collection("participatingPlayers")
-                                                    .document("emptyPlayerDoc");
-        ApiFuture<WriteResult> participatingPlayersResult = participatingPlayerDocRef.set(new HashMap<>()); // Creating with an empty map
-        participatingPlayersResult.get(); // Wait for completion
+        // Create the "participating" subcollection under the tournament document, with the first round
+        // DocumentReference participatingPlayerDocRef = firestore.collection("tournament")
+        //                                             .document(tournament.getTournamentName())
+        //                                             .collection("participatingPlayers")
+        //                                             .document("emptyPlayerDoc");
+        // ApiFuture<WriteResult> participatingPlayersResult = participatingPlayerDocRef.set(new HashMap<>()); // Creating with an empty map
+        // participatingPlayersResult.get(); // Wait for completion
         
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
@@ -358,8 +355,10 @@ public String endTournament(String tournamentName) throws InterruptedException, 
                 List<String> players = new ArrayList<>();
                 for (String playerName : playerIds) {
                     //ParticipatingPlayer player = getPlayer(tournamentName, playerName);
-                    System.out.println("Found Player: " + playerName);
-                    players.add(playerName);
+                    if (!playerName.equals("emptyPlayerDoc")) {
+                        System.out.println("Found Player: " + playerName);
+                        players.add(playerName);
+                    }
                 }
 
                 // Assuming the Tournament class has a method to set the list of round IDs
@@ -574,24 +573,23 @@ public String endTournament(String tournamentName) throws InterruptedException, 
     // now for matches, winner wins losses isDraw isBye can be empty for now, but must be updated later. 
 
     public String roundEnd(String tournamentName, String roundName) throws ExecutionException, InterruptedException{
-        Round round = getRound(tournamentName, roundName);
+        //Round round = getRound(tournamentName, roundName);
         
-        processRoundData(tournamentName, round); //based on the matches in the round, go and update FB player's matches with the ID
+        //processRoundData(tournamentName, round); //based on the matches in the round, go and update FB player's matches with the ID
 
         Tournament tournament = getTournament(tournamentName);
         if (tournament != null){
 
-            tournament.setCurrentRound(""+Integer.parseInt(tournament.getCurrentRound())+1);
 
-            return "Matches Assigned to participatingPlayer's pastMatches";
+            tournament.setCurrentRound(Integer.parseInt(tournament.getCurrentRound())+1 + "");
+
+            updateTournament(tournament);
+
+            return "Round Number Updated";
 
         }else{
             return "Tournament not found";
         }
-        
-        
-
-       
     }
 
     public String generateMatchId(String tournamentName, String roundName, Match match ) {
@@ -692,6 +690,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
     public String updateMatch(String tournamentName, String roundName, String player1, String player2, Match updatedMatch) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and player names
+
         String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
                              + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "-");
         
@@ -854,6 +853,9 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             rd1.generateRoundOne();
 
+            tourney.setCurrentRound("1");
+            updateTournament(tourney);
+
             ArrayList<AlgoMatch> Rd1Matches = rd1.getAlgoMatches();
 
 
@@ -897,6 +899,8 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         return false;
 
     }
+    
+
 
     public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
 
