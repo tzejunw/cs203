@@ -1,5 +1,5 @@
 ### Create Account
-POST http://localhost:8080/user/create
+POST http://localhost:8080/user
 Content-Type: application/json
 
 {
@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ### Admin Login - Please avoid changing the pw
-POST http://localhost:8080/user/login
+POST http://localhost:8080/login
 Content-Type: application/json
 
 {
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ### User Login - Please avoid changing the pw
-POST http://localhost:8080/user/login
+POST http://localhost:8080/login
 Content-Type: application/json
 
 {
@@ -30,12 +30,12 @@ Content-Type: application/json
 }
 
 ### User Get
-GET http://localhost:8080/user/get
+GET http://localhost:8080/user
 Content-Type: application/json,
 Authorization: Bearer jwt_token_from_login
 
 ### User Update
-PUT http://localhost:8080/user/update
+PUT http://localhost:8080/user
 Content-Type: application/json,
 Authorization: Bearer jwt_token_from_login
 {
@@ -47,7 +47,7 @@ Authorization: Bearer jwt_token_from_login
 }
 
 ### User Update
-DELETE http://localhost:8080/user/delete
+DELETE http://localhost:8080/user
 Content-Type: application/json,
 Authorization: Bearer jwt_token_from_login
 

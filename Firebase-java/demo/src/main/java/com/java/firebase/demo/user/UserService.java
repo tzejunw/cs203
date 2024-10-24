@@ -339,10 +339,10 @@ public class UserService {
     }
     
 
-    public String getUserEmail(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
-        UserRecord userRecord = firebaseAuth.getUser(uid);
-        return userRecord.getEmail();
-    }
+    // public String getUserEmail(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
+    //     UserRecord userRecord = firebaseAuth.getUser(uid);
+    //     return userRecord.getEmail();
+    // }
 
     // User only allowed to update gender, birthday and name 
     public String updateUser(User user, String uid) throws ExecutionException, InterruptedException {

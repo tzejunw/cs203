@@ -1,6 +1,6 @@
 import os
 from . import user
-from user.forms import LoginForm, RegisterForm, RegisterStep1Form, RegisterStep2Form, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
+from user.forms import LoginForm, RegisterForm, RegisterAccountForm, RegisterProfileForm, UpdateAccountForm, UpdatePasswordForm, LoginOTPForm
 
 from flask import Flask, abort, jsonify, make_response, render_template, request, redirect, url_for, flash, current_app
 from flask_wtf import Form, FlaskForm 
@@ -46,7 +46,7 @@ def handleErrorResponses(response):
 
 @user.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegisterStep1Form();
+    form = RegisterAccountForm();
     if request.method == 'POST' and form.validate_on_submit():      
         data = {
             "email": form.email.data,
@@ -56,11 +56,11 @@ def register():
 
         response = {}
         try:
-            response = requests.post(current_app.config['BACKEND_URL'] + "/user/create", json=data, headers=header)
+            response = requests.post(current_app.config['BACKEND_URL'] + "/user", json=data, headers=header)
         except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
             print(e)
-            return render_template('user/register_step1.html', form=form)
+            return render_template('user/register_account.html', form=form)
 
         if response.status_code == 200:
             flash("Account created. Please verify your email to proceed.", 'success')
@@ -68,7 +68,7 @@ def register():
         else:
             handleErrorResponses(response)
         
-    return render_template('user/register_step1.html', form=form, firebase_config=firebase_config)
+    return render_template('user/register_account.html', form=form, firebase_config=firebase_config)
 
 @user.route('/verify_email')
 def verify_email():
@@ -77,10 +77,10 @@ def verify_email():
     
     return redirect(url_for('index'))
 
-@user.route('/register/step2', methods=['GET', 'POST'])
-def register_step2():
+@user.route('/register/profile', methods=['GET', 'POST'])
+def register_profile():
     jwt_cookie = request.cookies.get('jwt')
-    form = RegisterStep2Form()
+    form = RegisterProfileForm()
 
     if request.method == 'GET':
         form.name.data = request.cookies.get('name')
@@ -101,11 +101,11 @@ def register_step2():
 
         response = {}
         try:
-            response = requests.post(current_app.config['BACKEND_URL'] + "/user/createDetails", json=data, headers=header)
+            response = requests.post(current_app.config['BACKEND_URL'] + "/user/profile", json=data, headers=header)
         except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
             print(e)
-            return render_template('user/register_step2.html', form=form)
+            return render_template('user/register_profile.html', form=form)
 
         if response.status_code == 200:
             flash(handleNormalResponses(response), 'success')
@@ -116,9 +116,9 @@ def register_step2():
             return response
         else:
             handleErrorResponses(response)
-    return render_template('user/register_step2.html', form=form)
+    return render_template('user/register_profile.html', form=form)
 
-# /user/login
+# /login
 @user.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -143,7 +143,7 @@ def login():
 
         response = {}
         try:
-            response = requests.post(current_app.config['BACKEND_URL'] + "/user/login", json=data, headers=header)
+            response = requests.post(current_app.config['BACKEND_URL'] + "/login", json=data, headers=header)
         except Exception as e: 
             flash("Sorry, we are unable to connect to the server right now, please try again later.", "danger")
             flash("Ensure Spring Boot server is running, and has no problems on it.", "info")
@@ -154,7 +154,7 @@ def login():
             token = response.text
 
             getUserDetails = requests.get(
-                current_app.config['BACKEND_URL'] + "/user/get", 
+                current_app.config['BACKEND_URL'] + "/user", 
                 headers = {
                     "Authorization": f"Bearer {token}",
                     "Content-Type": "application/json"
@@ -168,7 +168,7 @@ def login():
                     response.set_cookie('userName', data.get('userName'), max_age=60*60)
             else:
                 print("no user record found")
-                response = make_response(redirect(url_for('user.register_step2')))
+                response = make_response(redirect(url_for('user.register_profile')))
                 response.set_cookie('jwt', token, max_age=60*60)
                 response.set_cookie('registration', "not_done", max_age=60*60)
             
@@ -190,7 +190,7 @@ def google_login():
         return jsonify({'status': 'error', 'message': 'Token is missing'}), 400
 
     getUserDetails = requests.get(
-        current_app.config['BACKEND_URL'] + "/user/get", 
+        current_app.config['BACKEND_URL'] + "/user", 
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
@@ -224,7 +224,7 @@ def logout():
 
     response = {}
     try:
-        response = requests.post(current_app.config['BACKEND_URL'] + "/user/logout", headers=header)
+        response = requests.post(current_app.config['BACKEND_URL'] + "/logout", headers=header)
     except Exception as e: 
         print(e)
     
@@ -252,7 +252,7 @@ def update_account():
     if request.method == 'GET':
         # form.email.errors = ["User is not valid"]
         response = requests.get(
-            current_app.config['BACKEND_URL'] + "/user/get", 
+            current_app.config['BACKEND_URL'] + "/user", 
             headers = {
                 "Authorization": f"Bearer {jwt_cookie}",
                 "Content-Type": "application/json"
@@ -284,7 +284,7 @@ def update_account():
         }
 
         response = requests.put(
-            "http://localhost:8080/user/update", 
+            "http://localhost:8080/user", 
             json=data,
             headers = {
                 "Authorization": f"Bearer {jwt_cookie}",
@@ -307,7 +307,7 @@ def update_password():
     if request.method == 'GET':
         # form.email.errors = ["User is not valid"]
         response = requests.get(
-            current_app.config['BACKEND_URL'] + "/user/get", 
+            current_app.config['BACKEND_URL'] + "/user", 
             headers = {
                 "Authorization": f"Bearer {jwt_cookie}",
                 "Content-Type": "application/json"
@@ -323,7 +323,7 @@ def update_password():
         }
 
         response = requests.put(
-            "http://localhost:8080/user/updatePassword", 
+            "http://localhost:8080/user/password", 
             json=data,
             headers = {
                 "Authorization": f"Bearer {jwt_cookie}",
@@ -347,7 +347,7 @@ def update_password():
 def delete_user():
     jwt_cookie = request.cookies.get('jwt')
     response = requests.delete(
-        "http://localhost:8080/user/delete", 
+        "http://localhost:8080/user", 
         headers = {
             "Authorization": f"Bearer {jwt_cookie}",
             "Content-Type": "application/json"
