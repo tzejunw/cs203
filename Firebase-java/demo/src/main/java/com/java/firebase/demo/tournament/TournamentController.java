@@ -110,6 +110,11 @@ public class TournamentController {
         return tournamentService.roundEnd(tournamentName, roundName);
     }
 
+    @GetMapping("/tournament/round/start")
+    public boolean roundStart(@RequestParam String tournamentName) throws InterruptedException, ExecutionException{
+        return tournamentService.generateRound(tournamentName);
+    }
+
     //TODO
     // /tournament/round/end 
     // get all matches which have been updated with score (finished) this will be json returned. 

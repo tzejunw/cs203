@@ -15,6 +15,7 @@ public class AlgoRound {
         players = AlgoTournamentPlayers;
         stillplaying = players;
         this.roundNumber = roundNumber;
+        this.AlgoMatches = new ArrayList<AlgoMatch>();
         
     }
 
