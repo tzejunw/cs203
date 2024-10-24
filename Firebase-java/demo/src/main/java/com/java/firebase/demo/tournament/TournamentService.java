@@ -288,6 +288,36 @@ public List<Match> getPlayerPastMatches(String tournamentName, String participat
     return pastMatches;
 }
 
+public String deletePlayer(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
+    try {
+        // Step 1: Delete the player document from the "participatingPlayer" subcollection
+        ApiFuture<WriteResult> deleteFuture = firestore
+                .collection("tournament")
+                .document(tournamentName)
+                .collection("participatingPlayers")
+                .document(participatingPlayerName)
+                .delete();
+        
+        // Wait for the delete operation to complete
+        deleteFuture.get();
+
+        // Step 2: Remove the player from the "participatingPlayers" array in the tournament document
+        DocumentReference docRef = firestore.collection("tournament").document(tournamentName);
+        
+        ApiFuture<WriteResult> updateFuture = docRef.update("participatingPlayers", FieldValue.arrayRemove(participatingPlayerName));
+
+        // Wait for the update operation to complete
+        updateFuture.get();
+
+        // Return success message if both operations succeed
+        return participatingPlayerName + " deleted from " + tournamentName;
+
+    } catch (Exception e) {
+        // Handle any errors that occur during deletion or update
+        return "Error deleting " + participatingPlayerName + " from " + tournamentName + ": " + e.getMessage();
+    }
+}
+
 public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
     // Get the reference to the participatingPlayer's document
     DocumentReference tournamentDocRef = firestore.collection("tournament")
@@ -467,21 +497,21 @@ public String endTournament(String tournamentName) throws InterruptedException, 
         ApiFuture<WriteResult> roundResult = roundDocRef.set(new HashMap<>()); // Creating with an empty map
         roundResult.get(); // Wait for completion
         // iteratively create matches and to firestore. A round may or may not contain matches
-        ApiFuture<WriteResult> matchUpdate =  roundDocRef.collection("match").document("emptyMatchDoc").set(new HashMap<>());
+        //ApiFuture<WriteResult> matchUpdate =  roundDocRef.collection("match").document("emptyMatchDoc").set(new HashMap<>());
         List<Match> matches = round.getMatches();
         int matchCounter = 0;
         for (Match match : matches) {
             String documentId = (tournamentName.trim() + "_" + round.getRoundName().trim() + "_" 
             + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "-");
-            matchUpdate = roundDocRef.collection("match").document(documentId).set(match);
+            ApiFuture<WriteResult> matchUpdate = roundDocRef.collection("match").document(documentId).set(match);
             matchCounter++;
             matchUpdate.get();
         }
         
         // Add an empty document to "standings"
-        ApiFuture<WriteResult> standingsUpdate =  roundDocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
+        //ApiFuture<WriteResult> standingsUpdate =  roundDocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
         
-        return round.getRoundName() + "," + matchCounter +  " matches, empty standings collection, created in " + tournamentName + "at " + standingsUpdate.get().getUpdateTime().toString();
+        return round.getRoundName() + "," + matchCounter +  " matches, empty standings collection, created in " + tournamentName;
     }
 
     public Round getRound(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
@@ -921,6 +951,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 ParticipatingPlayer playerData = getPlayer(tournament, playerName);
                 AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerName, new ArrayList<AlgoMatch>());
                 algoPlayers.add(algoPlayer);
+<<<<<<< Updated upstream
                 System.out.println("player added : " + algoPlayer.getPlayerID());
 
 
@@ -929,6 +960,14 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
 
                 playerIDToObj.put(playerName, algoPlayer);
+=======
+
+                System.out.println("playername : " + playerData.getUserName());
+                System.out.println("playerobj : " + algoPlayer.getPlayerID());
+                playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
+                playerIDToObj.put(playerName, algoPlayer);
+
+>>>>>>> Stashed changes
             }
 
             // update all algoMatchObjs with appropriate player objs
@@ -946,8 +985,15 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                         algoMatchtoAdd = new AlgoMatch( playerIDToObj.get(matchData.getPlayer1()));
 
                     }else{
+
+                        System.out.println(matchData.getPlayer1());
+                        System.out.println(matchData.getPlayer2());
+
                         AlgoTournamentPlayer p1 = playerIDToObj.get(matchData.getPlayer1());
                         AlgoTournamentPlayer p2 = playerIDToObj.get(matchData.getPlayer2());
+
+                        System.out.println("player1 is "+p1);
+                        System.out.println(p2);
                             
                         algoMatchtoAdd = new AlgoMatch(p1,p2);
                         int wins = matchData.getWins();

@@ -49,7 +49,12 @@ public class TournamentController {
     @GetMapping("/tournament/player/get/matches")
     public List<Match> getPlayerPastMatches(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
         return tournamentService.getPlayerPastMatches(tournamentName, participatingPlayerName);
-    }    
+    }   
+    
+    @DeleteMapping("/tournament/player/delete") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
+    public String deletePlayer(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
+        return tournamentService.deletePlayer(tournamentName, participatingPlayerName);
+    }
 
     @PostMapping("/tournament/start")
     public boolean startTournament(@RequestParam String tournamentName) throws InterruptedException, ExecutionException {
