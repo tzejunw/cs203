@@ -118,54 +118,29 @@ def tournament_matches():
 
 @tournament.route('/my_tournament', methods=['GET'])
 def my_tournament():
+    tournaments = []  # Empty list to hold tournament data
 
-    tournaments = []  # empty list to hold tournament data
-
+    # Get JWT token from cookies
     jwt_cookie = request.cookies.get('jwt')
     headers = {
-            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+        'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
     }
 
-    #fetch username
-    api_url = 'http://localhost:8080/user'
-    response = requests.get(api_url, headers=headers)
+    # Fetch username and tournament names 
+    user_data, tournament_names = fetch_user_and_tournaments(headers)
 
-    if response.status_code == 200:
-        user_data = response.json()
-        userName = user_data.get('userName')
-        #flash("fetched name", "success")
-        print('Username: ' + user_data.get('userName'))
-    else:
-        print("API call failed with status code:", response.status_code)
-        print("Response text:", response.text)
+    if not user_data:
+        flash("Failed to fetch user", "danger")
+        return redirect(request.referrer)
 
-    #session.clear() 
-
-    api_url = f'http://localhost:8080/tournament/get/forplayer?playerName={userName}'
-    response = requests.get(api_url, headers=headers)
-
-    if response.status_code == 200:
-        tournament_names = response.json()
-        print(tournament_names)
-        #flash("fetched name", "success")
-    else:
-        print("API call failed with status code:", response.status_code)
-        print("Response text:", response.text)
-
-    if(tournament_names):
-        for name in tournament_names:
-            api_url = f'http://localhost:8080/tournament/get?tournamentName={name}'
-            response = requests.get(api_url, headers=headers)
-            if response.status_code == 200:
-                tournament_data = response.json()
-                tournaments.append(tournament_data)  # Append each tournament data to the list
-            else:
-                # Handle errors if necessary, e.g., logging or appending a placeholder
-                print(response.status_code)
-        return render_template('tournament/my_tournament.html', tournaments = tournaments)
-    else:
+    if not tournament_names:
         flash("You have yet to join any tournaments", "danger")
-        return redirect(request.referrer) 
+        return redirect(request.referrer)
+
+    # Fetch tournament details for each tournament name
+    tournaments = fetch_tournament_details(tournament_names, headers)
+    return render_template('tournament/my_tournament.html', tournaments=tournaments)
+   
 
 
 @tournament.route('/create_player', methods=['GET', 'POST'])
@@ -197,9 +172,43 @@ def create_player():
     if response.status_code == 200:
         flash("Successfully joined tournament", "success")
         #session['joinedTournaments'][tournamentName] = True
+        joinedTournament = True
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
         
     #stay on current page
-    return redirect(request.referrer) 
+    return redirect(request.referrer)
+    #return redirect(url_for('tournament.view_tournament', tournament_name=tournamentName))      
+
+
+# Helper functions
+def fetch_user_and_tournaments(headers):
+    try:
+        # Fetch user details
+        user_response = requests.get('http://localhost:8080/user', headers=headers)
+        if user_response.status_code == 200:
+            user_data = user_response.json()
+            userName = user_data.get('userName')
+
+            # Fetch tournament names for the player
+            tournaments_response = requests.get(f'http://localhost:8080/tournament/get/forplayer?playerName={userName}', headers=headers)
+            if tournaments_response.status_code == 200:
+                tournament_names = tournaments_response.json()
+                return user_data, tournament_names
+        return None, None
+    except Exception as e:
+        print(f"Error fetching user or tournament names: {e}")
+        return None, None
+    
+#Fetches the details for each tournament the user is part of.
+def fetch_tournament_details(tournament_names, headers):
+    tournaments = []
+    for name in tournament_names:
+        try:
+            tournament_response = requests.get(f'http://localhost:8080/tournament/get?tournamentName={name}', headers=headers)
+            if tournament_response.status_code == 200:
+                tournaments.append(tournament_response.json()) #append tournament object to list
+        except Exception as e:
+            print(f"Error fetching tournament details for {name}: {e}")
+    return tournaments
