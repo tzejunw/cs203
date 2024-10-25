@@ -6,7 +6,7 @@
     <div class="my-5 p-5 bg-white rounded box-shadow">
         <h2 class="p-2 ">Update Tournament</h2>
 
-        <form method="POST" action="{{ url_for('admin.update_tournament') }}">
+        <form method="POST" action="{{ url_for('admin.update_tournament') }}" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
 
             <div class="form-group p-2">
@@ -57,9 +57,20 @@
                 {% endfor %}
             </div>
 
+            <!-- Image preview section -->
+            <div class="form-group p-2">
+                <div id="image-preview">
+                    {% if form.imageUrl.data %}
+                    <img src="{{ form.imageUrl.data }}" id="current-image" style="max-width: 200px; max-height: 200px;" alt="Current Tournament Image">
+                    {% else %}
+                    <p>No image uploaded yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
             <div class="form-group p-2">
                 {{ form.imageUrl.label(class="form-label") }}
-                {{ form.imageUrl(class="form-control") }}
+                {{ form.imageUrl(class="form-control", type="file", id="image-input") }}
                 {% for error in form.imageUrl.errors %}
                 <div class="text-danger">{{ error }}</div>
                 {% endfor %}
@@ -69,4 +80,38 @@
         </form>
     </div>
 </main>
+
+<script>
+// JavaScript to handle real-time image preview
+document.getElementById('image-input').addEventListener('change', function(event) {
+    const imagePreview = document.getElementById('image-preview');
+    const currentImage = document.getElementById('current-image');
+    
+    // Get the selected file
+    const file = event.target.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        
+        // Set the image preview once the file is loaded
+        reader.onload = function(e) {
+            if (currentImage) {
+                currentImage.src = e.target.result;
+            } else {
+                // If no image exists, create an img element
+                const img = document.createElement('img');
+                img.id = "current-image";
+                img.src = e.target.result;
+                img.style.maxWidth = "200px";
+                img.style.maxHeight = "200px";
+                imagePreview.innerHTML = ''; // Clear any existing content
+                imagePreview.appendChild(img);
+            }
+        };
+        
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+
 {% endblock %}

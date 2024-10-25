@@ -52,7 +52,7 @@
                       } else {
                           console.error(data.message);
                           if (data.message == "No user record found"){
-                              window.location.href = "{{url_for('user.register_step2')}}";
+                              window.location.href = "{{url_for('user.register_profile')}}";
                           }
                           // Handle error, e.g., show error message to user
                       }
