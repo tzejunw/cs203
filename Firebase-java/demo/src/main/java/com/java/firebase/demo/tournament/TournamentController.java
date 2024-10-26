@@ -142,6 +142,9 @@ public class TournamentController {
     public Match getMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player1, @RequestParam String player2) throws InterruptedException, ExecutionException {
         return tournamentService.getMatch(tournamentName, roundName, player1, player2);
     }
+    public Match getMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player1) throws InterruptedException, ExecutionException {
+        return tournamentService.getMatch(tournamentName, roundName, player1);
+    }
 
     @PutMapping("/tournament/round/match/update")
     public String updateMatch(@RequestParam String tournamentName, 

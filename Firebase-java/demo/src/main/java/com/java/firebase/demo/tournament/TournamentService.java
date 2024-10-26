@@ -1058,6 +1058,25 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         }
     }
 
+    public getMatch(String tournamentName, String roundName, String player){
+
+        ApiFuture<QuerySnapshot> query = firestore.collection("tournaments")
+                                                  .document(tournamentName)
+                                                  .collection("round")
+                                                  .document(roundName)
+                                                  .collection("match")
+                                                  .whereEqualTo("player1", player)  // Search field by player
+                .get();
+
+        // Get the matching documents
+        List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+    
+
+    
+        
+        
+    }
+
 
 
     
