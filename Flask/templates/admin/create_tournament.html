@@ -6,7 +6,7 @@
     <div class="my-5 p-5 bg-white rounded box-shadow">
         <h2 class="p-2 ">Create Tournament</h2>
 
-        <form method="POST" action="{{ url_for('admin.create_tournament') }}">
+        <form method="POST" action="{{ url_for('admin.create_tournament') }}" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
 
             <div class="form-group p-2">
@@ -57,16 +57,46 @@
                 {% endfor %}
             </div>
 
+            <!-- Preview Image -->
+            <div class="form-group">
+                <img id="imagePreview" src="#" alt="Image Preview" style="max-width: 200px; max-height: 200px;"/>
+            </div>
+
             <div class="form-group p-2">
                 {{ form.imageUrl.label(class="form-label") }}
-                {{ form.imageUrl(class="form-control") }}
+                {{ form.imageUrl(class="form-control", type="file", onchange="previewImage(event)") }}  <!-- Add onchange event -->
                 {% for error in form.imageUrl.errors %}
                 <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
 
+            
+
             <input type="submit" value="Create Tournament" class="btn btn-primary m-2">
         </form>
     </div>
 </main>
+
+<!-- JavaScript for Image Preview -->
+<script>
+    function previewImage(event) {
+        const imagePreview = document.getElementById('imagePreview');
+        const file = event.target.files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result; // Set the image source to the file data
+                imagePreview.style.display = 'block'; // Make the preview visible
+            }
+            
+            reader.readAsDataURL(file); // Read the file as a data URL
+        } else {
+            imagePreview.style.display = 'none'; // Hide preview if no file is selected
+        }
+    }
+    </script>
 {% endblock %}
+
+

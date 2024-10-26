@@ -1,5 +1,5 @@
 ### Create Account
-POST http://localhost:8080/user/create
+POST http://localhost:8080/user
 Content-Type: application/json
 
 {
@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ### Admin Login - Please avoid changing the pw
-POST http://localhost:8080/user/login
+POST http://localhost:8080/login
 Content-Type: application/json
 
 {
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ### User Login - Please avoid changing the pw
-POST http://localhost:8080/user/login
+POST http://localhost:8080/login
 Content-Type: application/json
 
 {
@@ -30,12 +30,12 @@ Content-Type: application/json
 }
 
 ### User Get
-GET http://localhost:8080/user/get
+GET http://localhost:8080/user
 Content-Type: application/json,
 Authorization: Bearer jwt_token_from_login
 
 ### User Update
-PUT http://localhost:8080/user/update
+PUT http://localhost:8080/user
 Content-Type: application/json,
 Authorization: Bearer jwt_token_from_login
 {
@@ -47,25 +47,10 @@ Authorization: Bearer jwt_token_from_login
 }
 
 ### User Update
-DELETE http://localhost:8080/user/delete
+DELETE http://localhost:8080/user
 Content-Type: application/json,
 Authorization: Bearer jwt_token_from_login
 
 ### GET all tournaments
 GET http://localhost:8080/tournament/get/all
 Content-Type: application/json
-
-### startround
-GET http://localhost:8080/tournament/round/start?tournamentName=Eternal Weekend Test 23102024
-Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjcxOGY0ZGY5MmFkMTc1ZjZhMDMwN2FiNjVkOGY2N2YwNTRmYTFlNWYiLCJ0eXAiOiJKV1QifQ.eyJhZG1pbiI6dHJ1ZSwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL2NzMjAzLWEyNjNiIiwiYXVkIjoiY3MyMDMtYTI2M2IiLCJhdXRoX3RpbWUiOjE3Mjk3NDczNzcsInVzZXJfaWQiOiJncWk3akNnd1M1WXo3N3hscm92aGQyeTBIaXMxIiwic3ViIjoiZ3FpN2pDZ3dTNVl6Nzd4bHJvdmhkMnkwSGlzMSIsImlhdCI6MTcyOTc0NzM3NywiZXhwIjoxNzI5NzUwOTc3LCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImFkbWluQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.3K5b8TjKOqv1MB8aPzPCUTwSOVufW9S8tNoN-N0xRFZ-lUOl1aimhO9EajayH-YmM64VCei-f9dEMaGUAjOkopv8UJ1Bg1FxJ5rNBmOwmLR8vGaVXQdw9Zl5FRmnWVVLBMmzNpxFTRce7vpJ_n2OUGmJPDwLr_0-5GNu2t3O7B2_-Uw8926Vkh_404gly9wcfDRt0AXzsOOfwpXIYre9JFqiWuZCWLhIUF6U0GLr-TjkfoNRbn0BotMkIKFAw5GAwJS9RjhI5KZRpp-LmU1crNZohErOtcm-iDoxMYTesjhjZgXFYfrZziZAIj8M_nCzRCDCH2zB5WCz8mrS_AbgBg
-
-
-
-### 
-POST http://localhost:8080/user/login
-Content-Type: application/json
-
-{
-    "email" : "admin@gmail.com",
-    "password" : "1@Secured"
-}
