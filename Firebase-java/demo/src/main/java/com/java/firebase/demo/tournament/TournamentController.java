@@ -120,24 +120,6 @@ public class TournamentController {
         return tournamentService.generateRound(tournamentName);
     }
 
-    //TODO
-    // /tournament/round/end 
-    // get all matches which have been updated with score (finished) this will be json returned. 
-    // convert the json to objects in java!! (hard)
-
-    // calls algo.roundend(match objects). feed match objects into algo function.
-    // algo function returns all standings as objects (each object is one record)
-    // commit those record to firebase!.
-    // say good
-
-    // /tournament/round/startnextround
-    // give participatingtournamentplayers java objects (need list of prev matches) and standings java objects to algo
-    // sometingliek algo.startnextround(everything above)
-    // it will return next round matches, java object. convert that to json.
-    // commmit that to firebase. 
-    // say ok
-
-
     @PostMapping("/tournament/round/match/create")
     public String createMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestBody Match match) throws InterruptedException, ExecutionException{
         return tournamentService.createMatch(tournamentName, roundName, match);
