@@ -32,7 +32,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(
                 authorizeRequests -> authorizeRequests
 // For easy testing purposes, uncomment this for all tournaments routes to be permitted.
-                    // .requestMatchers("/tournament/**").permitAll()    
+                    //.requestMatchers("/tournament/**").permitAll()    
 
                     // User Route
                     .requestMatchers(HttpMethod.POST, "/user", "/login", "/user/resendVerification", "/user/verifyEmail", "/user/masscreate").permitAll()

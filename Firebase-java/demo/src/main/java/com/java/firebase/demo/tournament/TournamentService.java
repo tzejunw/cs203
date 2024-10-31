@@ -784,6 +784,11 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             rd1.generateRoundOne();
 
             tourney.setCurrentRound("1");
+
+            Round emptyround = new Round();
+            emptyround.setMatches(new ArrayList<>());
+            emptyround.setRoundName("1");
+            createRound(tournament, emptyround);
             updateTournament(tourney);
 
             ArrayList<AlgoMatch> Rd1Matches = rd1.getAlgoMatches();
@@ -953,7 +958,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             Round newRound = new Round();
             newRound.setMatches(roundMatches);
-            newRound.setRoundName(1+Integer.parseInt(tourney.getCurrentRound())+ "");
+            newRound.setRoundName(Integer.parseInt(tourney.getCurrentRound())+ "");
             createRound(tournament,newRound);
 
 
@@ -991,6 +996,45 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             System.out.println("Match not found for: " + documentId);
             return null; // Or throw an exception depending on how you want to handle it
         }
+    }
+
+    public Match getMatchByPlayer(String tournamentName, String roundName, String player) throws ExecutionException, InterruptedException {
+
+        //Search both player 1 and player 2 to find match
+
+        ApiFuture<QuerySnapshot> queryp1 = firestore.collection("tournament")
+                                                  .document(tournamentName)
+                                                  .collection("round")
+                                                  .document(roundName)
+                                                  .collection("match")
+                                                  .whereEqualTo("player1", player)
+                                                  .get();  // Search field by player
+
+        ApiFuture<QuerySnapshot> queryp2 = firestore.collection("tournament")
+                                                  .document(tournamentName)
+                                                  .collection("round")
+                                                  .document(roundName)
+                                                  .collection("match")
+                                                  .whereEqualTo("player2", player)
+                                                  .get();  // Search field by player
+            
+        
+        // Get the matching documents
+
+        List<QueryDocumentSnapshot> p1search = queryp1.get().getDocuments();
+        List<QueryDocumentSnapshot> p2search = queryp2.get().getDocuments();
+
+        if (p1search.isEmpty() && p2search.isEmpty()){
+            return null;
+        }
+        QueryDocumentSnapshot matchdoc = p1search.isEmpty() ? p2search.get(0) : p1search.get(0);
+
+        return matchdoc.toObject(Match.class);
+        
+    }
+
+    public List<Match> getRoundMatches( String tournamentName, String roundName){
+
     }
 
 

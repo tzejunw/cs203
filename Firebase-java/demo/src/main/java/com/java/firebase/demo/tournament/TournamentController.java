@@ -129,6 +129,9 @@ public class TournamentController {
     public Match getMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player1, @RequestParam String player2) throws InterruptedException, ExecutionException {
         return tournamentService.getMatch(tournamentName, roundName, player1, player2);
     }
+    public Match getMatch(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player1) throws InterruptedException, ExecutionException {
+        return tournamentService.getMatch(tournamentName, roundName, player1);
+    }
 
     @PutMapping("/tournament/round/match/update")
     public String updateMatch(@RequestParam String tournamentName, 
@@ -171,6 +174,12 @@ public class TournamentController {
     public String deleteStanding(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam int rank) throws InterruptedException, ExecutionException {
         return tournamentService.deleteStanding(tournamentName, roundName, rank);
     }
+
+    @GetMapping("/tournament/round/match/player/get")
+    public Match getMatchByPlayer(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player) throws InterruptedException, ExecutionException{
+        return tournamentService.getMatchByPlayer(tournamentName, roundName, player);
+    }
+    
 
     
 }
