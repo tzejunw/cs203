@@ -769,7 +769,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         Tournament tourney = getTournament(tournament);
 
         if (tourney != null){
-            tourney.setInProgress("true");
+            tourney.setInProgress(true);
             updateTournament(tourney);
             List<String> players= tourney.getParticipatingPlayers();
 
@@ -953,7 +953,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             Round newRound = new Round();
             newRound.setMatches(roundMatches);
-            newRound.setRoundName(1+Integer.parseInt(tourney.getCurrentRound())+ "");
+            newRound.setRoundName(Integer.parseInt(tourney.getCurrentRound())+ "");
             createRound(tournament,newRound);
 
 
