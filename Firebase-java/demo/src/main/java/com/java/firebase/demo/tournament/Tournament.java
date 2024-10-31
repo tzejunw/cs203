@@ -23,6 +23,7 @@ public class Tournament {
     private String imageUrl;
     private boolean inProgress;
     private String currentRound;
+    private int expectedNumRounds;
     
     // List of participating players (e.g., could be just player IDs, or Player objects)
     // i think this isnt how were supposed to do it

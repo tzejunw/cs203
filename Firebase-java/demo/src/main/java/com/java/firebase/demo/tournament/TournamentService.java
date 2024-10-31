@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -180,6 +181,9 @@ public class TournamentService {
     }
 
     public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
+        
+        if(isTournamentInProgress(tournamentName)){
+
         // Get the reference to the participatingPlayer's document
         DocumentReference tournamentDocRef = firestore.collection("tournament")
                                                 .document(tournamentName);
@@ -191,6 +195,12 @@ public class TournamentService {
         updateResult.get();
 
         return "Tournament ended";
+
+        } else {
+            return "Tournament was not in progress";
+        }
+        
+
     }
         // CRUD for Tournaments
     // This takes one of the specified json fields, here .getTournamentName(),  and sets it as the documentId (document identifier)
@@ -388,6 +398,18 @@ public class TournamentService {
         return "Successfully deleted " + tournamentName;
     }
 
+    public boolean isTournamentInProgress(String tournamentName) throws InterruptedException, ExecutionException {
+        Tournament tournament = getTournament(tournamentName);
+
+        if (tournament == null) {
+            throw new NoSuchElementException("Tournament not found: " + tournamentName);
+        }
+
+        boolean isInProgress = tournament.isInProgress();
+
+        return isInProgress;
+    }
+
     // // CRUD for Rounds (nested under Tournament)
 
     public String createRound(String tournamentName, Round round) throws ExecutionException, InterruptedException{
@@ -503,10 +525,12 @@ public class TournamentService {
         //Round round = getRound(tournamentName, roundName);
         
         //processRoundData(tournamentName, round); //based on the matches in the round, go and update FB player's matches with the ID
-
+        if (!isTournamentInProgress(tournamentName)) {
+            return "Tournament is not in progress";
+        }
+        
         Tournament tournament = getTournament(tournamentName);
         if (tournament != null){
-
 
             tournament.setCurrentRound(Integer.parseInt(tournament.getCurrentRound())+1 + "");
 
@@ -764,11 +788,17 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         return "Standing with rank " + rank + " deleted from " + tournamentName + ", " + roundName;
     }
 
-    public boolean startTournament( String tournament) throws ExecutionException, InterruptedException{
+    public boolean startTournament(String tournament) throws ExecutionException, InterruptedException{
+        
+        if (isTournamentInProgress(tournament)) {
+            System.out.println("Tournament already in progress");
+            return false;
+        }
+        
         
         Tournament tourney = getTournament(tournament);
 
-        if (tourney != null){
+        if (tourney != null ){
             tourney.setInProgress(true);
             updateTournament(tourney);
             List<String> players= tourney.getParticipatingPlayers();
@@ -789,7 +819,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             emptyround.setMatches(new ArrayList<>());
             emptyround.setRoundName("1");
             createRound(tournament, emptyround);
-            updateTournament(tourney);
+            
 
             ArrayList<AlgoMatch> Rd1Matches = rd1.getAlgoMatches();
 
@@ -826,7 +856,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 createMatch(tournament, "1", match);
 
             }
-
+            updateTournament(tourney);
             return true;
 
         }   
@@ -839,6 +869,10 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
     public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
 
+        if (!isTournamentInProgress(tournament)) {
+            System.out.println("Tournament is not in progress");
+            return false;
+        }
         Tournament tourney = getTournament(tournament);
 
         if (tourney != null){
@@ -922,6 +956,8 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 playerCurStanding.setCurMatchPts(player.getCurMatchPts());
                 playerCurStanding.setCurOGW(player.getCurOGW());
                 playerCurStanding.setCurOMW(player.getCurOMW());
+                playerCurStanding.setPlayerID(player.getPlayerID());
+
 
                 createStanding(tournament, Integer.parseInt(tourney.getCurrentRound())-1 + "", playerCurStanding);
 
@@ -1033,9 +1069,9 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         
     }
 
-    public List<Match> getRoundMatches( String tournamentName, String roundName){
+    // public List<Match> getRoundMatches( String tournamentName, String roundName){
 
-    }
+    // }
 
 
 
