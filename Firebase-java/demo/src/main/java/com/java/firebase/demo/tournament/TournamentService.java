@@ -993,20 +993,39 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         }
     }
 
-    public getMatch(String tournamentName, String roundName, String player){
+    public Match getMatchByPlayer(String tournamentName, String roundName, String player) throws ExecutionException, InterruptedException {
 
-        ApiFuture<QuerySnapshot> query = firestore.collection("tournaments")
+        //Search both player 1 and player 2 to find match
+
+        ApiFuture<QuerySnapshot> queryp1 = firestore.collection("tournament")
                                                   .document(tournamentName)
                                                   .collection("round")
                                                   .document(roundName)
                                                   .collection("match")
-                                                  .whereEqualTo("player1", player)  // Search field by player
-                .get();
+                                                  .whereEqualTo("player1", player)
+                                                  .get();  // Search field by player
 
+        ApiFuture<QuerySnapshot> queryp2 = firestore.collection("tournament")
+                                                  .document(tournamentName)
+                                                  .collection("round")
+                                                  .document(roundName)
+                                                  .collection("match")
+                                                  .whereEqualTo("player2", player)
+                                                  .get();  // Search field by player
+            
+        
         // Get the matching documents
-        List<QueryDocumentSnapshot> documents = query.get().getDocuments();
-    
 
+        List<QueryDocumentSnapshot> p1search = queryp1.get().getDocuments();
+        List<QueryDocumentSnapshot> p2search = queryp2.get().getDocuments();
+
+        if (p1search.isEmpty() && p2search.isEmpty()){
+            return null;
+        }
+        QueryDocumentSnapshot matchdoc = p1search.isEmpty() ? p2search.get(0) : p1search.get(0);
+
+        return matchdoc.toObject(Match.class);
+        
     
         
         

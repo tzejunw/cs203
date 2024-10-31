@@ -175,5 +175,11 @@ public class TournamentController {
         return tournamentService.deleteStanding(tournamentName, roundName, rank);
     }
 
+    @GetMapping("/tournament/round/match/player/get")
+    public Match getMatchByPlayer(@RequestParam String tournamentName, @RequestParam String roundName, @RequestParam String player) throws InterruptedException, ExecutionException{
+        return tournamentService.getMatchByPlayer(tournamentName, roundName, player);
+    }
+    
+
     
 }
