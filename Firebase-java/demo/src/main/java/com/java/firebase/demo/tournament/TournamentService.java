@@ -39,149 +39,11 @@ import jakarta.validation.metadata.ExecutableDescriptor;
 @Service
 public class TournamentService {
     private final Firestore firestore;
+    private final TournamentValidator tournamentValidator;
 
-    public TournamentService(Firestore firestore) {
+    public TournamentService(Firestore firestore, TournamentValidator tournamentValidator) {
         this.firestore = firestore;
-    }
-
-    public static boolean isValidDate(String dateStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        try {
-            // Parse the date string using the formatter
-            LocalDate date = LocalDate.parse(dateStr, formatter);
-            // Ensure the parsed date string matches the input (to avoid things like 2024-2-30)
-            return dateStr.equals(date.format(formatter));
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
-
-    public static boolean areDatesInOrder(String startDateStr, String endDateStr) {
-        // Parse the dates after confirming they are in the correct format
-        LocalDate startDate = LocalDate.parse(startDateStr);
-        LocalDate endDate = LocalDate.parse(endDateStr);
-
-        // Check that the end date is not earlier than the start date
-        return !endDate.isBefore(startDate);
-    }
-
-    public boolean isNameUnique(String name) throws InterruptedException, ExecutionException, FirestoreException {
-        try {
-            // Get the document from Firestore
-            ApiFuture<DocumentSnapshot> future = firestore.collection("tournament").document("name").get();
-            DocumentSnapshot document = future.get();
-
-            // Return true if the document does NOT exist (ID is unique), otherwise false
-            return !document.exists();
-        } catch (InterruptedException | ExecutionException | FirestoreException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean isValidAddress(String address) {
-        Dotenv dotenv = Dotenv.load();
-        String map_api_key = dotenv.get("GOOGLE_MAP_API_KEY");
-        String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + map_api_key;
-
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String responseBody = response.getBody();
-                
-                if (responseBody != null) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonNode json = mapper.readTree(responseBody);
-                    String status = json.get("status").asText();
-
-                    // Check if the status is OK, indicating the address is valid
-                    System.out.println("OK".equals(status));
-                    return "OK".equals(status);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    public boolean isTournamentValid(Tournament tournament) throws IllegalArgumentException, InterruptedException, ExecutionException, FirestoreException {
-        if (!isValidDate(tournament.getStartDate()))
-            throw new IllegalArgumentException("Start date should be in yyyy-MM-dd format");
-        if (!isValidDate(tournament.getEndDate()))
-            throw new IllegalArgumentException("End date should be in yyyy-MM-dd format");
-        if (!isValidDate(tournament.getRegistrationDeadline()))
-            throw new IllegalArgumentException("End date should be in yyyy-MM-dd format");
-        if (!areDatesInOrder(tournament.getStartDate(), tournament.getEndDate())){
-            throw new IllegalArgumentException("End date should not be earlier than the start date");
-        }
-        if (!areDatesInOrder(tournament.getRegistrationDeadline(), tournament.getStartDate())){
-            throw new IllegalArgumentException("Start date should not be earlier than the registration dateline");
-        }
-        if (Strings.isNullOrEmpty(tournament.getTournamentDesc())){
-            throw new IllegalArgumentException("Tournament description should not be empty");
-        }
-        // if (Strings.isNullOrEmpty(tournament.getImageUrl())){
-        //     throw new IllegalArgumentException("Image should not be empty");
-        // }
-        if (Strings.isNullOrEmpty(tournament.getLocation()) || !isValidAddress(tournament.getLocation())){
-            throw new IllegalArgumentException("Invalid location.");
-        }
-        if (Strings.isNullOrEmpty(tournament.getTournamentName())){
-            throw new IllegalArgumentException("Invalid tournament name.");
-        }
-        return true;
-    }
-
-    // CRUD for Tournaments
-    // This takes one of the specified json fields, here .getTournamentName(),  and sets it as the documentId (document identifier)
-    // if you want firebase to generate documentId for us, leave .document() blank
-    // generates a tournament with an empty Round 1
-    public String createTournament(Tournament tournament) throws ExecutionException, InterruptedException {
-        if(isTournamentValid(tournament)) {
-            System.out.println("Valid Input"); // validations, will throw error if not valid
-        }
-        if (!isNameUnique(tournament.getTournamentName())){
-            throw new IllegalArgumentException("The same tournament name already exists.");
-        }
-        
-        // Add the tournament object as a document in Firestore
-        ApiFuture<WriteResult> collectionsApiFuture = firestore.collection("tournament")
-                                                                  .document(tournament.getTournamentName())
-                                                                  .set(tournament);
-        
-        // Wait for the tournament document to be created
-        collectionsApiFuture.get();
-
-        // Create the "rounds" subcollection under the tournament document, with the first round
-        // DocumentReference round1DocRef = firestore.collection("tournament")
-        //                                             .document(tournament.getTournamentName())
-        //                                             .collection("round")
-        //                                             .document("1");
-        
-        // ApiFuture<WriteResult> round1Result = round1DocRef.set(new HashMap<>()); // Creating with an empty map
-        // round1Result.get(); // Wait for completion
-        // // Create empty subcollections "matches" and "standings" under the "round1" document
-        // // Note: Firestore does not store empty collections, so you need to create at least an empty document or field
-    
-        // // Add an empty document to "match"
-        // round1DocRef.collection("match").document("emptyMatchDoc").set(new HashMap<>());
-        
-        // // Add an empty document to "standings"
-        // round1DocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
-
-        // Create the "participating" subcollection under the tournament document, with the first round
-        // DocumentReference participatingPlayerDocRef = firestore.collection("tournament")
-        //                                             .document(tournament.getTournamentName())
-        //                                             .collection("participatingPlayers")
-        //                                             .document("emptyPlayerDoc");
-        // ApiFuture<WriteResult> participatingPlayersResult = participatingPlayerDocRef.set(new HashMap<>()); // Creating with an empty map
-        // participatingPlayersResult.get(); // Wait for completion
-        
-        return collectionsApiFuture.get().getUpdateTime().toString();
+        this.tournamentValidator = tournamentValidator;
     }
 
 
@@ -201,7 +63,6 @@ public class TournamentService {
     
         ApiFuture<WriteResult> updateResult = playerDocRef.set(data);
 
-    
         // Update the pastMatches array field in the document
         //ApiFuture<WriteResult> updateResult = playerDocRef.update("pastMatches", FieldValue.arrayUnion());
     
@@ -227,181 +88,210 @@ public class TournamentService {
         return "Match ID added successfully to pastMatches";
     }
 
-public ParticipatingPlayer getPlayer(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
-    // Reference to the player's document in the participatingPlayers subcollection
-    DocumentReference playerDocRef = firestore.collection("tournament")
-                                              .document(tournamentName)
-                                              .collection("participatingPlayers")
-                                              .document(participatingPlayerName);
-
-    // Get the document snapshot (representing the player's data)
-    DocumentSnapshot document = playerDocRef.get().get();
-    ParticipatingPlayer participatingPlayer;
-    // Check if the document exists
-    if (document.exists()) {
-        // Return the document data as a JSON string or formatted output
-        System.out.println("Player documetn found");
-        participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
-    } else {
-        System.out.println("player not found");
-        participatingPlayer = new ParticipatingPlayer();
-        participatingPlayer.setPastMatches(new ArrayList<>());
-    }
-    return participatingPlayer;
-}
-
-public List<String> getAllPlayer(String tournamentName) throws ExecutionException, InterruptedException {
-    // Retrieve all documents from the "tournament" collection
-    ApiFuture<QuerySnapshot> future = firestore.collection("tournament")
+    public ParticipatingPlayer getPlayer(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
+        // Reference to the player's document in the participatingPlayers subcollection
+        DocumentReference playerDocRef = firestore.collection("tournament")
                                                 .document(tournamentName)
                                                 .collection("participatingPlayers")
-                                                .get();
-    
-    // QuerySnapshot contains all documents in the collection
-    List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-    
-    // Create a list to hold the Tournament objects
-    List<String> players = new ArrayList<>();
-    
-    // Convert each document to a Tournament object and add it to the list
-    for (DocumentSnapshot document : documents) {
-        String playerId = document.getId();
-        System.out.println(playerId);
-        if (!playerId.equals("emptyPlayerDoc")) {
-            players.add(playerId);
+                                                .document(participatingPlayerName);
+
+        // Get the document snapshot (representing the player's data)
+        DocumentSnapshot document = playerDocRef.get().get();
+        ParticipatingPlayer participatingPlayer;
+        // Check if the document exists
+        if (document.exists()) {
+            // Return the document data as a JSON string or formatted output
+            System.out.println("Player document found");
+            participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
+        } else {
+            System.out.println("player not found");
+            participatingPlayer = new ParticipatingPlayer();
+            participatingPlayer.setPastMatches(new ArrayList<>());
         }
-
+        return participatingPlayer;
     }
-    
-    return players;
-}
 
-public List<Match> getPlayerPastMatches(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
-    ParticipatingPlayer player = getPlayer(tournamentName, participatingPlayerName);
-    List<String> pastMatchIds = player.getPastMatches();
-    List<Match> pastMatches = new ArrayList<>();
-    for (String matchId : pastMatchIds) {
-        Map<String, String> matchMap = splitMatchId(matchId);
-        Match match = getMatch(tournamentName, matchMap.get("roundName"), matchMap.get("player1"), matchMap.get("player2"));
-        pastMatches.add(match);
-    }
-    return pastMatches;
-}
-
-public String deletePlayer(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
-    try {
-        // Step 1: Delete the player document from the "participatingPlayer" subcollection
-        ApiFuture<WriteResult> deleteFuture = firestore
-                .collection("tournament")
-                .document(tournamentName)
-                .collection("participatingPlayers")
-                .document(participatingPlayerName)
-                .delete();
+    public List<String> getAllPlayer(String tournamentName) throws ExecutionException, InterruptedException {
+        // Retrieve all documents from the "tournament" collection
+        ApiFuture<QuerySnapshot> future = firestore.collection("tournament")
+                                                    .document(tournamentName)
+                                                    .collection("participatingPlayers")
+                                                    .get();
         
-        // Wait for the delete operation to complete
-        deleteFuture.get();
-
-        // Step 2: Remove the player from the "participatingPlayers" array in the tournament document
-        DocumentReference docRef = firestore.collection("tournament").document(tournamentName);
+        // QuerySnapshot contains all documents in the collection
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
         
-        ApiFuture<WriteResult> updateFuture = docRef.update("participatingPlayers", FieldValue.arrayRemove(participatingPlayerName));
+        // Create a list to hold the Tournament objects
+        List<String> players = new ArrayList<>();
+        
+        // Convert each document to a Tournament object and add it to the list
+        for (DocumentSnapshot document : documents) {
+            String playerId = document.getId();
+            System.out.println(playerId);
+            if (!playerId.equals("emptyPlayerDoc")) {
+                players.add(playerId);
+            }
 
-        // Wait for the update operation to complete
-        updateFuture.get();
-
-        // Return success message if both operations succeed
-        return participatingPlayerName + " deleted from " + tournamentName;
-
-    } catch (Exception e) {
-        // Handle any errors that occur during deletion or update
-        return "Error deleting " + participatingPlayerName + " from " + tournamentName + ": " + e.getMessage();
+        }
+        
+        return players;
     }
-}
 
-public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
-    // Get the reference to the participatingPlayer's document
-    DocumentReference tournamentDocRef = firestore.collection("tournament")
-                                              .document(tournamentName);
+    public List<Match> getPlayerPastMatches(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
+        ParticipatingPlayer player = getPlayer(tournamentName, participatingPlayerName);
+        List<String> pastMatchIds = player.getPastMatches();
+        List<Match> pastMatches = new ArrayList<>();
+        for (String matchId : pastMatchIds) {
+            Map<String, String> matchMap = splitMatchId(matchId);
+            Match match = getMatch(tournamentName, matchMap.get("roundName"), matchMap.get("player1"), matchMap.get("player2"));
+            pastMatches.add(match);
+        }
+        return pastMatches;
+    }
 
-    // Use arrayUnion to add the matchId to the pastMatches array field
-    ApiFuture<WriteResult> updateResult = tournamentDocRef.update("inProgress", false);
+    public String deletePlayer(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
+        try {
+            // Step 1: Delete the player document from the "participatingPlayer" subcollection
+            ApiFuture<WriteResult> deleteFuture = firestore
+                    .collection("tournament")
+                    .document(tournamentName)
+                    .collection("participatingPlayers")
+                    .document(participatingPlayerName)
+                    .delete();
+            
+            // Wait for the delete operation to complete
+            deleteFuture.get();
 
-    // Wait for the update to complete
-    updateResult.get();
+            // Step 2: Remove the player from the "participatingPlayers" array in the tournament document
+            DocumentReference docRef = firestore.collection("tournament").document(tournamentName);
+            
+            ApiFuture<WriteResult> updateFuture = docRef.update("participatingPlayers", FieldValue.arrayRemove(participatingPlayerName));
 
-    return "Tournament ended";
-}
-    
+            // Wait for the update operation to complete
+            updateFuture.get();
+
+            // Return success message if both operations succeed
+            return participatingPlayerName + " deleted from " + tournamentName;
+
+        } catch (Exception e) {
+            // Handle any errors that occur during deletion or update
+            return "Error deleting " + participatingPlayerName + " from " + tournamentName + ": " + e.getMessage();
+        }
+    }
+
+    public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
+        // Get the reference to the participatingPlayer's document
+        DocumentReference tournamentDocRef = firestore.collection("tournament")
+                                                .document(tournamentName);
+
+        // Use arrayUnion to add the matchId to the pastMatches array field
+        ApiFuture<WriteResult> updateResult = tournamentDocRef.update("inProgress", false);
+
+        // Wait for the update to complete
+        updateResult.get();
+
+        return "Tournament ended";
+    }
+        // CRUD for Tournaments
+    // This takes one of the specified json fields, here .getTournamentName(),  and sets it as the documentId (document identifier)
+    // if you want firebase to generate documentId for us, leave .document() blank
+    // generates a tournament with an empty Round 1
+    public String createTournament(Tournament tournament) throws ExecutionException, InterruptedException {
+        if(tournamentValidator.isTournamentValid(tournament)) {
+            System.out.println("Valid Input"); // validations, will throw error if not valid
+        }
+        if (!tournamentValidator.isNameUnique(tournament.getTournamentName())){
+            throw new IllegalArgumentException("The same tournament name already exists.");
+        }
+        
+        // Add the tournament object as a document in Firestore
+        ApiFuture<WriteResult> collectionsApiFuture = firestore.collection("tournament")
+                                                                  .document(tournament.getTournamentName())
+                                                                  .set(tournament);
+        
+        // Wait for the tournament document to be created
+        collectionsApiFuture.get();
+
+        
+        return collectionsApiFuture.get().getUpdateTime().toString();
+    }
     // For this Firebase doc, the tournamentName is the documentId.
     // The key in the GET request must be "documentid", and the value is the tournamentName
     public Tournament getTournament(String tournamentName) throws ExecutionException, InterruptedException {
-        DocumentReference documentReference = firestore.collection("tournament").document(tournamentName); 
+        Tournament tournament = fetchTournament(tournamentName);
+        if (tournament != null) {
+            List<Round> rounds = fetchRounds(tournamentName);
+            tournament.setRounds(rounds);
+    
+            List<String> players = fetchParticipatingPlayers(tournamentName);
+            tournament.setParticipatingPlayers(players);
+        }
+        return tournament;
+    }
+    
+    public Tournament fetchTournament(String tournamentName) throws ExecutionException, InterruptedException {
+        DocumentReference documentReference = firestore.collection("tournament").document(tournamentName);
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
-        Tournament tournament;
+    
         if (document.exists()) {
-            tournament = document.toObject(Tournament.class); // convert to object
-            // go get the round objects in its subcollection.
-            // Fetch the "round" subcollection
-            CollectionReference roundsCollection = documentReference.collection("round");
-            ApiFuture<QuerySnapshot> roundsFuture = roundsCollection.get();
-            QuerySnapshot roundsSnapshot = roundsFuture.get();
-
-            if (!roundsSnapshot.isEmpty()) {
-                System.out.println("Found " + roundsSnapshot.size() + " round documents");
-
-                // Get the IDs of the round documents
-                List<String> roundIds = roundsSnapshot.getDocuments().stream()
-                    .map(doc -> doc.getId()) // Get the document ID
-                    .collect(Collectors.toList());
-
-                // call getRound() on each roundId
-                List<Round> rounds = new ArrayList<>();
-                for (String roundName : roundIds) {
-                    Round round = getRound(tournamentName, roundName);
-                    rounds.add(round);
-                }
-
-                // Assuming the Tournament class has a method to set the list of round IDs
-                tournament.setRounds(rounds); // or tournament.roundIds = roundIds;
-            } else {
-                System.out.println("No round documents found");
-                tournament.setRounds(new ArrayList<>()); // Set empty list if no rounds found
-            }
-
-            CollectionReference playerCollection = documentReference.collection("participatingPlayers");
-            ApiFuture<QuerySnapshot> playerFuture = playerCollection.get();
-            QuerySnapshot playerSnapshot = playerFuture.get();
-
-            if (!playerSnapshot.isEmpty()) {
-                System.out.println("Found " + playerSnapshot.size() + " player documents");
-
-                // Get the IDs of the round documents
-                List<String> playerIds = playerSnapshot.getDocuments().stream()
-                    .map(doc -> doc.getId()) // Get the document ID
-                    .collect(Collectors.toList());
-
-                // call getRound() on each roundId
-                List<String> players = new ArrayList<>();
-                for (String playerName : playerIds) {
-                    //ParticipatingPlayer player = getPlayer(tournamentName, playerName);
-                    if (!playerName.equals("emptyPlayerDoc")) {
-                        System.out.println("Found Player: " + playerName);
-                        players.add(playerName);
-                    }
-                }
-
-                // Assuming the Tournament class has a method to set the list of round IDs
-                tournament.setParticipatingPlayers(players); // or tournament.roundIds = roundIds;
-            } else {
-                System.out.println("No player documents found");
-                tournament.setParticipatingPlayers(new ArrayList<>()); // Set empty list if no rounds found
-            }
-
-            return tournament;
+            return document.toObject(Tournament.class);
         }
         return null;
     }
+    
+    public List<Round> fetchRounds(String tournamentName) throws ExecutionException, InterruptedException {
+
+        QuerySnapshot roundsSnapshot = firestore.collection("tournament").document(tournamentName).collection("round").get().get();
+
+        // DocumentReference documentReference = firestore.collection("tournament").document(tournamentName);
+        // CollectionReference roundsCollection = documentReference.collection("round");
+        // ApiFuture<QuerySnapshot> roundsFuture = roundsCollection.get();
+        // QuerySnapshot roundsSnapshot = roundsFuture.get();
+    
+        List<Round> rounds = new ArrayList<>();
+        if (!roundsSnapshot.isEmpty()) {
+            System.out.println("Found " + roundsSnapshot.size() + " round documents");
+            List<String> roundIds = roundsSnapshot.getDocuments().stream()
+                .map(DocumentSnapshot::getId)
+                .collect(Collectors.toList());
+    
+            for (String roundId : roundIds) {
+                Round round = getRound(tournamentName, roundId); // You may need to adjust this
+                rounds.add(round);
+            }
+        } else {
+            System.out.println("No round documents found");
+        }
+        return rounds;
+    }
+    
+    public List<String> fetchParticipatingPlayers(String tournamentName) throws ExecutionException, InterruptedException {
+        DocumentReference documentReference = firestore.collection("tournament").document(tournamentName);
+        CollectionReference playerCollection = documentReference.collection("participatingPlayers");
+        ApiFuture<QuerySnapshot> playerFuture = playerCollection.get();
+        QuerySnapshot playerSnapshot = playerFuture.get();
+    
+        List<String> players = new ArrayList<>();
+        if (!playerSnapshot.isEmpty()) {
+            System.out.println("Found " + playerSnapshot.size() + " player documents");
+            List<String> playerIds = playerSnapshot.getDocuments().stream()
+                .map(DocumentSnapshot::getId)
+                .collect(Collectors.toList());
+    
+            for (String playerId : playerIds) {
+                if (!playerId.equals("emptyPlayerDoc")) {
+                    System.out.println("Found Player: " + playerId);
+                    players.add(playerId);
+                }
+            }
+        } else {
+            System.out.println("No player documents found");
+        }
+        return players;
+    }
+    
+
 
     public List<Tournament> getAllTournaments() throws ExecutionException, InterruptedException {
         // Retrieve all documents from the "tournament" collection
@@ -459,8 +349,7 @@ public String endTournament(String tournamentName) throws InterruptedException, 
     
 
     public String updateTournament(Tournament tournament) throws ExecutionException, InterruptedException { 
-        if(isTournamentValid(tournament)) // validations, will throw error if not valid
-        {
+        if(tournamentValidator.isTournamentValid(tournament)){ // validations, will throw error if not valid
             System.out.println("Valid Input");
         }
         
@@ -481,8 +370,21 @@ public String endTournament(String tournamentName) throws InterruptedException, 
 
     // For this Firebase doc, the tournamentName is the documentId.
     public String deleteTournament(String tournamentName) throws ExecutionException, InterruptedException {
-        // we are using email as the documentId. the key in the DELETE request must be "documentid", and the value is the email
-        ApiFuture<WriteResult> writeResult = firestore.collection("tournament").document(tournamentName).delete(); // get the doc
+        // Reference the document in Firestore
+        DocumentReference tournamentDocRef = firestore.collection("tournament").document(tournamentName);
+        
+        // Check if the document exists
+        ApiFuture<DocumentSnapshot> future = tournamentDocRef.get();
+        DocumentSnapshot document = future.get();
+        
+        if (!document.exists()) {
+            return "Tournament not found: " + tournamentName;
+        }
+        
+        // If the document exists, proceed with the deletion
+        ApiFuture<WriteResult> writeResult = tournamentDocRef.delete();
+        writeResult.get();  // Wait for the delete operation to complete
+        
         return "Successfully deleted " + tournamentName;
     }
 
@@ -497,21 +399,16 @@ public String endTournament(String tournamentName) throws InterruptedException, 
         ApiFuture<WriteResult> roundResult = roundDocRef.set(new HashMap<>()); // Creating with an empty map
         roundResult.get(); // Wait for completion
         // iteratively create matches and to firestore. A round may or may not contain matches
-        //ApiFuture<WriteResult> matchUpdate =  roundDocRef.collection("match").document("emptyMatchDoc").set(new HashMap<>());
         List<Match> matches = round.getMatches();
         int matchCounter = 0;
         for (Match match : matches) {
-            String documentId = (tournamentName.trim() + "_" + round.getRoundName().trim() + "_" 
-            + match.getPlayer1().trim() + "_" + match.getPlayer2().trim()).replaceAll("\\s+", "-");
+            String documentId = generateMatchId(tournamentName, round.getRoundName(), match);
             ApiFuture<WriteResult> matchUpdate = roundDocRef.collection("match").document(documentId).set(match);
             matchCounter++;
             matchUpdate.get();
         }
         
-        // Add an empty document to "standings"
-        //ApiFuture<WriteResult> standingsUpdate =  roundDocRef.collection("standing").document("emptyStandingsDoc").set(new HashMap<>());
-        
-        return round.getRoundName() + "," + matchCounter +  " matches, empty standings collection, created in " + tournamentName;
+        return "Round " + round.getRoundName() + ", " + matchCounter +  " matches, created in " + tournamentName;
     }
 
     public Round getRound(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
@@ -539,7 +436,7 @@ public String endTournament(String tournamentName) throws InterruptedException, 
             
             // Check if "matches" contains documents
             if (!matchQuerySnapshot.isEmpty()) {
-                System.out.println("Found " + matchQuerySnapshot.size() + " match documents, one of which is a empty placeholder");
+                System.out.println("Found " + matchQuerySnapshot.size() + " match documents");
                 
                 // Map documents to Match objects
                 List<Match> matches = matchQuerySnapshot.getDocuments().stream()
@@ -628,6 +525,12 @@ public String endTournament(String tournamentName) throws InterruptedException, 
         return matchId;
     }
 
+    public String generateMatchId(String tournamentName, String roundName, String player1, String player2 ) {
+        String matchId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
+        + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "-");
+        return matchId;
+    }
+
     public Map<String, String> splitMatchId(String matchId) {
         System.out.println(matchId);
         String[] parts = matchId.split("_");
@@ -694,8 +597,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
     public Match getMatch(String tournamentName, String roundName, String player1, String player2) throws ExecutionException, InterruptedException {
         System.out.println("getMatch starting");
         // Generate the same documentId used in createMatch
-        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
-                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "-");
+        String documentId = generateMatchId(tournamentName, roundName, player1, player2);
         System.out.println("DocumentId to be searched: " + documentId);
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
@@ -721,8 +623,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
     public String updateMatch(String tournamentName, String roundName, String player1, String player2, Match updatedMatch) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and player names
 
-        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
-                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "-");
+        String documentId = generateMatchId(tournamentName, roundName, player1, player2);
         
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
@@ -749,8 +650,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
     public String deleteMatch(String tournamentName, String roundName, String player1, String player2) throws ExecutionException, InterruptedException {
         // Generate the documentId based on tournament, round, and player names
-        String documentId = (tournamentName.trim() + "_" + roundName.trim() + "_" 
-                             + player1.trim() + "_" + player2.trim()).replaceAll("\\s+", "-");
+        String documentId = generateMatchId(tournamentName, roundName, player1, player2);
     
         DocumentReference matchDocRef = firestore.collection("tournament")
                                                    .document(tournamentName)
@@ -951,23 +851,12 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 ParticipatingPlayer playerData = getPlayer(tournament, playerName);
                 AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerName, new ArrayList<AlgoMatch>());
                 algoPlayers.add(algoPlayer);
-<<<<<<< Updated upstream
-                System.out.println("player added : " + algoPlayer.getPlayerID());
-
-
-                // populate object to player map for ease of access
-
-                playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
-
-                playerIDToObj.put(playerName, algoPlayer);
-=======
 
                 System.out.println("playername : " + playerData.getUserName());
                 System.out.println("playerobj : " + algoPlayer.getPlayerID());
                 playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
                 playerIDToObj.put(playerName, algoPlayer);
 
->>>>>>> Stashed changes
             }
 
             // update all algoMatchObjs with appropriate player objs
