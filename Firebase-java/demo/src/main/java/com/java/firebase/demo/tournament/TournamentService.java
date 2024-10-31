@@ -219,13 +219,15 @@ public class TournamentService {
     // The key in the GET request must be "documentid", and the value is the tournamentName
     public Tournament getTournament(String tournamentName) throws ExecutionException, InterruptedException {
         Tournament tournament = fetchTournament(tournamentName);
-        if (tournament != null) {
-            List<Round> rounds = fetchRounds(tournamentName);
-            tournament.setRounds(rounds);
-    
-            List<String> players = fetchParticipatingPlayers(tournamentName);
-            tournament.setParticipatingPlayers(players);
+        if (tournament == null) {
+            throw new IllegalArgumentException("Tournament not found.");
         }
+        
+        List<Round> rounds = fetchRounds(tournamentName);
+        tournament.setRounds(rounds);
+
+        List<String> players = fetchParticipatingPlayers(tournamentName);
+        tournament.setParticipatingPlayers(players);
         return tournament;
     }
     

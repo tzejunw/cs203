@@ -1,13 +1,14 @@
 import os
 from . import tournament
 
-from flask import Flask, flash, render_template, request, redirect, session, url_for
+from flask import Flask, abort, flash, render_template, request, redirect, session, url_for, Response
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField ,SubmitField 
 from wtforms.validators import InputRequired
 from werkzeug.security import generate_password_hash 
 import requests
 from flask import jsonify
+from datetime import datetime
 
 @tournament.route('/')
 def index():
@@ -68,6 +69,73 @@ def view_tournaments():
 
     return render_template('tournament/tournaments.html', tournaments = tournaments)
 
+def generate_google_calendar_link(tournament):
+    start_date_obj = datetime.strptime(tournament["startDate"], "%Y-%m-%d")
+    start_date = start_date_obj.strftime("%Y%m%d")
+
+    end_date_obj = datetime.strptime(tournament["endDate"], "%Y-%m-%d")
+    end_date = end_date_obj.strftime("%Y%m%d")
+
+    return (
+        "https://calendar.google.com/calendar/render?action=TEMPLATE"
+        f"&text={tournament["tournamentName"]}"
+        f"&dates={start_date}/{end_date}"
+        f"&details={tournament["tournamentDesc"]}"
+        f"&location={tournament["location"]}"
+    )
+
+def generate_outlook_calendar_link(tournament):
+    start_date_obj = datetime.strptime(tournament["startDate"], "%Y-%m-%d")
+    start_date = start_date_obj.strftime("%Y-%m-%dT00:00:00Z")
+
+    end_date_obj = datetime.strptime(tournament["endDate"], "%Y-%m-%d")
+    end_date = end_date_obj.strftime("%Y-%m-%dT00:00:00Z")
+
+    return (
+        "https://outlook.live.com/calendar/0/deeplink/compose?"
+        f"subject={tournament["tournamentName"]}"
+        f"&startdt={start_date}"
+        f"&enddt={end_date}"
+        f"&body={tournament["tournamentDesc"]}"
+        f"&location={tournament["location"]}"
+    )
+
+@tournament.route('/download_ics')
+def download_ics():
+    start_date_str = request.args.get('startDate')
+    end_date_str = request.args.get('endDate')
+    tournamentName = request.args.get('tournamentName')
+    tournamentDesc = request.args.get('tournamentDesc')
+    location = request.args.get('location')
+
+    if start_date_str is None or end_date_str is None or location is None or tournamentName is None or tournamentDesc is None:
+        abort(404)
+    
+    start_date_obj = datetime.strptime(start_date_str, "%Y-%m-%d")
+    start_date = start_date_obj.strftime("%Y%m%d")
+
+    end_date_obj = datetime.strptime(request.args.get('endDate'), "%Y-%m-%d")
+    end_date = end_date_obj.strftime("%Y%m%d")
+    
+    # Create the .ics file content
+    ics_content = f"""BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//Magic The Gathering//Arena//EN
+    BEGIN:VEVENT
+    SUMMARY:{tournamentName}
+    DTSTART:{start_date}
+    DTEND:{end_date}
+    DESCRIPTION:{tournamentDesc}
+    LOCATION:{location}
+    END:VEVENT
+    END:VCALENDAR
+    """
+
+    # Serve the file as an attachment
+    response = Response(ics_content, mimetype="text/calendar")
+    response.headers["Content-Disposition"] = "attachment; filename=event.ics"
+    return response
+
 @tournament.route('/tournament/<string:tournament_name>')
 def view_tournament(tournament_name):
     GOOGLE_MAP_API_KEY = os.getenv('GOOGLE_MAP_API_KEY')
@@ -76,9 +144,9 @@ def view_tournament(tournament_name):
 
     if response.status_code == 200:
         tournament = response.json()
-        return render_template('tournament/tournament.html', tournament=tournament, GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY)
+        return render_template('tournament/tournament.html', tournament=tournament, GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY, google_calendar_link=generate_google_calendar_link(tournament), outlook_calendar_link=generate_outlook_calendar_link(tournament))
     else:
-        return render_template('error.html', message="Tournament not found"), 404
+        abort(404)
 
 
 @tournament.route('/pairing')
