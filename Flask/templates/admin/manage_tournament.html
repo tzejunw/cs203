@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="admin-manage-tournament-container container">
-    <!-- Header Row with Image and Description -->
+    <!-- Header Row with Image and Description text -->
     <div class="row mb-4">
         <div class="col-md-8">
             <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="card-img-top h-100" alt="{{ tournament.tournamentName }} Banner">

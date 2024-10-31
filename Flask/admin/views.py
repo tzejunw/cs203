@@ -264,7 +264,7 @@ def manage_tournament(tournament_name):
     else:
         flash("Error fetching round data: " + round_response.text, "danger")
         print('####' + round_response.text)
-        round_data = None  # Handle case where round data is unavailable
+        round_data = None  # Handle case where round data is unavailables
 
     # Fetch the standings for the current round
     round_name_str = str(int(round_name) - 1)

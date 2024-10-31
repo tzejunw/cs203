@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoMatch.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoRound.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoStandings.java
@@ -32,38 +31,3 @@ C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\fir
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserCredentials.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserService.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\VerifyEmail.java
-=======
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoMatch.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoRound.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoStandings.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoTournamentPlayer.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\playerComparator.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\common\FirebaseConfig.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\common\GenericCRUDService.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\CRUDRunner.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\DemoApplicationTests.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\image\FirestoreService.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\image\ImageController.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\image\ImageService.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\Match.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\ParticipatingPlayer.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\Round.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\Standing.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\Tournament.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\TournamentController.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\TournamentService.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\tournament\TournamentValidator.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\EmailConfig.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\EmailService.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Exceptions\RestExceptionHandler.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Exceptions\SendEmailVerificationFailedException.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Exceptions\TooManyRequestsException.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Security\FirebaseTokenFilter.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\Security\SecurityConfig.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UpdatePassword.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\User.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserController.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserCredentials.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserService.java
-C:\CS203\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\VerifyEmail.java
->>>>>>> 13a30a18690ee8e70eb21a025f623cd0c7c2e45d
