@@ -1,8 +1,8 @@
-{% extends "layouts/base.html" %} 
-{% block title %}Tournament Details{% endblock %} 
-{% from "macros/form.html" import render_form %} 
+{% extends "layouts/base.html" %}
+{% block title %}Tournament Details{% endblock %}
+{% from "macros/form.html" import render_form %}
 
-{% block content %} 
+{% block content %}
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&libraries=places,geometry"></script>
 <script src="{{url_for('static',filename='js/dynamicGoogleMaps.js')}}"></script>
 <div class="container mt-5">
@@ -10,16 +10,20 @@
         <!-- Left Side Content (Tournament Banner and Description) -->
         <div class="col-md-8">
             <div class="card">
-                <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="card-img-top h-25" alt="{{ tournament.tournamentName }} Banner">
+                <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}"
+                    class="card-img-top h-25" alt="{{ tournament.tournamentName }} Banner">
                 <div class="card-body">
                     <h1 class="card-title">{{ tournament.tournamentName }}</h1>
                     <h4 class="mt-4">Registration</h4>
                     <p>{{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}</p>
-                    <p>Qualified Players will be Pre-registered for this event following the Regional Championship at SCG CON Portland, OR.
-                    Once Pre-registered, players must complete the Registration process to participate in the event.
-                    Registration for the Regional Championship closes at 6:00 PM on {{ tournament.registrationDeadline }}.
-                    Players who enter after the tournament has begun will be enrolled with a loss for their first round.
-                    Players must have their Wizards Account Email in their Melee.gg profile in order to enroll.</p>
+                    <p>Qualified Players will be Pre-registered for this event following the Regional Championship at
+                        SCG CON Portland, OR.
+                        Once Pre-registered, players must complete the Registration process to participate in the event.
+                        Registration for the Regional Championship closes at 6:00 PM on {{
+                        tournament.registrationDeadline }}.
+                        Players who enter after the tournament has begun will be enrolled with a loss for their first
+                        round.
+                        Players must have their Wizards Account Email in their Melee.gg profile in order to enroll.</p>
                 </div>
             </div>
 
@@ -31,9 +35,10 @@
                 <input type="hidden" id="address" value="{{ tournament.location }}">
                 <div id="map" style="width: 100%; height: 400px;"></div>
             </div>
+            <br>
         </div>
-          <!-- Right Side Content (Tournament Info and Join Button) -->
-          <div class="col-md-4">
+        <!-- Right Side Content (Tournament Info and Join Button) -->
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h3>{{ tournament.tournamentName }}</h3>
@@ -43,18 +48,33 @@
                         <li><strong>Location:</strong> {{ tournament.location }}</li>
                         <li><strong>Organizer:</strong> {{ tournament.adminList | join(', ') }}</li>
                         <li><strong>Current Players:</strong> {{ tournament.numberOfPlayers }}</li>
+                        <li><strong>Register before:</strong> {{ tournament.numberOfPlayers }}</li>
                     </ul>
-                    
-                   
 
                     {% if is_admin %}
-                        <a href="#" class="bg-success btn tournament-join-btn w-100 mt-3">View Players</a>
-                    {% else %}
-                       <a href="{{url_for('tournament.create_player', tournamentName=tournament.tournamentName)}}" class="btn tournament-join-btn w-100 mt-3">Join Now</a>
+                    <a href="#" class="bg-success btn tournament-join-btn w-100 mt-3">View Players</a>
+                    {% elif jwt_present %}
+                    <a href="{{url_for('tournament.create_player', tournamentName=tournament.tournamentName)}}"
+                        class="btn tournament-join-btn w-100 mt-3">Join Now</a>
                     {% endif %}
                 </div>
             </div>
-       
+            <br>
+            <div class="card">
+                <div class="card-body">
+                    <h3>Add to Calendar</h3>
+                    Add it to your calendar so you won't forget!<br>
+                    
+                    <center>
+                    <a href="{{ google_calendar_link }}" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Google_Calendar_icon_%282020%29.svg/2048px-Google_Calendar_icon_%282020%29.svg.png" width="35" height="35" /></a>&nbsp;&nbsp;
+                    <a href="{{ outlook_calendar_link }}" target="_blank"><img src="https://img.icons8.com/?size=512&id=WnHyYA2ecNqL&format=png" width="35" height="35" /></a>&nbsp;&nbsp;
+                    <a href="{{url_for('tournament.download_ics', tournamentName=tournament.tournamentName, tournamentDesc=tournament.tournamentDesc, location=tournament.location, startDate=tournament.startDate, endDate=tournament.endDate) }}" target="_blank">
+                        <img src="https://play-lh.googleusercontent.com/-Z0jKlz-BFaFN6GOTGd7Adl9O_zdHl87brTKpD3dFzKv_cJkFW7LacVf9IwGF8Zx1s4" width="35" height="35" />
+                    </a>
+                    </center>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

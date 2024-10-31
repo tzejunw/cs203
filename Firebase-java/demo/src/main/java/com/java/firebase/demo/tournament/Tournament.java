@@ -31,6 +31,4 @@ public class Tournament {
     private List<String> participatingPlayers;
     private List<Round> rounds;
 
-    
-    
 }

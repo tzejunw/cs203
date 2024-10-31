@@ -35,7 +35,7 @@
             </thead>
             <tbody id="tournamentTableBody">
                 {% for tournament in tournaments %}
-                <tr>
+                <tr onclick="window.location.href='{{ url_for('admin.manage_tournament', tournament_name=tournament.tournamentName) }}'">
                     <td>{{ tournament.tournamentName }}</td>
                     <td>{{ tournament.tournamentDesc }}</td>
                     <td><img src="{{ tournament.imageUrl }}" alt="Project Image" class="tournament-image"></td>
@@ -53,6 +53,7 @@
                                 <img src="../../static/icons/trash.svg"/>
                             </button>
                         </form>
+                        
                     </td>
                 </tr>
                 {% endfor %}

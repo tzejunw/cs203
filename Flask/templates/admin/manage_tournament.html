@@ -1,0 +1,97 @@
+{% extends "layouts/base.html" %}
+{% block title %}Manage Tournament{% endblock %}
+{% from "macros/form.html" import render_form %}
+
+{% block content %}
+<div class="admin-manage-tournament-container container">
+    <!-- Header Row with Image and Description text -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="card-img-top h-100" alt="{{ tournament.tournamentName }} Banner">
+        </div>
+        <div class="col-md-4 d-flex flex-column justify-content-center">
+            <h3 class="admin-manage-tournament-name">{{ tournament.tournamentName }}</h3>
+            <p class="admin-manage-tournament-description">{{ tournament.tournamentDesc }}</p>
+            <form action="{{ url_for('admin.toggle_tournament', tournament_name=tournament.tournamentName) }}" method="POST">
+                <button type="submit" 
+                        class="btn {{ 'btn-danger' if tournament.inProgress == true else 'btn-success' }} admin-manage-tournament-start-btn w-100 mt-3">
+                    {{ 'End Tournament' if tournament.inProgress == true else 'Start Tournament' }}
+                </button>
+            </form>
+                  
+        </div>  
+    </div>
+
+    <!-- Row for Tournament Info -->
+    <div class="row text-center mt-5">
+        <div class="col-md-4">
+            <h4 class="admin-manage-tournament-section-title">Current Round</h4>
+            {% if tournament.inProgress %}
+                <p class="admin-manage-tournament-info">{{ tournament.currentRound }}</p>
+            {% else %}
+                <p class="admin-manage-tournament-info">Tournament has not started.</p>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <h4 class="admin-manage-tournament-section-title">Current Pairings</h4>
+            {% if tournament.inProgress and round %}
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <strong>Round {{ round.roundName }}</strong>
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            {% for match in round.matches %}
+                                <li>
+                                    {{ match.player1 }} vs {{ match.player2 }}
+                                    {% if match.winner %}
+                                        - Winner: {{ match.winner }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+            {% else %}
+                <p class="admin-manage-tournament-info">No pairings available or tournament has not started.</p>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <h4 class="admin-manage-tournament-section-title">Current Standings</h4>
+            {% if standings and standings|length > 0 %}
+                <ul class="list-group">
+                    {% for player in standings %}
+                        <li class="list-group-item">
+                            Player: {{ player.playerID }}<br>
+                            Rank: {{ player.rank }}<br>
+                            Match Points: {{ player.curMatchPts }}<br>
+                            Opponent Match Win %: {{ player.curOMW }}<br>
+                            Game Points: {{ player.curGamePts }}<br>
+                            Opponent Game Win %: {{ player.curOGW }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="admin-manage-tournament-info">Tournament has not started or no standings available.</p>
+            {% endif %}
+        </div>
+        
+    </div>
+
+    <!-- Row for Current Players -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h4 class="admin-manage-tournament-section-title">Current Players</h4>
+            <ul class="list-group admin-manage-tournament-players">
+                {% if tournament.participatingPlayers %}
+                    {% for player in tournament.participatingPlayers %}
+                        <li class="list-group-item admin-manage-tournament-player-item">{{ player }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">No players currently participating.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
