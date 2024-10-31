@@ -784,6 +784,11 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             rd1.generateRoundOne();
 
             tourney.setCurrentRound("1");
+
+            Round emptyround = new Round();
+            emptyround.setMatches(new ArrayList<>());
+            emptyround.setRoundName("1");
+            createRound(tournament, emptyround);
             updateTournament(tourney);
 
             ArrayList<AlgoMatch> Rd1Matches = rd1.getAlgoMatches();
@@ -1026,9 +1031,10 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
         return matchdoc.toObject(Match.class);
         
-    
-        
-        
+    }
+
+    public List<Match> getRoundMatches( String tournamentName, String roundName){
+
     }
 
 
