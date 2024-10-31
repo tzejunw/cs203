@@ -764,12 +764,12 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         return "Standing with rank " + rank + " deleted from " + tournamentName + ", " + roundName;
     }
 
-    public boolean startTournament( String tournament) throws ExecutionException, InterruptedException{
+    public boolean startTournament(String tournament) throws ExecutionException, InterruptedException{
         
         Tournament tourney = getTournament(tournament);
 
         if (tourney != null){
-            tourney.setInProgress("true");
+            tourney.setInProgress(true);
             updateTournament(tourney);
             List<String> players= tourney.getParticipatingPlayers();
 

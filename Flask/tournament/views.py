@@ -212,3 +212,4 @@ def fetch_tournament_details(tournament_names, headers):
         except Exception as e:
             print(f"Error fetching tournament details for {name}: {e}")
     return tournaments
+

@@ -21,7 +21,7 @@ public class Tournament {
     private String tournamentDesc;
     private String location;
     private String imageUrl;
-    private String inProgress;
+    private boolean inProgress;
     private String currentRound;
     
     // List of participating players (e.g., could be just player IDs, or Player objects)
@@ -30,6 +30,4 @@ public class Tournament {
     private List<String> participatingPlayers;
     private List<Round> rounds;
 
-    
-    
 }

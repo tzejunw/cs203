@@ -6,6 +6,7 @@ from wtforms.validators import InputRequired
 import requests
 from flask_wtf.file import FileField
 
+
 # Assuming you have defined your admin Blueprint somewhere else
 from . import admin
 
@@ -31,6 +32,10 @@ def check_permission(jwt_cookie):
         except:
             print("Invalid token")  # Handle decoding error
     return is_admin
+
+
+
+
 
 @admin.route('/view_tournaments')
 def view_tournaments():
@@ -220,3 +225,134 @@ def delete_tournament(tournament_name):
     else:
         flash("Error deleting tournament: " + response.text, "danger")
         return redirect(url_for('admin.view_tournaments'))
+
+# EVERYTHING BELOW IS FOR ADMIN TOURNAMENT ACTIONS
+@admin.route('/manage_tournament/<string:tournament_name>')
+def manage_tournament(tournament_name):
+    jwt_cookie = request.cookies.get('jwt')  # Retrieve the JWT token
+    if not jwt_cookie:
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for('admin.view_tournaments'))
+
+    # First, fetch the tournament details
+    tournament_api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    tournament_response = requests.get(tournament_api_url)
+
+    if tournament_response.status_code != 200:
+        flash("Error going to tournament management page: " + tournament_response.text, "danger")
+        return redirect(url_for('admin.view_tournaments'))
+    
+    tournament = tournament_response.json()
+
+    # Fetch the current round name
+    round_name = tournament.get('currentRound')  # Replace this as needed
+
+    print(tournament_name, round_name)
+    
+    # Update the round API URL to include the JWT token in the headers
+    round_api_url = f'http://localhost:8080/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
+    round_headers = {
+        'Authorization': f'Bearer {jwt_cookie}'  # Include the JWT token in the headers
+    }
+    round_response = requests.get(round_api_url, headers=round_headers)  # Pass the headers
+
+    print(round_response)
+
+    if round_response.status_code == 200:
+        round_data = round_response.json()
+        print(round_data)
+    else:
+        flash("Error fetching round data: " + round_response.text, "danger")
+        print('####' + round_response.text)
+        round_data = None  # Handle case where round data is unavailable
+
+    # Fetch the standings for the current round
+    round_name_str = str(int(round_name) - 1)
+    standings_api_url = f'http://localhost:8080/tournament/round/standing/get/all?tournamentName={tournament_name}&roundName={round_name_str}'
+    standings_response = requests.get(standings_api_url, headers=round_headers)  # Use the same headers
+
+    if standings_response.status_code == 200:
+        standings_data = standings_response.json()
+        print("STANDINGS DATA: ")
+        print(standings_data)
+    else:
+        flash("Error fetching standings data: " + standings_response.text, "danger")
+        standings_data = None  # Handle case where standings data is unavailable
+
+    # Render the page with tournament, round, and standings data
+    return render_template(
+        'admin/manage_tournament.html', 
+        tournament=tournament, 
+        round=round_data,
+        standings=standings_data  # Pass the standings data to the template
+    )
+
+
+
+# FOR THE ADMIN TO START THE TOURNAMENT
+@admin.route('/start_tournament/<string:tournament_name>', methods=['POST'])
+def start_tournament(tournament_name):
+    jwt_cookie = request.cookies.get('jwt')
+    if not check_permission(jwt_cookie):
+        return render_template('errors/403.html', message="You do not have permission to start this tournament."), 403
+
+    # Call the Java service to start the tournament
+    api_url = f'http://localhost:8080/tournament/start?tournamentName={tournament_name}'
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(api_url, headers=headers)
+
+    if response.status_code in (200, 201):
+        flash("Tournament started successfully!", "success")
+    else:
+        flash("Error starting tournament: " + response.text, "danger")
+
+    return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+
+# FOR THE ADMIN TO END THE TOURNAMENT
+@admin.route('/end_tournament/<string:tournament_name>', methods=['POST'])
+def end_tournament(tournament_name):
+    jwt_cookie = request.cookies.get('jwt')
+    if not check_permission(jwt_cookie):
+        return render_template('errors/403.html', message="You do not have permission to end this tournament."), 403
+
+    # Call the Java service to end the tournament
+    api_url = f'http://localhost:8080/tournament/end?tournamentName={tournament_name}'
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(api_url, headers=headers)
+
+    if response.status_code in (200, 201):
+        flash("Tournament ended successfully!", "success")
+    else:
+        flash("Error ending tournament: " + response.text, "danger")
+
+    return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+
+@admin.route('/toggle_tournament/<string:tournament_name>', methods=['POST'])
+def toggle_tournament(tournament_name):
+    jwt_cookie = request.cookies.get('jwt')
+    if not check_permission(jwt_cookie):
+        return render_template('errors/403.html', message="You do not have permission to toggle this tournament."), 403
+
+    # Check if the tournament is in progress
+    api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        tournament = response.json()
+        if tournament.get('inProgress'):
+            # If tournament is in progress, call the end tournament method
+            return end_tournament(tournament_name)
+        else:
+            # If tournament is not in progress, call the start tournament method
+            return start_tournament(tournament_name)
+    else:
+        flash("Error retrieving tournament details: " + response.text, "danger")
+        return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
