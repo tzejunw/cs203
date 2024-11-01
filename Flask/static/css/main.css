@@ -19240,6 +19240,14 @@ table.career tr td img {
   z-index: 1;
 }
 
+.disabled-btn {
+    background-color: #d3d3d3; /* Grey background */
+    color: #a9a9a9; /* Dark grey text */
+    cursor: not-allowed; /* Change cursor to indicate it's disabled */
+    pointer-events: none; /* Prevent clicking */
+}
+
+
 /* ADMIN VIEW TOURNAMENTS CSS */
 
 .table-action-buttons a {

@@ -14,6 +14,8 @@ from datetime import datetime
 def index():
     return render_template('frontend/index.html')
 
+
+
 # to view all tournaments
 @tournament.route('/view') #/<int:id>
 def view_tournaments():
@@ -98,9 +100,34 @@ def view_tournament(tournament_name):
 
     if response.status_code == 200:
         tournament = response.json()
-        return render_template('tournament/tournament.html', tournament=tournament, GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY, google_calendar_link=generate_google_calendar_link(tournament), outlook_calendar_link=generate_outlook_calendar_link(tournament))
+
+        # Check if the user has joined the tournament
+        jwt_cookie = request.cookies.get('jwt')
+        headers = {
+            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+        }
+
+        user_data = requests.get('http://localhost:8080/user', headers=headers)
+        if user_data.status_code == 200:
+            user_name = user_data.json().get('userName')
+            current_players = tournament.get('participatingPlayers', [])
+
+            # Check if the user is already a participant
+            user_joined = user_name in current_players
+        else:
+            user_joined = False  # Default to False if user data cannot be fetched
+
+        return render_template(
+            'tournament/tournament.html',
+            tournament=tournament,
+            GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY,
+            google_calendar_link=generate_google_calendar_link(tournament),
+            outlook_calendar_link=generate_outlook_calendar_link(tournament),
+            user_joined=user_joined  # Pass the participation status to the template
+        )
     else:
         abort(404)
+
 
 
 @tournament.route('/pairing')
@@ -207,7 +234,7 @@ def join_tournament():
     response = requests.post(api_url, headers=headers)
 
     if response.status_code == 200:
-        flash("Successfully joined tournament", "success")
+        flash(f"You have joined {tournamentName}!", "success")
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
