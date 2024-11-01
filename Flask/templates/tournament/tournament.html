@@ -53,10 +53,15 @@
 
                     {% if is_admin %}
                     <a href="#" class="bg-success btn tournament-join-btn w-100 mt-3">View Players</a>
-                    {% elif jwt_present %}
-                    <a href="{{url_for('tournament.create_player', tournamentName=tournament.tournamentName)}}"
-                        class="btn tournament-join-btn w-100 mt-3">Join Now</a>
+                {% elif jwt_present %}
+                    {% if user_joined %}
+                        <a href="#" class="btn tournament-join-btn w-100 mt-3 disabled-btn" aria-disabled="true">Already Joined</a>
+                    {% else %}
+                        <a href="{{ url_for('tournament.join_tournament', tournamentName=tournament.tournamentName) }}" class="btn tournament-join-btn w-100 mt-3">Join Now</a>
                     {% endif %}
+                {% endif %}
+
+
                 </div>
             </div>
             <br>
