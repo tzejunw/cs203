@@ -91,7 +91,7 @@ def download_ics():
     response = Response(ics_content, mimetype="text/calendar")
     response.headers["Content-Disposition"] = "attachment; filename=event.ics"
     return response
-    
+
 @tournament.route('/tournament/<string:tournament_name>')
 def view_tournament(tournament_name):
     GOOGLE_MAP_API_KEY = os.getenv('GOOGLE_MAP_API_KEY')
@@ -107,24 +107,15 @@ def view_tournament(tournament_name):
             'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
         }
 
-        # Fetch user data
         user_data = requests.get('http://localhost:8080/user', headers=headers)
         if user_data.status_code == 200:
             user_name = user_data.json().get('userName')
             current_players = tournament.get('participatingPlayers', [])
-            
+
             # Check if the user is already a participant
             user_joined = user_name in current_players
         else:
             user_joined = False  # Default to False if user data cannot be fetched
-
-        # Fetch the number of tournaments the user has joined
-        tournaments_response = requests.get(f'http://localhost:8080/tournament/get/forplayer?playerName={user_name}', headers=headers)
-        if tournaments_response.status_code == 200:
-            num_joined = len(tournaments_response.json())
-        else:
-            flash("Failed to fetch tournaments.", "danger")
-            return redirect(request.referrer)
 
         return render_template(
             'tournament/tournament.html',
@@ -132,8 +123,7 @@ def view_tournament(tournament_name):
             GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY,
             google_calendar_link=generate_google_calendar_link(tournament),
             outlook_calendar_link=generate_outlook_calendar_link(tournament),
-            user_joined=user_joined,
-            num_joined=num_joined
+            user_joined=user_joined  # Pass the participation status to the template
         )
     else:
         abort(404)
@@ -200,56 +190,45 @@ def my_tournament():
     tournaments = fetch_tournament_details(tournament_names, headers)
     return render_template('tournament/my_tournament.html', tournaments=tournaments)
    
-# FOR USER TO JOIN A TOURNAMENT
+
+# BELOW IS FOR ADDING PLAYERS TO A TOURNAMENT
 @tournament.route('/join_tournament', methods=['GET', 'POST'])
 def join_tournament():
-    # Get the tournament name from the request arguments
     tournamentName = request.args.get('tournamentName', type=str)
-
-    # Retrieve the JWT token from cookies
     jwt_cookie = request.cookies.get('jwt')
     headers = {
-        'Authorization': f'Bearer {jwt_cookie}',  # Include the JWT token in the headers
+        'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
     }
 
-    # Fetch username using the user API
+    # Fetch username
     api_url = 'http://localhost:8080/user'
     response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
         user_data = response.json()
         userName = user_data.get('userName')
-
-        # Check how many tournaments the user has joined
-        tournaments_response = requests.get(f'http://localhost:8080/tournament/get/forplayer?playerName={userName}', headers=headers)
-        if tournaments_response.status_code == 200:
-            tournament_names = tournaments_response.json()
-            # If the user has already joined a tournament, deny the request
-            if len(tournament_names) >= 1:
-                flash("You can only join one tournament at a time.", "danger")
-                return redirect(request.referrer)
-        else:
-            flash("Failed to fetch tournaments.", "danger")
-            return redirect(request.referrer)
+        print('Username: ' + userName)
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
         return redirect(request.referrer)
 
-    # Call the new API to add the user to the tournament
+    # Check if the user has already joined by calling the new API
+    # Since the new API handles the logic of checking if a user can join
     api_url = f'http://localhost:8080/tournament/player/addSelf?tournamentName={tournamentName}'
-    response = requests.post(api_url, headers=headers)  # JWT token is included in the headers
+    response = requests.post(api_url, headers=headers)
 
     if response.status_code == 200:
         flash(f"You have joined {tournamentName}!", "success")
     else:
         print("API call to join tournament failed with status code:", response.status_code)
         print("Response text:", response.text)
-        # Flash a message if joining the tournament fails
+        # You might want to flash a message if joining the tournament fails
         flash("Failed to join the tournament. Please try again.", "danger")
 
     # Stay on current page
     return redirect(request.referrer)
+
 
 
 
