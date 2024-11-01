@@ -47,8 +47,11 @@ public class TournamentService {
         this.tournamentValidator = tournamentValidator;
     }
 
-
     public String createPlayer(String tournamentName, String participatingPlayerName) throws InterruptedException, ExecutionException {
+        if (!doesTournamentNameExists(tournamentName)){
+            throw new IllegalArgumentException("The tournament does not exists.");
+        }
+
         DocumentReference playerDocRef = firestore.collection("tournament")
                                                   .document(tournamentName)
                                                   .collection("participatingPlayers")
@@ -98,21 +101,37 @@ public class TournamentService {
 
         // Get the document snapshot (representing the player's data)
         DocumentSnapshot document = playerDocRef.get().get();
-        ParticipatingPlayer participatingPlayer;
+// Gary: I recommend this change, so the problem fails early before the frontend starts wondering
+        // ParticipatingPlayer participatingPlayer;
         // Check if the document exists
-        if (document.exists()) {
-            // Return the document data as a JSON string or formatted output
-            System.out.println("Player document found");
-            participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
-        } else {
-            System.out.println("player not found");
-            participatingPlayer = new ParticipatingPlayer();
-            participatingPlayer.setPastMatches(new ArrayList<>());
+        // if (document.exists()) {
+        //     // Return the document data as a JSON string or formatted output
+        //     System.out.println("Player document found");
+        //     participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
+        // } else {
+        //     System.out.println("player not found");
+        //     participatingPlayer = new ParticipatingPlayer();
+        //     participatingPlayer.setPastMatches(new ArrayList<>());
+        // }
+// End of recommended change
+
+        // Check if the document exists
+        if (!document.exists()) {
+            throw new IllegalArgumentException("The tournament or player does not exists.");
         }
+
+        // Return the document data as a JSON string or formatted output
+        System.out.println("Player document found");
+        ParticipatingPlayer participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
+        
         return participatingPlayer;
     }
 
     public List<String> getAllPlayer(String tournamentName) throws ExecutionException, InterruptedException {
+        if (!doesTournamentNameExists(tournamentName)){
+            throw new IllegalArgumentException("The tournament does not exists.");
+        }
+        
         // Retrieve all documents from the "tournament" collection
         ApiFuture<QuerySnapshot> future = firestore.collection("tournament")
                                                     .document(tournamentName)
@@ -376,7 +395,13 @@ public class TournamentService {
             return "Tournament not found with name: " + tournament.getTournamentName();
         }
     }
-    
+
+    public Boolean doesTournamentNameExists(String tournamentName) throws InterruptedException, ExecutionException{
+        DocumentReference tournamentDocRef = firestore.collection("tournament").document(tournamentName);
+        ApiFuture<DocumentSnapshot> future = tournamentDocRef.get();
+        DocumentSnapshot document = future.get();
+        return document.exists();
+    }
 
     // For this Firebase doc, the tournamentName is the documentId.
     public String deleteTournament(String tournamentName) throws ExecutionException, InterruptedException {
