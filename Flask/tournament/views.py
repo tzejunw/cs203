@@ -14,52 +14,6 @@ from datetime import datetime
 def index():
     return render_template('frontend/index.html')
 
-# SETUP FOR joining a tournament
-# @tournament.route('/tournament/join', methods=['POST'])
-# def join_tournament():
-
-#     get the jwt token
-#     jwt_cookie = request.cookies.get('jwt')
-#     # Check if JWT cookie exists (for authentication)
-#     if not jwt_cookie:
-#       return render_template('error.html', message="You must be logged in to join a tournament"), 401
-
-#     Make a GET request to retrieve the user's username using the JWT token
-    # response = requests.get(
-    #     current_app.config['BACKEND_URL'] + "/user/get", 
-    #     headers={
-    #         "Authorization": f"Bearer {jwt_cookie}",
-    #         "Content-Type": "application/json"
-    #     }
-    # )
-
-#     tournament_name = request.form.get('tournament_name')
-#     username = request.form.get('username')  # Assuming user_id is being sent with the form
-
-#     # First, retrieve the tournament to check its current participants
-#     api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
-#     response = requests.get(api_url)
-
-#     if response.status_code == 200:
-#         tournament = response.json()
-#         if user_id not in tournament.get('participatingPlayers', []):
-#             # Add the user to the participatingPlayers list
-#             tournament['participatingPlayers'].append(username)
-#             # Update the tournament in Firebase
-#             update_url = f'http://localhost:8080/tournament/update'
-#             update_response = requests.put(update_url, json=tournament)
-
-#             if update_response.status_code == 200:
-#                 flash('You have successfully joined the tournament!', 'success')
-#             else:
-#                 flash('Error updating tournament participants. Please try again.', 'danger')
-#         else:
-#             flash('You are already participating in this tournament.', 'info')
-#     else:
-#         flash('Error finding the tournament. Please try again.', 'danger')
-
-#     return redirect(url_for('tournament.view_tournaments'))  # Redirect to the tournament listing page
-
 # to view all tournaments
 @tournament.route('/view') #/<int:id>
 def view_tournaments():
@@ -210,44 +164,57 @@ def my_tournament():
     return render_template('tournament/my_tournament.html', tournaments=tournaments)
    
 
-
-@tournament.route('/create_player', methods=['GET', 'POST'])
-def create_player():
-
-    tournamentName = request.args.get('tournamentName', type = str)
+# BELOW IS FOR ADDING PLAYERS TO A TOURNAMENT
+@tournament.route('/join_tournament', methods=['GET', 'POST'])
+def join_tournament():
+    tournamentName = request.args.get('tournamentName', type=str)
     jwt_cookie = request.cookies.get('jwt')
     headers = {
-            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
-        }
+        'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+    }
 
-    #fetch username
+    # Fetch username
     api_url = 'http://localhost:8080/user'
     response = requests.get(api_url, headers=headers)
-    
+
     if response.status_code == 200:
         user_data = response.json()
         userName = user_data.get('userName')
-        #flash("fetched name", "success")
-        print('Username: ' + user_data.get('userName'))
+        print('Username: ' + userName)
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
+        return redirect(request.referrer)
 
-    #create player
+    # Fetch tournament details to check current players
+    tournament_api_url = f'http://localhost:8080/tournament/get?tournamentName={tournamentName}'
+    tournament_response = requests.get(tournament_api_url)
+
+    if tournament_response.status_code == 200:
+        tournament_data = tournament_response.json()
+        current_players = tournament_data.get('participatingPlayers', [])
+
+        # Check if the user has already joined
+        if userName in current_players:
+            flash("You have already joined this tournament.", "warning")
+            return redirect(request.referrer)
+    else:
+        print("Failed to fetch tournament data with status code:", tournament_response.status_code)
+        return redirect(request.referrer)
+
+    # Create player if not already joined
     api_url = f'http://localhost:8080/tournament/player/create?tournamentName={tournamentName}&participatingPlayerName={userName}'
     response = requests.post(api_url, headers=headers)
 
     if response.status_code == 200:
         flash("Successfully joined tournament", "success")
-        #session['joinedTournaments'][tournamentName] = True
-        joinedTournament = True
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
-        
-    #stay on current page
+
+    # Stay on current page
     return redirect(request.referrer)
-    #return redirect(url_for('tournament.view_tournament', tournament_name=tournamentName))      
+
 
 
 # Helper functions
