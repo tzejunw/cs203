@@ -356,3 +356,54 @@ def toggle_tournament(tournament_name):
     else:
         flash("Error retrieving tournament details: " + response.text, "danger")
         return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+
+# FOR THE ADMIN TO START/END ROUND
+
+
+# Admin route to end a specific round in a tournament
+@admin.route('/end_round/<string:tournament_name>/<string:round_name>', methods=['POST'])
+def end_round(tournament_name, round_name):
+    jwt_cookie = request.cookies.get('jwt')
+    if not check_permission(jwt_cookie):
+        return render_template('errors/403.html', message="You do not have permission to end this round."), 403
+
+    # Call the Java service to end the round
+    api_url = f'http://localhost:8080/tournament/round/end?tournamentName={tournament_name}&roundName={round_name}'
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.get(api_url, headers=headers)
+
+    if response.status_code == 200:
+        flash("Round ended successfully!", "success")
+    else:
+        flash("Error ending round: " + response.text, "danger")
+
+    return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+
+
+# Admin route to start a new round in a tournament
+@admin.route('/start_round/<string:tournament_name>', methods=['POST'])
+def start_round(tournament_name):
+    jwt_cookie = request.cookies.get('jwt')
+    if not check_permission(jwt_cookie):
+        return render_template('errors/403.html', message="You do not have permission to start this round."), 403
+
+    # Call the Java service to start a new round
+    api_url = f'http://localhost:8080/tournament/round/start?tournamentName={tournament_name}'
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.get(api_url, headers=headers)
+
+    if response.status_code == 200 and response.json() is True:
+        flash("Round started successfully!", "success")
+    else:
+        flash("Error starting round: " + response.text, "danger")
+
+    return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+

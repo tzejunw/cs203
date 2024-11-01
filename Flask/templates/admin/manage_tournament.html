@@ -36,6 +36,13 @@
                     Tournament has not started.
                 {% endif %}
             </p>
+           
+            <form action="{{ url_for('admin.round_toggle', tournament_name=tournament_name) }}" method="POST">
+                <button type="submit" class="btn btn-primary w-80 mt-2">
+                    Round
+                </button>
+            </form>
+            
         </div>
 
         <!-- Current Pairings -->
