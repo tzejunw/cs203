@@ -1,38 +1,3 @@
-<<<<<<< HEAD
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/CRUDRunner.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/DemoApplicationTests.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/algo/AlgoMatch.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/algo/AlgoRound.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/algo/AlgoStandings.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/algo/AlgoTournamentPlayer.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/algo/playerComparator.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/common/FirebaseConfig.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/common/GenericCRUDService.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/image/FirestoreService.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/image/ImageController.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/image/ImageService.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Match.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/ParticipatingPlayer.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Round.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Standing.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/Tournament.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/TournamentController.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/TournamentService.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/tournament/TournamentValidator.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/EmailConfig.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/EmailService.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Exceptions/RestExceptionHandler.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Exceptions/SendEmailVerificationFailedException.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Exceptions/TooManyRequestsException.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Security/FirebaseTokenFilter.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/Security/SecurityConfig.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/UpdatePassword.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/User.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/UserController.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/UserCredentials.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/UserService.java
-/Users/cgmba/CODE/cs203/git branches/cs203/Firebase-java/demo/src/main/java/com/java/firebase/demo/user/VerifyEmail.java
-=======
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoMatch.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoRound.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\algo\AlgoStandings.java
@@ -66,4 +31,3 @@ C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\fir
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserCredentials.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\UserService.java
 C:\Users\tzeju\CS203_Project\cs203\Firebase-java\demo\src\main\java\com\java\firebase\demo\user\VerifyEmail.java
->>>>>>> a2538987c2b1b82977bf1a1df800d6336ba32a11
