@@ -21,19 +21,11 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 public class UserController {
 
-    public UserService userService;
+    private final UserService userService;
 
     public UserController(UserService userService){
         this.userService = userService;
     }
-
-    // @PostMapping("/user/masscreate") // expects a User object in body raw JSON
-    // public ResponseEntity<String> massCreateUser() throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {
-    //     for (int i = 11; i <= 30; i++){
-    //         userService.createTestUser("user" + i);
-    //     }
-    //     return ResponseEntity.ok().body("Success");
-    // }
 
     @PostMapping("/user") // expects a User object in body raw JSON
     public ResponseEntity<String> createUser(@RequestBody UserCredentials userCredentials) throws InterruptedException, ExecutionException, FirebaseAuthException, FirestoreException {

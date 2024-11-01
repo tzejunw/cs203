@@ -279,6 +279,11 @@ public class UserService {
         throw new IllegalArgumentException("User not found.");
     }
 
+    public String getUserName(String userId) throws ExecutionException, InterruptedException, Exception {
+        User user = getUser(userId);
+        return user.getUserName();
+    }
+
     public List<User> getAllUsers() throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         
