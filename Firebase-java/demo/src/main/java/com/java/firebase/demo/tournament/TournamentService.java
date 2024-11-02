@@ -863,7 +863,10 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
         if (tourney != null ){
             tourney.setInProgress(true);
-            updateTournament(tourney);
+            tourney.setCurrentRound("1");
+
+            // parseIntoAlgoRound1
+            
             List<String> players= tourney.getParticipatingPlayers();
 
             ArrayList<AlgoTournamentPlayer> playerObjs = new ArrayList<AlgoTournamentPlayer>();
@@ -876,7 +879,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
             rd1.generateRoundOne();
 
-            tourney.setCurrentRound("1");
+            
 
             Round emptyround = new Round();
             emptyround.setMatches(new ArrayList<>());
