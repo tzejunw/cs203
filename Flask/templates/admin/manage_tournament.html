@@ -15,11 +15,18 @@
             <h3 class="admin-manage-tournament-name">{{ tournament.tournamentName }}</h3>
             <p class="admin-manage-tournament-description">{{ tournament.tournamentDesc }}</p>
             <form action="{{ url_for('admin.toggle_tournament', tournament_name=tournament.tournamentName) }}" method="POST">
-                <button type="submit" 
-                        class="btn {{ 'btn-danger' if tournament.inProgress else 'btn-success' }} w-100 mt-3">
-                    {{ 'End Tournament' if tournament.inProgress else 'Start Tournament' }}
-                </button>
+                {% if tournament.players|length > 0 %}
+                    <button type="submit" 
+                            class="btn {{ 'btn-danger' if tournament.inProgress else 'btn-success' }} w-100 mt-3">
+                        {{ 'End Tournament' if tournament.inProgress else 'Start Tournament' }}
+                    </button>
+                {% else %}
+                    <button type="button" class="btn btn-secondary w-100 mt-3" disabled>
+                        Cannot Start Tournament: No Players Registered
+                    </button>
+                {% endif %}
             </form>
+            
         </div>  
     </div>
 
@@ -36,26 +43,27 @@
                     Tournament has not started.
                 {% endif %}
             </p>
-            
-            {% if round_over is none %}
-            <!-- If round_over is None, show the "Start Round" button for the next round -->
-            <form action="{{ url_for('admin.start_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
-                <button type="submit" class="btn btn-primary w-80 mt-2">Start Round</button>
-            </form>
-        {% elif not round_over %}
-            <!-- If round_over is False, show the "End Round" button to end the current round -->
-            <form action="{{ url_for('admin.end_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
-                <button type="submit" class="btn btn-primary w-80 mt-2">End Round</button>
-            </form>
-        {% else %}
-            <!-- If round_over is True, show the "Start Round" button to start a new round -->
-            <form action="{{ url_for('admin.start_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
-                <button type="submit" class="btn btn-primary w-80 mt-2">Start Round</button>
-            </form>
-        {% endif %}
-
-
+        
+            {% if tournament.inProgress %}
+                {% if round_over is none %}
+                    <!-- If round_over is None, show the "Start Round" button for the next round -->
+                    <form action="{{ url_for('admin.start_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
+                        <button type="submit" class="btn btn-primary w-80 mt-2">Start Round</button>
+                    </form>
+                {% elif not round_over %}
+                    <!-- If round_over is False, show the "End Round" button to end the current round -->
+                    <form action="{{ url_for('admin.end_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
+                        <button type="submit" class="btn btn-primary w-80 mt-2">End Round</button>
+                    </form>
+                {% else %}
+                    <!-- If round_over is True, show the "Start Round" button to start a new round -->
+                    <form action="{{ url_for('admin.start_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
+                        <button type="submit" class="btn btn-primary w-80 mt-2">Start Round</button>
+                    </form>
+                {% endif %}
+            {% endif %}
         </div>
+        
 
         <!-- Current Pairings -->
         <div class="col-md-4 mb-4">
