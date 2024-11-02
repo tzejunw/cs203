@@ -290,13 +290,17 @@ def manage_tournament(tournament_name):
             print(standings_data)
         else:
             flash("Error fetching standings data: " + standings_response.text, "danger")
+    
+    round_over = round_data.get('over') if round_data else None
 
     # Render the page with tournament, round, and standings data
     return render_template(
         'admin/manage_tournament.html', 
         tournament=tournament, 
         round=round_data,  # round_data may be None if no round is available
-        standings=standings_data  # Pass the standings data to the template
+        standings=standings_data,  # Pass the standings data to the template
+        current_round=tournament.get('currentRound'),
+        round_over=round_over # Pass in over to the template as well 
     )
 
 
