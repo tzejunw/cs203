@@ -922,6 +922,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
                 playerCurStanding.setCurMatchPts(player.getCurMatchPts());
                 playerCurStanding.setCurOGW(player.getCurOGW());
                 playerCurStanding.setCurOMW(player.getCurOMW());
+                playerCurStanding.setPlayerID(player.getPlayerID());
 
                 createStanding(tournament, Integer.parseInt(tourney.getCurrentRound())-1 + "", playerCurStanding);
 
@@ -1033,9 +1034,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         
     }
 
-    public List<Match> getRoundMatches( String tournamentName, String roundName){
 
-    }
 
 
 

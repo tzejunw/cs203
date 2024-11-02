@@ -1,9 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
 
 public class TournamentPlayer{
 
-    private List<Match> pastMatches;
+    public List<Match> pastMatches;
     private String playerID;
 
     private int curMatchPts;
@@ -21,6 +22,23 @@ public class TournamentPlayer{
         playerID = userID;
         stillPlaying = true;
 
+    }
+
+    public int numberofRepairs(){
+        int rePairs = 0;
+
+        HashSet<TournamentPlayer> playedopponents = new HashSet<TournamentPlayer>();
+
+        for (Match m : pastMatches){
+            TournamentPlayer opp = m.getP1().equals(this) ? m.getP2() : m.getP1();
+            if (playedopponents.contains(opp)){
+                rePairs++;
+            }
+            playedopponents.add(opp);
+        }
+
+    
+        return rePairs;
     }
 
     public String getUserID(){
@@ -164,7 +182,12 @@ public class TournamentPlayer{
 
     public void printmatches(){
         for (Match m : pastMatches){
-            System.out.println(m.getP1().getUserID() +" vs " + m.getP2().getUserID());
+            if (m.isBye()){
+                System.out.println("Bye");
+            }else{
+                System.out.println(m.getP1().getUserID() +" vs " + m.getP2().getUserID());
+            }
+            
         }
     }
 

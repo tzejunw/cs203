@@ -100,6 +100,8 @@ public class Testing {
 
         testRound.generateMatches(new ArrayList<Match>());
 
+        
+
         System.out.println("b4 " + testRound.getRoundMatches().size());
 
         for ( Match m : testRound.getRoundMatches()){
@@ -113,14 +115,14 @@ public class Testing {
         //     System.out.println(p.getUserID() + " - " + p.getCurMatchPts());
         // }
 
-        for ( int i =0 ; i <4; i++){
-        s = testRound.generateStandings();
-        testRound.generateMatches(new ArrayList<Match>());
+        for ( int i =0 ; i <20; i++){
+            s = testRound.generateStandings();
+            testRound.generateMatches(new ArrayList<Match>());
 
-        for ( Match m : testRound.getRoundMatches()){
-            // System.out.println(m.getP1().getUserID() + " " + m.getP1().getCurMatchPts() + " vs " + m.getP2().getUserID()+ " " + m.getP2().getCurMatchPts());
-           m.update(m.getP1(), 2, 0);
-        }
+            for ( Match m : testRound.getRoundMatches()){
+                // System.out.println(m.getP1().getUserID() + " " + m.getP1().getCurMatchPts() + " vs " + m.getP2().getUserID()+ " " + m.getP2().getCurMatchPts());
+                m.update(m.getP1(), 2, 0);
+            }
         }
 
         System.out.println("after " + testRound.getRoundMatches().size());
@@ -156,6 +158,15 @@ public class Testing {
                 System.out.println(b.get(0).getCurMatchPts() + " : " + b.size());
             }
             
+        }
+
+        int totalrepairs = 0;
+
+        for (TournamentPlayer p : players){
+            //System.out.println("player " + p.getUserID());
+            int prepairs = p.numberofRepairs();
+            //System.out.println("number of re-pairs : "+ prepairs);
+            totalrepairs += prepairs;
         }
 
         System.out.println("total downpairs: " + count);
