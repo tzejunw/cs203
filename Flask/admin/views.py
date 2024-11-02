@@ -80,7 +80,8 @@ def create_tournament():
             "location": form.location.data,
             "adminList": [],  # You might want to populate this with actual admin data
             "participatingPlayers": [],  # Initially empty
-            "rounds": None  # You might want to handle this appropriately
+            "currentRound": 0
+
         }
 
         print(f"Image file: {form.imageUrl.data}")
@@ -199,8 +200,6 @@ def update_tournament():
 
     return render_template('admin/update_tournament.html', form=form)
 
-
-
 @admin.route('/delete_tournament/<string:tournament_name>', methods=['POST'])
 def delete_tournament(tournament_name):
 
@@ -241,52 +240,64 @@ def manage_tournament(tournament_name):
     if tournament_response.status_code != 200:
         flash("Error going to tournament management page: " + tournament_response.text, "danger")
         return redirect(url_for('admin.view_tournaments'))
-    
+
     tournament = tournament_response.json()
 
     # Fetch the current round name
-    round_name = tournament.get('currentRound')  # Replace this as needed
-
+    round_name = tournament.get('currentRound')  # Retrieve the current round
     print(tournament_name, round_name)
-    
-    # Update the round API URL to include the JWT token in the headers
-    round_api_url = f'http://localhost:8080/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
-    round_headers = {
-        'Authorization': f'Bearer {jwt_cookie}'  # Include the JWT token in the headers
-    }
-    round_response = requests.get(round_api_url, headers=round_headers)  # Pass the headers
 
-    print(round_response)
+    # Initialize round_data
+    round_data = None
 
-    if round_response.status_code == 200:
-        round_data = round_response.json()
-        print(round_data)
-    else:
-        flash("Error fetching round data: " + round_response.text, "danger")
-        print('####' + round_response.text)
-        round_data = None  # Handle case where round data is unavailables
+    # Only fetch round data if round_name is valid
+    if round_name is not None:
+        # Update the round API URL to include the JWT token in the headers
+        round_api_url = f'http://localhost:8080/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
+        round_headers = {
+            'Authorization': f'Bearer {jwt_cookie}'  # Include the JWT token in the headers
+        }
+        round_response = requests.get(round_api_url, headers=round_headers)  # Pass the headers
 
-    # Fetch the standings for the current round
-    round_name_str = str(int(round_name) - 1)
-    standings_api_url = f'http://localhost:8080/tournament/round/standing/get/all?tournamentName={tournament_name}&roundName={round_name_str}'
-    standings_response = requests.get(standings_api_url, headers=round_headers)  # Use the same headers
+        if round_response.status_code == 200:
+            # Check if the response content is empty
+            if round_response.text.strip() == "":  # Check for empty response body
+                flash("Round data is empty.", "warning")
+            else:
+                try:
+                    round_data = round_response.json()  # Attempt to parse JSON
+                    if round_data is None:
+                        flash("Round data is null.", "warning")
+                    elif not isinstance(round_data, dict):  # Adjust based on expected structure
+                        flash("Invalid round data received.", "warning")
+                        round_data = None  # Set round_data to None
+                except requests.exceptions.JSONDecodeError:
+                    flash("Error decoding round data response: Invalid JSON", "danger")
+        else:
+            flash("Error fetching round data: " + round_response.text, "danger")
+            print('####' + round_response.text)
 
-    if standings_response.status_code == 200:
-        standings_data = standings_response.json()
-        print("STANDINGS DATA: ")
-        print(standings_data)
-    else:
-        flash("Error fetching standings data: " + standings_response.text, "danger")
-        standings_data = None  # Handle case where standings data is unavailable
+    # Fetch standings for the previous round if round_name is valid
+    standings_data = None
+    round_name_str = str(int(round_name) - 1) if round_name and round_name.isdigit() else None
+    if round_name_str is not None:
+        standings_api_url = f'http://localhost:8080/tournament/round/standing/get/all?tournamentName={tournament_name}&roundName={round_name_str}'
+        standings_response = requests.get(standings_api_url, headers=round_headers)  # Use the same headers
+
+        if standings_response.status_code == 200:
+            standings_data = standings_response.json()
+            print("STANDINGS DATA: ")
+            print(standings_data)
+        else:
+            flash("Error fetching standings data: " + standings_response.text, "danger")
 
     # Render the page with tournament, round, and standings data
     return render_template(
         'admin/manage_tournament.html', 
         tournament=tournament, 
-        round=round_data,
+        round=round_data,  # round_data may be None if no round is available
         standings=standings_data  # Pass the standings data to the template
     )
-
 
 
 # FOR THE ADMIN TO START THE TOURNAMENT
@@ -359,6 +370,7 @@ def toggle_tournament(tournament_name):
 
 # FOR THE ADMIN TO START/END ROUND
 
+
 # Admin route to end a specific round in a tournament
 @admin.route('/end_round/<string:tournament_name>/<string:round_name>', methods=['POST'])
 def end_round(tournament_name, round_name):
@@ -406,3 +418,75 @@ def start_round(tournament_name):
 
     return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
 
+@admin.route('/toggle_round/<string:tournament_name>', methods=['POST'])
+def toggle_round(tournament_name):
+    jwt_cookie = request.cookies.get('jwt')
+    if not check_permission(jwt_cookie):
+        return render_template('errors/403.html', message="You do not have permission to toggle this round."), 403
+
+    # Fetch the tournament details to check the current round name
+    tournament_api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    tournament_response = requests.get(tournament_api_url)
+
+    if tournament_response.status_code != 200:
+        flash("Error fetching tournament details: " + tournament_response.text, "danger")
+        return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+
+    tournament = tournament_response.json()
+    
+    # Check if tournament data is valid
+    if tournament is None or not isinstance(tournament, dict):
+        flash("Invalid tournament data received.", "danger")
+        return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+
+    round_name = tournament.get('currentRound')  # Retrieve the current round name
+
+    # Check if round_name is None or empty
+    if round_name is None or round_name == '':
+        flash("No current round to toggle.", "warning")
+        return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+
+    # Fetch the round details to check if it's over
+    get_round_url = f'http://localhost:8080/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',
+        'Content-Type': 'application/json'
+    }
+
+    round_response = requests.get(get_round_url, headers=headers)
+
+    # Check if the round response is valid
+    if round_response.status_code == 200:
+        try:
+            round_data = round_response.json()
+            if round_data is None:  # Check if round_data is None
+                flash("No round data found.", "warning")
+                return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+        except requests.exceptions.JSONDecodeError:
+            flash("Error: Received an invalid JSON response from the server.", "danger")
+            return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
+
+        is_over = round_data.get("over", False)
+
+        # Determine the appropriate action based on the current status
+        if is_over:
+            # Call the end_round method if the round is already in progress
+            end_round_url = f'http://localhost:8080/tournament/round/end?tournamentName={tournament_name}&roundName={round_name}'
+            action_response = requests.get(end_round_url, headers=headers)
+            if action_response.status_code == 200:
+                flash("Round ended successfully!", "success")
+            else:
+                flash("Error ending round: " + action_response.text, "danger")
+        else:
+            # Call the start_round method if the round is not in progress
+            start_round_url = f'http://localhost:8080/tournament/round/start?tournamentName={tournament_name}&roundName={round_name}'  # Include round_name
+            action_response = requests.get(start_round_url, headers=headers)
+            if action_response.status_code == 200 and action_response.json() is True:
+                flash("Round started successfully!", "success")
+            else:
+                flash("Error starting round: " + action_response.text, "danger")
+    else:
+        flash("Error fetching round status: " + round_response.text, "danger")
+
+    # Redirect back to the manage tournament page
+    return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
