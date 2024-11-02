@@ -103,6 +103,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+			<docker>
+				<host>//./pipe/dockerDesktopLinuxEngine</host>
+			</docker>
+			<image>
+			<builder>paketobuildpacks/builder:base</builder>
+			<runImage>paketobuildpacks/run:base-cnb</runImage>
+			</image>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
