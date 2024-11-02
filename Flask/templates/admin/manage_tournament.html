@@ -15,16 +15,21 @@
             <h3 class="admin-manage-tournament-name">{{ tournament.tournamentName }}</h3>
             <p class="admin-manage-tournament-description">{{ tournament.tournamentDesc }}</p>
             <form action="{{ url_for('admin.toggle_tournament', tournament_name=tournament.tournamentName) }}" method="POST">
-                {% if tournament.players|length > 0 %}
+                {% if tournament.participatingPlayers|length > 1 %}
                     <button type="submit" 
                             class="btn {{ 'btn-danger' if tournament.inProgress else 'btn-success' }} w-100 mt-3">
                         {{ 'End Tournament' if tournament.inProgress else 'Start Tournament' }}
+                    </button>
+                {% elif tournament.participatingPlayers|length == 1 %}
+                    <button type="button" class="btn btn-secondary w-100 mt-3" disabled>
+                        Cannot Start Tournament: Insufficient Players
                     </button>
                 {% else %}
                     <button type="button" class="btn btn-secondary w-100 mt-3" disabled>
                         Cannot Start Tournament: No Players Registered
                     </button>
                 {% endif %}
+
             </form>
             
         </div>  

@@ -262,7 +262,7 @@ def manage_tournament(tournament_name):
         if round_response.status_code == 200:
             # Check if the response content is empty
             if round_response.text.strip() == "":  # Check for empty response body
-                flash("Round data is empty.", "warning")
+                round_data = None
             else:
                 try:
                     round_data = round_response.json()  # Attempt to parse JSON
