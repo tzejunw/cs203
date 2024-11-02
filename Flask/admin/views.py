@@ -359,7 +359,6 @@ def toggle_tournament(tournament_name):
 
 # FOR THE ADMIN TO START/END ROUND
 
-
 # Admin route to end a specific round in a tournament
 @admin.route('/end_round/<string:tournament_name>/<string:round_name>', methods=['POST'])
 def end_round(tournament_name, round_name):

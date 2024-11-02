@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash
 import requests
 from flask import jsonify
 from datetime import datetime
+import json
 
 @tournament.route('/')
 def index():
@@ -189,7 +190,6 @@ def my_tournament():
     # Fetch tournament details for each tournament name
     tournaments = fetch_tournament_details(tournament_names, headers)
     return render_template('tournament/my_tournament.html', tournaments=tournaments)
-   
 
 # BELOW IS FOR ADDING PLAYERS TO A TOURNAMENT
 @tournament.route('/join_tournament', methods=['GET', 'POST'])
@@ -207,14 +207,55 @@ def join_tournament():
     if response.status_code == 200:
         user_data = response.json()
         userName = user_data.get('userName')
-        print('Username: ' + userName)
+        print('Username:', userName)
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
         return redirect(request.referrer)
 
-    # Check if the user has already joined by calling the new API
-    # Since the new API handles the logic of checking if a user can join
+    # Fetch existing tournament names for the user
+    existing_tournaments_url = f'http://localhost:8080/tournament/get/forplayer?playerName={userName}'
+    existing_tournaments_response = requests.get(existing_tournaments_url, headers=headers)
+
+    if existing_tournaments_response.status_code == 200:
+        existing_tournament_names = existing_tournaments_response.json()
+        print("Existing tournament names:", existing_tournament_names)  # Debug: Print existing tournament names
+    else:
+        print("Failed to fetch existing tournaments:", existing_tournaments_response.text)
+        return redirect(request.referrer)
+
+    # Fetch new tournament details
+    new_tournament_url = f'http://localhost:8080/tournament/get?tournamentName={tournamentName}'
+    new_tournament_response = requests.get(new_tournament_url, headers=headers)
+
+    if new_tournament_response.status_code == 200:
+        new_tournament = new_tournament_response.json()
+        new_start_date = datetime.strptime(new_tournament["startDate"], "%Y-%m-%d")
+        new_end_date = datetime.strptime(new_tournament["endDate"], "%Y-%m-%d")
+
+        # Check for overlaps with existing tournaments
+        for existing_name in existing_tournament_names:
+            # Fetch full details for each existing tournament
+            existing_tournament_url = f'http://localhost:8080/tournament/get?tournamentName={existing_name}'
+            existing_tournament_response = requests.get(existing_tournament_url, headers=headers)
+
+            if existing_tournament_response.status_code == 200:
+                existing_tournament = existing_tournament_response.json()
+                existing_start_date = datetime.strptime(existing_tournament["startDate"], "%Y-%m-%d")
+                existing_end_date = datetime.strptime(existing_tournament["endDate"], "%Y-%m-%d")
+
+                # Check if the new tournament overlaps with any existing tournament
+                if (new_start_date <= existing_end_date) and (new_end_date >= existing_start_date):
+                    flash("You cannot join this tournament because it overlaps with an existing tournament.", "danger")
+                    return redirect(request.referrer)
+            else:
+                print(f"Failed to fetch details for tournament {existing_name}: {existing_tournament_response.text}")
+
+    else:
+        print("Failed to fetch the new tournament:", new_tournament_response.text)
+        return redirect(request.referrer)
+
+    # If no overlap is detected, proceed to join the tournament
     api_url = f'http://localhost:8080/tournament/player/addSelf?tournamentName={tournamentName}'
     response = requests.post(api_url, headers=headers)
 
@@ -223,12 +264,10 @@ def join_tournament():
     else:
         print("API call to join tournament failed with status code:", response.status_code)
         print("Response text:", response.text)
-        # You might want to flash a message if joining the tournament fails
         flash("Failed to join the tournament. Please try again.", "danger")
 
     # Stay on current page
     return redirect(request.referrer)
-
 
 
 
@@ -262,4 +301,3 @@ def fetch_tournament_details(tournament_names, headers):
         except Exception as e:
             print(f"Error fetching tournament details for {name}: {e}")
     return tournaments
-
