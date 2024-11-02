@@ -3,6 +3,7 @@ package com.java.firebase.demo.tournament;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -444,6 +445,58 @@ public class TournamentServiceTest {
     }
 
     @Test
+    void isTournamentInProgress_WithInProgressTournament_ReturnsTrue() throws ExecutionException, InterruptedException {
+        // Arrange
+        String tournamentName = "SampleTournament";
+        
+        Tournament tournament = new Tournament();
+        tournament.setInProgress(true); // Set tournament to "in-progress" state
+
+        doReturn(tournament).when(tournamentService).getTournament(tournamentName);
+
+        // Act
+        boolean result = tournamentService.isTournamentInProgress(tournamentName);
+
+        // Assert
+        assertEquals(true, result);
+        verify(tournamentService, times(1)).getTournament(tournamentName);
+    }
+
+    @Test
+    void isTournamentInProgress_WithNotInProgressTournament_ReturnsFalse() throws ExecutionException, InterruptedException {
+        // Arrange
+        String tournamentName = "SampleTournament";
+        
+        Tournament tournament = new Tournament();
+        tournament.setInProgress(false); // Set tournament to "not in-progress" state
+
+        doReturn(tournament).when(tournamentService).getTournament(tournamentName);
+        // Act
+        boolean result = tournamentService.isTournamentInProgress(tournamentName);
+
+        // Assert
+        assertEquals(false, result);
+        verify(tournamentService, times(1)).getTournament(tournamentName);
+    }
+
+@Test
+void isTournamentInProgress_WithNullTournament_ThrowsException() throws ExecutionException, InterruptedException {
+    // Arrange
+    String tournamentName = "NonExistingTournament";
+
+    // Mock getTournament to return null
+    doReturn(null).when(tournamentService).getTournament(tournamentName);
+
+    // Act & Assert
+    assertThrows(NoSuchElementException.class, () -> {
+        tournamentService.isTournamentInProgress(tournamentName);
+    });
+
+    // Verify that getTournament was called
+    verify(tournamentService, times(1)).getTournament(tournamentName);
+}
+
+    @Test
     void createRound_WithMatches_ReturnsSuccessMessage() throws ExecutionException, InterruptedException {
         // Arrange
         String tournamentName = "SampleTournament";
@@ -701,7 +754,7 @@ public class TournamentServiceTest {
         // Mock the getTournament method to return the mock tournament
         doReturn(tournament).when(tournamentService).getTournament(tournamentName);
         doReturn("Tournament Updated").when(tournamentService).updateTournament(tournament);
-        
+        when(tournamentService.isTournamentInProgress(tournamentName)).thenReturn(true);
         // Act
         String result = tournamentService.roundEnd(tournamentName, roundName);
 

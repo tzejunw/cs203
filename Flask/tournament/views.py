@@ -1,63 +1,20 @@
 import os
 from . import tournament
 
-from flask import Flask, flash, render_template, request, redirect, session, url_for
+from flask import Flask, abort, flash, render_template, request, redirect, session, url_for, Response
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField ,SubmitField 
 from wtforms.validators import InputRequired
 from werkzeug.security import generate_password_hash 
 import requests
 from flask import jsonify
+from datetime import datetime
 
 @tournament.route('/')
 def index():
     return render_template('frontend/index.html')
 
-# SETUP FOR joining a tournament
-# @tournament.route('/tournament/join', methods=['POST'])
-# def join_tournament():
 
-#     get the jwt token
-#     jwt_cookie = request.cookies.get('jwt')
-#     # Check if JWT cookie exists (for authentication)
-#     if not jwt_cookie:
-#       return render_template('error.html', message="You must be logged in to join a tournament"), 401
-
-#     Make a GET request to retrieve the user's username using the JWT token
-    # response = requests.get(
-    #     current_app.config['BACKEND_URL'] + "/user/get", 
-    #     headers={
-    #         "Authorization": f"Bearer {jwt_cookie}",
-    #         "Content-Type": "application/json"
-    #     }
-    # )
-
-#     tournament_name = request.form.get('tournament_name')
-#     username = request.form.get('username')  # Assuming user_id is being sent with the form
-
-#     # First, retrieve the tournament to check its current participants
-#     api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
-#     response = requests.get(api_url)
-
-#     if response.status_code == 200:
-#         tournament = response.json()
-#         if user_id not in tournament.get('participatingPlayers', []):
-#             # Add the user to the participatingPlayers list
-#             tournament['participatingPlayers'].append(username)
-#             # Update the tournament in Firebase
-#             update_url = f'http://localhost:8080/tournament/update'
-#             update_response = requests.put(update_url, json=tournament)
-
-#             if update_response.status_code == 200:
-#                 flash('You have successfully joined the tournament!', 'success')
-#             else:
-#                 flash('Error updating tournament participants. Please try again.', 'danger')
-#         else:
-#             flash('You are already participating in this tournament.', 'info')
-#     else:
-#         flash('Error finding the tournament. Please try again.', 'danger')
-
-#     return redirect(url_for('tournament.view_tournaments'))  # Redirect to the tournament listing page
 
 # to view all tournaments
 @tournament.route('/view') #/<int:id>
@@ -68,6 +25,73 @@ def view_tournaments():
 
     return render_template('tournament/tournaments.html', tournaments = tournaments)
 
+def generate_google_calendar_link(tournament):
+    start_date_obj = datetime.strptime(tournament["startDate"], "%Y-%m-%d")
+    start_date = start_date_obj.strftime("%Y%m%d")
+
+    end_date_obj = datetime.strptime(tournament["endDate"], "%Y-%m-%d")
+    end_date = end_date_obj.strftime("%Y%m%d")
+
+    return (
+        "https://calendar.google.com/calendar/render?action=TEMPLATE"
+        f"&text={tournament["tournamentName"]}"
+        f"&dates={start_date}/{end_date}"
+        f"&details={tournament["tournamentDesc"]}"
+        f"&location={tournament["location"]}"
+    )
+
+def generate_outlook_calendar_link(tournament):
+    start_date_obj = datetime.strptime(tournament["startDate"], "%Y-%m-%d")
+    start_date = start_date_obj.strftime("%Y-%m-%dT00:00:00Z")
+
+    end_date_obj = datetime.strptime(tournament["endDate"], "%Y-%m-%d")
+    end_date = end_date_obj.strftime("%Y-%m-%dT00:00:00Z")
+
+    return (
+        "https://outlook.live.com/calendar/0/deeplink/compose?"
+        f"subject={tournament["tournamentName"]}"
+        f"&startdt={start_date}"
+        f"&enddt={end_date}"
+        f"&body={tournament["tournamentDesc"]}"
+        f"&location={tournament["location"]}"
+    )
+
+@tournament.route('/download_ics')
+def download_ics():
+    start_date_str = request.args.get('startDate')
+    end_date_str = request.args.get('endDate')
+    tournamentName = request.args.get('tournamentName')
+    tournamentDesc = request.args.get('tournamentDesc')
+    location = request.args.get('location')
+
+    if start_date_str is None or end_date_str is None or location is None or tournamentName is None or tournamentDesc is None:
+        abort(404)
+    
+    start_date_obj = datetime.strptime(start_date_str, "%Y-%m-%d")
+    start_date = start_date_obj.strftime("%Y%m%d")
+
+    end_date_obj = datetime.strptime(request.args.get('endDate'), "%Y-%m-%d")
+    end_date = end_date_obj.strftime("%Y%m%d")
+    
+    # Create the .ics file content
+    ics_content = f"""BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//Magic The Gathering//Arena//EN
+    BEGIN:VEVENT
+    SUMMARY:{tournamentName}
+    DTSTART:{start_date}
+    DTEND:{end_date}
+    DESCRIPTION:{tournamentDesc}
+    LOCATION:{location}
+    END:VEVENT
+    END:VCALENDAR
+    """
+
+    # Serve the file as an attachment
+    response = Response(ics_content, mimetype="text/calendar")
+    response.headers["Content-Disposition"] = "attachment; filename=event.ics"
+    return response
+
 @tournament.route('/tournament/<string:tournament_name>')
 def view_tournament(tournament_name):
     GOOGLE_MAP_API_KEY = os.getenv('GOOGLE_MAP_API_KEY')
@@ -76,9 +100,34 @@ def view_tournament(tournament_name):
 
     if response.status_code == 200:
         tournament = response.json()
-        return render_template('tournament/tournament.html', tournament=tournament, GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY)
+
+        # Check if the user has joined the tournament
+        jwt_cookie = request.cookies.get('jwt')
+        headers = {
+            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+        }
+
+        user_data = requests.get('http://localhost:8080/user', headers=headers)
+        if user_data.status_code == 200:
+            user_name = user_data.json().get('userName')
+            current_players = tournament.get('participatingPlayers', [])
+
+            # Check if the user is already a participant
+            user_joined = user_name in current_players
+        else:
+            user_joined = False  # Default to False if user data cannot be fetched
+
+        return render_template(
+            'tournament/tournament.html',
+            tournament=tournament,
+            GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY,
+            google_calendar_link=generate_google_calendar_link(tournament),
+            outlook_calendar_link=generate_outlook_calendar_link(tournament),
+            user_joined=user_joined  # Pass the participation status to the template
+        )
     else:
-        return render_template('error.html', message="Tournament not found"), 404
+        abort(404)
+
 
 
 @tournament.route('/pairing')
@@ -142,44 +191,45 @@ def my_tournament():
     return render_template('tournament/my_tournament.html', tournaments=tournaments)
    
 
-
-@tournament.route('/create_player', methods=['GET', 'POST'])
-def create_player():
-
-    tournamentName = request.args.get('tournamentName', type = str)
+# BELOW IS FOR ADDING PLAYERS TO A TOURNAMENT
+@tournament.route('/join_tournament', methods=['GET', 'POST'])
+def join_tournament():
+    tournamentName = request.args.get('tournamentName', type=str)
     jwt_cookie = request.cookies.get('jwt')
     headers = {
-            'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
-        }
+        'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+    }
 
-    #fetch username
+    # Fetch username
     api_url = 'http://localhost:8080/user'
     response = requests.get(api_url, headers=headers)
-    
+
     if response.status_code == 200:
         user_data = response.json()
         userName = user_data.get('userName')
-        #flash("fetched name", "success")
-        print('Username: ' + user_data.get('userName'))
+        print('Username: ' + userName)
     else:
         print("API call failed with status code:", response.status_code)
         print("Response text:", response.text)
+        return redirect(request.referrer)
 
-    #create player
-    api_url = f'http://localhost:8080/tournament/player/create?tournamentName={tournamentName}&participatingPlayerName={userName}'
+    # Check if the user has already joined by calling the new API
+    # Since the new API handles the logic of checking if a user can join
+    api_url = f'http://localhost:8080/tournament/player/addSelf?tournamentName={tournamentName}'
     response = requests.post(api_url, headers=headers)
 
     if response.status_code == 200:
-        flash("Successfully joined tournament", "success")
-        #session['joinedTournaments'][tournamentName] = True
-        joinedTournament = True
+        flash(f"You have joined {tournamentName}!", "success")
     else:
-        print("API call failed with status code:", response.status_code)
+        print("API call to join tournament failed with status code:", response.status_code)
         print("Response text:", response.text)
-        
-    #stay on current page
+        # You might want to flash a message if joining the tournament fails
+        flash("Failed to join the tournament. Please try again.", "danger")
+
+    # Stay on current page
     return redirect(request.referrer)
-    #return redirect(url_for('tournament.view_tournament', tournament_name=tournamentName))      
+
+
 
 
 # Helper functions
@@ -212,3 +262,4 @@ def fetch_tournament_details(tournament_names, headers):
         except Exception as e:
             print(f"Error fetching tournament details for {name}: {e}")
     return tournaments
+

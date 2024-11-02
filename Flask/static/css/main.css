@@ -19240,6 +19240,14 @@ table.career tr td img {
   z-index: 1;
 }
 
+.disabled-btn {
+    background-color: #d3d3d3; /* Grey background */
+    color: #a9a9a9; /* Dark grey text */
+    cursor: not-allowed; /* Change cursor to indicate it's disabled */
+    pointer-events: none; /* Prevent clicking */
+}
+
+
 /* ADMIN VIEW TOURNAMENTS CSS */
 
 .table-action-buttons a {
@@ -19580,3 +19588,44 @@ table.career tr td img {
   background-color: lightgray;
 }
 
+/* CSS for admin tournament */
+
+#tournamentTableBody tr {
+  cursor: pointer; /* Shows clickable icon */
+  transition: background-color 0.2s ease; /* Smooth transition */
+}
+
+#tournamentTableBody tr:hover {
+  background-color: #f0f0f0; /* Light grey highlight on hover */
+}
+
+/* CSS for admin manage tournament */
+
+.admin-manage-tournament-container {
+  padding-top: 20px;
+}
+
+.admin-manage-tournament-title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.admin-manage-tournament-start-btn {
+  padding: 10px;
+  font-size: 1.2rem;
+}
+
+.admin-manage-tournament-section-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.admin-manage-tournament-info {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.admin-manage-tournament-players {
+  max-height: 300px;
+  overflow-y: auto;
+}

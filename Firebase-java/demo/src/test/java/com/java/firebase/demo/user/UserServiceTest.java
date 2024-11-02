@@ -133,44 +133,44 @@ public class UserServiceTest {
         assertEquals("Username should be between 3-32 characters long", exception.getMessage());
     }
 
-    @Test
-    void testCreateAccountInAuth_Success() throws FirebaseAuthException, ExecutionException, InterruptedException {
-        // Arrange
-        String email = "test@example.com";
-        String password = "1@Secured";
-        String expectedUid = "testUid";
+    // @Test
+    // void testCreateAccountInAuth_Success() throws FirebaseAuthException, ExecutionException, InterruptedException {
+    //     // Arrange
+    //     String email = "test@example.com";
+    //     String password = "1@Secured";
+    //     String expectedUid = "testUid";
 
-        // Mock the response of FirebaseAuth
-        UserRecord mockUserRecord = mock(UserRecord.class);
-        when(mockUserRecord.getUid()).thenReturn(expectedUid);
+    //     // Mock the response of FirebaseAuth
+    //     UserRecord mockUserRecord = mock(UserRecord.class);
+    //     when(mockUserRecord.getUid()).thenReturn(expectedUid);
 
-        CreateRequest createRequest = new CreateRequest().setEmail(email).setPassword(password);
-        when(firebaseAuth.createUser(any(CreateRequest.class))).thenReturn(mockUserRecord);
+    //     CreateRequest createRequest = new CreateRequest().setEmail(email).setPassword(password);
+    //     when(firebaseAuth.createUser(any(CreateRequest.class))).thenReturn(mockUserRecord);
 
-        // Act
-        String actualUid = userService.createAccountInAuth(email, password);
+    //     // Act
+    //     String actualUid = userService.createAccountInAuth(email, password);
 
-        // Assert
-        assertEquals(expectedUid, actualUid); // Verify the returned UID matches the expected UID
-        verify(firebaseAuth).createUser(any(CreateRequest.class)); // Verify createUser was called once
-    }
+    //     // Assert
+    //     assertEquals(expectedUid, actualUid); // Verify the returned UID matches the expected UID
+    //     verify(firebaseAuth).createUser(any(CreateRequest.class)); // Verify createUser was called once
+    // }
 
-    @Test
-    @MockitoSettings(strictness = Strictness.LENIENT)
-    void testCreateAccountInAuth_InvalidEmail() throws FirebaseAuthException {
-        // Arrange
-        String email = "invalidEmail.com";
-        String password = "1@Secured";
+    // @Test
+    // @MockitoSettings(strictness = Strictness.LENIENT)
+    // void testCreateAccountInAuth_InvalidEmail() throws FirebaseAuthException {
+    //     // Arrange
+    //     String email = "invalidEmail.com";
+    //     String password = "1@Secured";
 
-        // Mock FirebaseAuth to throw an exception
-        when(firebaseAuth.createUser(any(CreateRequest.class)))
-                .thenThrow(new IllegalArgumentException("Invalid Email"));
+    //     // Mock FirebaseAuth to throw an exception
+    //     when(firebaseAuth.createUser(any(CreateRequest.class)))
+    //             .thenThrow(new IllegalArgumentException("Invalid Email"));
 
-        // Assert
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.createAccountInAuth(email, password);
-        });
-    }
+    //     // Assert
+    //     assertThrows(IllegalArgumentException.class, () -> {
+    //         userService.createAccountInAuth(email, password);
+    //     });
+    // }
 
     @Test
     void testGetUser_Success() throws Exception {

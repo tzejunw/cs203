@@ -1,6 +1,5 @@
 package com.java.firebase.demo.tournament;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.http.ResponseEntity;
@@ -13,13 +12,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.firebase.auth.FirebaseAuthException;
+import com.java.firebase.demo.user.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 public class TournamentController {
 
     private final TournamentService tournamentService;
+    private final UserService userService;
 
-    public TournamentController(TournamentService tournamentService) {
+    public TournamentController(TournamentService tournamentService, UserService userService) {
         this.tournamentService = tournamentService;
+        this.userService = userService;
     }
 
     @PostMapping("/tournament/create")
@@ -27,9 +33,18 @@ public class TournamentController {
         return tournamentService.createTournament(tournament);
     }
 
+    // For admin only
     @PostMapping("/tournament/player/create")
     public String createPlayer(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
         return tournamentService.createPlayer(tournamentName, participatingPlayerName);
+    }
+
+    // For players
+    @PostMapping("/tournament/player/addSelf")
+    public String selfAddToTournament(@RequestParam String tournamentName, HttpServletRequest request) throws Exception {
+        String userId = userService.getIdToken(request.getHeader("Authorization"));
+        String userName = userService.getUserName(userId);
+        return tournamentService.createPlayer(tournamentName, userName);
     }
 
     @PostMapping("/tournament/player/updatematch")
@@ -52,9 +67,18 @@ public class TournamentController {
         return tournamentService.getPlayerPastMatches(tournamentName, participatingPlayerName);
     }   
     
+    // For admin only.
     @DeleteMapping("/tournament/player/delete") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
     public String deletePlayer(@RequestParam String tournamentName, @RequestParam String participatingPlayerName) throws InterruptedException, ExecutionException {
         return tournamentService.deletePlayer(tournamentName, participatingPlayerName);
+    }
+
+    // For players.
+    @DeleteMapping("/tournament/player/removeSelf") // documentId is the user's tournamentName. The argument here determines what it expects as the key in Postman
+    public String removeSelfFromTournament(@RequestParam String tournamentName, HttpServletRequest request) throws InterruptedException, ExecutionException, FirebaseAuthException, Exception {
+        String userId = userService.getIdToken(request.getHeader("Authorization"));
+        String userName = userService.getUserName(userId);
+        return tournamentService.deletePlayer(tournamentName, userName);
     }
 
     @PostMapping("/tournament/start")

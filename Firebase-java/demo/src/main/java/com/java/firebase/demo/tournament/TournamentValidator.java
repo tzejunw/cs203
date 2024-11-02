@@ -26,6 +26,7 @@ public class TournamentValidator {
 
     public TournamentValidator(Firestore firestore) {
         this.firestore = firestore;
+
     }
 
     public static boolean isValidDate(String dateStr) {
@@ -120,6 +121,8 @@ public class TournamentValidator {
         return true;
     }
 
+}
+
 
     
-}
+
