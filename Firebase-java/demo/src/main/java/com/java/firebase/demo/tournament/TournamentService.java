@@ -504,6 +504,30 @@ public class TournamentService {
     
     // round itself has no fields so no need update
 
+    public String updateRound(String tournamentName, Round round) throws ExecutionException, InterruptedException {
+        
+        String roundName = round.getRoundName();
+        System.out.println("getRound starting");
+        System.out.println("arguments are " + tournamentName + ", " + roundName);
+        
+        DocumentReference documentReference = firestore.collection("tournament")
+                                                         .document(tournamentName)
+                                                         .collection("round")
+                                                         .document(roundName);
+    
+        ApiFuture<DocumentSnapshot> future = documentReference.get();
+        DocumentSnapshot document = future.get();
+
+        if (document.exists()) {
+            // Document exists, proceed with the update
+            ApiFuture<WriteResult> collectionsApiFuture = documentReference.set(round, SetOptions.merge()); // Update only new values
+            return "Round updated at: " + collectionsApiFuture.get().getUpdateTime().toString();
+        } else {
+            return "Tournament not found with name: " + roundName;
+        }
+
+    }
+
     public String deleteRound(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
         // Get a reference to the round document
         DocumentReference roundDocRef = firestore.collection("tournament")
@@ -555,9 +579,23 @@ public class TournamentService {
         }
         
         Tournament tournament = getTournament(tournamentName);
+        
+
+
         if (tournament != null){
 
-            tournament.setCurrentRound(Integer.parseInt(tournament.getCurrentRound())+1 + "");
+            String curRound = tournament.getCurrentRound();
+            Round roundToEnd = getRound(tournamentName, roundName);
+
+            if (roundToEnd == null){
+                return "Round not found";
+            }
+            
+            roundToEnd.setOver(true);
+
+            updateRound(tournamentName, roundToEnd);
+            
+            tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
 
             updateTournament(tournament);
 
@@ -1094,7 +1132,9 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         
     }
 
+    // public List<Match> getRoundMatches( String tournamentName, String roundName){
 
+    // }
 
 
 

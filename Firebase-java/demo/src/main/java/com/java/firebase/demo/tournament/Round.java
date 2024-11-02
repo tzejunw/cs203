@@ -15,6 +15,7 @@ public class Round {
     private String roundName;
     private List<Match> matches;
     private List<Standing> standings;
+    private boolean isOver;
 
     public Round(String roundName) {
         this.roundName = roundName;
