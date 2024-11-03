@@ -269,7 +269,44 @@ def join_tournament():
     # Stay on current page
     return redirect(request.referrer)
 
+@tournament.route('/leave_tournament', methods=['POST'])
+def leave_tournament():
+    tournamentName = request.args.get('tournamentName', type=str)
+    jwt_cookie = request.cookies.get('jwt')
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',
+        'Content-Type': 'application/json'
+    }
 
+    api_url = f'http://localhost:8080/tournament/player/removeSelf?tournamentName={tournamentName}'
+    response = requests.delete(api_url, headers=headers)
+
+    print("Response Status Code:", response.status_code)
+    print("Response Content:", response.text)
+
+    # Handle response
+    if response.status_code == 200 or response.status_code == 204:
+
+        #get existing tournaments for user
+        user_response = requests.get('http://localhost:8080/user', headers=headers)
+        userName = user_response.json().get('userName')
+        existing_tournaments_url = f'http://localhost:8080/tournament/get/forplayer?playerName={userName}'
+        existing_tournaments_response = requests.get(existing_tournaments_url, headers=headers).json()
+        #print(existing_tournaments_response)
+
+        if(existing_tournaments_response):
+            #if user still have existing tournaments
+            flash(f"Left tournament!", "success")
+            return redirect(request.referrer)
+        else:
+            #if user has no existing tournaments left(e.g, he's leaving his one and only tournament)
+            flash(f"Left tournament!", "success")
+            return redirect(url_for('tournament.view_tournaments')) 
+    else:
+        flash("Error leaving tournament: " + response.text, "danger")
+        return redirect(request.referrer)
+
+    
 
 # Helper functions
 def fetch_user_and_tournaments(headers):
