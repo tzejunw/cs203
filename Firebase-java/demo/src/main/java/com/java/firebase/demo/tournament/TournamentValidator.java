@@ -1,23 +1,23 @@
 package com.java.firebase.demo.tournament;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.firebase.cloud.FirestoreClient;
-import io.github.cdimascio.dotenv.Dotenv;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import com.google.common.base.Strings;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.ExecutionException;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreException;
+import com.google.common.base.Strings;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @Service
 public class TournamentValidator {
@@ -65,32 +65,48 @@ public class TournamentValidator {
     }
 
     public boolean isValidAddress(String address) {
-        Dotenv dotenv = Dotenv.load();
-        String map_api_key = dotenv.get("GOOGLE_MAP_API_KEY");
-        String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + map_api_key;
-
+        final String GOOGLE_MAP_API_KEY = loadApiKey();
+        // Build the URL for the Google Maps Geocoding API request
+        String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + GOOGLE_MAP_API_KEY;
+    
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String responseBody = response.getBody();
-                
-                if (responseBody != null) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonNode json = mapper.readTree(responseBody);
-                    String status = json.get("status").asText();
-
-                    // Check if the status is OK, indicating the address is valid
-                    System.out.println("OK".equals(status));
-                    return "OK".equals(status);
-                }
-            }
+            // Fetch the response from the Geocoding API
+            ResponseEntity<String> response = fetchGeocodeResponse(url);
+            // Check if the response indicates a valid address
+            return isResponseValid(response);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return false;
+    }
+
+    private String loadApiKey() {
+        // Load the Google Maps API key from environment variables
+        Dotenv dotenv = Dotenv.load();
+        return dotenv.get("GOOGLE_MAP_API_KEY");
+    }
+    
+    private ResponseEntity<String> fetchGeocodeResponse(String url) {
+        // Use RestTemplate to send a GET request to the provided URL and retrieve the response
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForEntity(url, String.class);
+    }
+    
+    private boolean isResponseValid(ResponseEntity<String> response) throws Exception {
+        // Check if the response code indicates success (2xx) and has a body
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            return isStatusOk(response.getBody());
+        }
+        return false;
+    }
+    
+    private boolean isStatusOk(String responseBody) throws Exception {
+        // Parse the JSON response body
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.readTree(responseBody);
+        // Extract the "status" field and check if it's "OK"
+        String status = json.get("status").asText();
+        return "OK".equals(status);
     }
 
     public boolean isTournamentValid(Tournament tournament) throws IllegalArgumentException, InterruptedException, ExecutionException, FirestoreException {
@@ -109,9 +125,6 @@ public class TournamentValidator {
         if (Strings.isNullOrEmpty(tournament.getTournamentDesc())){
             throw new IllegalArgumentException("Tournament description should not be empty");
         }
-        // if (Strings.isNullOrEmpty(tournament.getImageUrl())){
-        //     throw new IllegalArgumentException("Image should not be empty");
-        // }
         if (Strings.isNullOrEmpty(tournament.getLocation()) || !isValidAddress(tournament.getLocation())){
             throw new IllegalArgumentException("Invalid location.");
         }
@@ -122,7 +135,3 @@ public class TournamentValidator {
     }
 
 }
-
-
-    
-
