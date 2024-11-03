@@ -124,11 +124,11 @@ def view_tournament(tournament_name):
             GOOGLE_MAP_API_KEY=GOOGLE_MAP_API_KEY,
             google_calendar_link=generate_google_calendar_link(tournament),
             outlook_calendar_link=generate_outlook_calendar_link(tournament),
-            user_joined=user_joined  # Pass the participation status to the template
+            user_joined=user_joined,  # Pass the participation status to the template
+            players = current_players
         )
     else:
         abort(404)
-
 
 
 @tournament.route('/pairing')
@@ -301,3 +301,5 @@ def fetch_tournament_details(tournament_names, headers):
         except Exception as e:
             print(f"Error fetching tournament details for {name}: {e}")
     return tournaments
+
+

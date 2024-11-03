@@ -79,6 +79,37 @@
                     </center>
                 </div>
             </div>
+            <br>
+            <div class="container-fluid mt-1" style="width: 100%;">
+                <!-- <div class="row mb-4">
+                    <div class="col-md-12">
+                        <input type="text" class="form-control search-bar" placeholder="Enter tournament name" id="searchInput" onkeyup="filterTournaments()">
+                    </div>
+                </div> -->
+            
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 10%">No</th>
+                                <th style="width: %">Players</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tournamentTableBody">
+                            {% for player in players %}
+                            <tr>
+                                <td>
+                                    {{ loop.index }}
+                                </td>
+                                <td>
+                                    {{ player}}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
         </div>
     </div>
 </div>
