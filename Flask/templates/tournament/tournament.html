@@ -47,8 +47,8 @@
                         <li><strong>End Date:</strong> {{ tournament.endDate }}</li>
                         <li><strong>Location:</strong> {{ tournament.location }}</li>
                         <li><strong>Organizer:</strong> {{ tournament.adminList | join(', ') }}</li>
-                        <li><strong>Current Players:</strong> {{ tournament.numberOfPlayers }}</li>
-                        <li><strong>Register before:</strong> {{ tournament.numberOfPlayers }}</li>
+                        <li><strong>Current Players:</strong> {{ players | length }}</li>
+                        <li><strong>Register before:</strong> {{ tournament.registrationDeadline }}</li>
                     </ul>
 
                     {% if is_admin %}
