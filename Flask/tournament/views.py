@@ -15,8 +15,6 @@ import json
 def index():
     return render_template('frontend/index.html')
 
-
-
 # to view all tournaments
 @tournament.route('/view') #/<int:id>
 def view_tournaments():
@@ -125,7 +123,7 @@ def view_tournament(tournament_name):
             google_calendar_link=generate_google_calendar_link(tournament),
             outlook_calendar_link=generate_outlook_calendar_link(tournament),
             user_joined=user_joined,  # Pass the participation status to the template
-            players = current_players
+            #players = current_players
         )
     else:
         abort(404)
@@ -187,7 +185,7 @@ def my_tournament():
         flash("You have yet to join any tournaments", "danger")
         return redirect(request.referrer)
 
-    # Fetch tournament details for each tournament name
+    # returns a list of tournament objects
     tournaments = fetch_tournament_details(tournament_names, headers)
     return render_template('tournament/my_tournament.html', tournaments=tournaments)
 
@@ -296,11 +294,11 @@ def leave_tournament():
 
         if(existing_tournaments_response):
             #if user still have existing tournaments
-            flash(f"Left tournament!", "success")
+            flash(f"You have left {tournamentName}!", "success")
             return redirect(request.referrer)
         else:
             #if user has no existing tournaments left(e.g, he's leaving his one and only tournament)
-            flash(f"Left tournament!", "success")
+            flash(f"You have left {tournamentName}!", "success")
             return redirect(url_for('tournament.view_tournaments')) 
     else:
         flash("Error leaving tournament: " + response.text, "danger")

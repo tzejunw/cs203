@@ -38,7 +38,7 @@
                             <p class="card-text">
                                 <strong>Start Date:</strong> {{ tournament.startDate }}<br>
                                 <strong>End Date:</strong> {{ tournament.endDate }}<br>
-                                <strong>Number of Players:</strong> {{ tournament.numberOfPlayers }}<br>
+                                <strong>Number of Players:</strong> {{ tournament.participatingPlayers | length }}<br>
                                 <strong>Description:</strong> {{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}<br>
                                 <strong>Location:</strong> {{ tournament.location if tournament.location else 'Location not specified.' }}
                             </p>

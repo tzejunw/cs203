@@ -32,7 +32,7 @@
                     <td><img src="{{ tournament.imageUrl }}" alt="Project Image" class="tournament-image"></td>
                     <td>{{ tournament.startDate }}</td>
                     <td>{{ tournament.endDate }}</td>
-                    <td>{{ tournament.numberOfPlayers }}</td>
+                    <td>{{ tournament.participatingPlayers | length }}</td>
                     <td>{{ tournament.location or 'N/A' }}</td>
                     <td class="table-action-buttons" >
                        
