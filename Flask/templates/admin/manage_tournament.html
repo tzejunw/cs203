@@ -15,11 +15,23 @@
             <h3 class="admin-manage-tournament-name">{{ tournament.tournamentName }}</h3>
             <p class="admin-manage-tournament-description">{{ tournament.tournamentDesc }}</p>
             <form action="{{ url_for('admin.toggle_tournament', tournament_name=tournament.tournamentName) }}" method="POST">
-                <button type="submit" 
-                        class="btn {{ 'btn-danger' if tournament.inProgress else 'btn-success' }} w-100 mt-3">
-                    {{ 'End Tournament' if tournament.inProgress else 'Start Tournament' }}
-                </button>
+                {% if tournament.participatingPlayers|length > 1 %}
+                    <button type="submit" 
+                            class="btn {{ 'btn-danger' if tournament.inProgress else 'btn-success' }} w-100 mt-3">
+                        {{ 'End Tournament' if tournament.inProgress else 'Start Tournament' }}
+                    </button>
+                {% elif tournament.participatingPlayers|length == 1 %}
+                    <button type="button" class="btn btn-secondary w-100 mt-3" disabled>
+                        Cannot Start Tournament: Insufficient Players
+                    </button>
+                {% else %}
+                    <button type="button" class="btn btn-secondary w-100 mt-3" disabled>
+                        Cannot Start Tournament: No Players Registered
+                    </button>
+                {% endif %}
+
             </form>
+            
         </div>  
     </div>
 
@@ -36,37 +48,59 @@
                     Tournament has not started.
                 {% endif %}
             </p>
-           
-            <form action="{{ url_for('admin.round_toggle', tournament_name=tournament_name) }}" method="POST">
-                <button type="submit" class="btn btn-primary w-80 mt-2">
-                    Round
-                </button>
-            </form>
-            
+        
+            {% if tournament.inProgress %}
+                {% if round_over is none %}
+                    <!-- If round_over is None, show the "Start Round" button for the next round -->
+                    <form action="{{ url_for('admin.start_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
+                        <button type="submit" class="btn btn-primary w-80 mt-2">Start Round</button>
+                    </form>
+                {% elif not round_over %}
+                    <!-- If round_over is False, show the "End Round" button to end the current round -->
+                    <form action="{{ url_for('admin.end_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
+                        <button type="submit" class="btn btn-primary w-80 mt-2">End Round</button>
+                    </form>
+                {% else %}
+                    <!-- If round_over is True, show the "Start Round" button to start a new round -->
+                    <form action="{{ url_for('admin.start_round', tournament_name=tournament.tournamentName, round_name=tournament.currentRound) }}" method="post">
+                        <button type="submit" class="btn btn-primary w-80 mt-2">Start Round</button>
+                    </form>
+                {% endif %}
+            {% endif %}
         </div>
+        
 
         <!-- Current Pairings -->
         <div class="col-md-4 mb-4">
             <h4 class="admin-manage-tournament-section-title">Current Pairings</h4>
-            {% if tournament.inProgress and round %}
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <strong>Round {{ round.roundName }}</strong>
-                        <ul class="list-unstyled mt-2">
-                            {% for match in round.matches %}
-                                <li>{{ match.player1 }} vs {{ match.player2 }}
-                                    {% if match.winner %}
-                                        - Winner: {{ match.winner }}
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                </ul>
+            
+            {% if tournament.inProgress %}
+                {% if round %}
+                    <!-- Display pairings for the current round -->
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>Round {{ round.roundName }}</strong>
+                            <ul class="list-unstyled mt-2">
+                                {% for match in round.matches %}
+                                    <li>{{ match.player1 }} vs {{ match.player2 }}
+                                        {% if match.winner %}
+                                            - Winner: {{ match.winner }}
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                {% else %}
+                    <!-- Display message if the tournament is in progress but no round data is available -->
+                    <p class="admin-manage-tournament-info">The round has not started.</p>
+                {% endif %}
             {% else %}
+                <!-- Display message if the tournament has not started -->
                 <p class="admin-manage-tournament-info">No pairings available or tournament has not started.</p>
             {% endif %}
         </div>
+        
 
         <!-- Current Players -->
         <div class="col-md-4 mb-4">
@@ -77,7 +111,7 @@
                         <li class="list-group-item admin-manage-tournament-player-item">{{ player }}</li>
                     {% endfor %}
                 {% else %}
-                    <li class="list-group-item">No players currently participating.</li>
+                    <p class="admin-manage-tournament-info">No players currently participating.</li>
                 {% endif %}
             </ul>
         </div>
@@ -115,7 +149,7 @@
             {% elif standings|length == 1 %}
                 <p class="admin-manage-tournament-info">Tournament has not started or no standings available.</p>
             {% else %}
-                <p class="admin-manage-tournament-info">Round 1 ongoing. No standings available.</p>
+                <p class="admin-manage-tournament-info">No standings available.</p>
             {% endif %}
         </div>
     </div>

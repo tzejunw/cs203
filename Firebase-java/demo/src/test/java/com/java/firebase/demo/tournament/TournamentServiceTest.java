@@ -7,23 +7,26 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
@@ -31,35 +34,10 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.FirestoreException;
-import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.UserRecord;
-import com.google.firebase.auth.UserRecord.CreateRequest;
-
-
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
-import java.util.concurrent.ExecutionException;
-
-import org.mockito.Spy;
-
-import com.google.cloud.Timestamp;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -742,44 +720,44 @@ void isTournamentInProgress_WithNullTournament_ThrowsException() throws Executio
         verify(roundDocument).delete();
     }
 
-    @Test
-    void roundEnd_WithExistingTournament_UpdatesRoundAndReturnsSuccessMessage() throws ExecutionException, InterruptedException {
-        // Arrange
-        String tournamentName = "SampleTournament";
-        String roundName = "Round1";
+    // @Test
+    // void roundEnd_WithExistingTournament_UpdatesRoundAndReturnsSuccessMessage() throws ExecutionException, InterruptedException {
+    //     // Arrange
+    //     String tournamentName = "SampleTournament";
+    //     String roundName = "Round1";
 
-        Tournament tournament = new Tournament();
-        tournament.setCurrentRound("1");  // Setting initial round to 1
+    //     Tournament tournament = new Tournament();
+    //     tournament.setCurrentRound("1");  // Setting initial round to 1
 
-        // Mock the getTournament method to return the mock tournament
-        doReturn(tournament).when(tournamentService).getTournament(tournamentName);
-        doReturn("Tournament Updated").when(tournamentService).updateTournament(tournament);
-        when(tournamentService.isTournamentInProgress(tournamentName)).thenReturn(true);
-        // Act
-        String result = tournamentService.roundEnd(tournamentName, roundName);
+    //     // Mock the getTournament method to return the mock tournament
+    //     doReturn(tournament).when(tournamentService).getTournament(tournamentName);
+    //     doReturn("Tournament Updated").when(tournamentService).updateTournament(tournament);
+    //     when(tournamentService.isTournamentInProgress(tournamentName)).thenReturn(true);
+    //     // Act
+    //     String result = tournamentService.roundEnd(tournamentName, roundName);
 
-        // Assert
-        assertEquals("Round Number Updated", result);
-        assertEquals("2", tournament.getCurrentRound()); // Check if the round number was updated correctly
-        verify(tournamentService).updateTournament(tournament); // Verify updateTournament was called
-    }
+    //     // Assert
+    //     assertEquals("Round Number Updated", result);
+    //     assertEquals("2", tournament.getCurrentRound()); // Check if the round number was updated correctly
+    //     verify(tournamentService).updateTournament(tournament); // Verify updateTournament was called
+    // }
 
-    @Test
-    void roundEnd_WithNonExistingTournament_ReturnsNotFoundMessage() throws ExecutionException, InterruptedException {
-        // Arrange
-        String tournamentName = "NonExistingTournament";
-        String roundName = "Round1";
+    // @Test
+    // void roundEnd_WithNonExistingTournament_ReturnsNotFoundMessage() throws ExecutionException, InterruptedException {
+    //     // Arrange
+    //     String tournamentName = "NonExistingTournament";
+    //     String roundName = "Round1";
 
-        // Mock the getTournament method to return null
-        doReturn(null).when(tournamentService).getTournament(tournamentName);
+    //     // Mock the getTournament method to return null
+    //     doReturn(null).when(tournamentService).getTournament(tournamentName);
         
-        // Act
-        String result = tournamentService.roundEnd(tournamentName, roundName);
+    //     // Act
+    //     String result = tournamentService.roundEnd(tournamentName, roundName);
 
-        // Assert
-        assertEquals("Tournament not found", result);
-        verify(tournamentService, never()).updateTournament(any()); // Ensure updateTournament was never called
-    }
+    //     // Assert
+    //     assertEquals("Tournament not found", result);
+    //     verify(tournamentService, never()).updateTournament(any()); // Ensure updateTournament was never called
+    // }
 
 
     

@@ -21,7 +21,6 @@
                     <th>End Date</th>
                     <th>Number of Players</th>
                     <th>Location</th>
-                    <th>Registration Deadline</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -33,17 +32,15 @@
                     <td><img src="{{ tournament.imageUrl }}" alt="Project Image" class="tournament-image"></td>
                     <td>{{ tournament.startDate }}</td>
                     <td>{{ tournament.endDate }}</td>
-                    <td>{{ tournament.numberOfPlayers }}</td>
+                    <td>{{ tournament.participatingPlayers | length }}</td>
                     <td>{{ tournament.location or 'N/A' }}</td>
-                    <td>{{ tournament.registrationDeadline }}</td>
                     <td class="table-action-buttons" >
-                        <a href="#" class="btn btn-primary btn-sm" title="Submit match results" >
-                            <img src="../../static/icons/versus.png"/>
-                        </a>
-                        <a href="#" class="btn btn-warning btn-sm" title="Standings" >
-                            <img src="../../static/icons/rank.png"/>
-                        </a>
-                        
+                       
+                        <form action="{{url_for('tournament.leave_tournament', tournamentName=tournament.tournamentName)}}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to leave this tournament?');">
+                            <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                                <img src="../../static/icons/trash.svg"/>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
