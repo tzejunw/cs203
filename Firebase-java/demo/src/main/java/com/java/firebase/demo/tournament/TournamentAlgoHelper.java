@@ -27,10 +27,11 @@ import com.java.firebase.demo.algo.AlgoRound;
 import com.java.firebase.demo.algo.AlgoStandings;
 import com.java.firebase.demo.algo.AlgoTournamentPlayer;
 import com.java.firebase.demo.tournament.*;
+import com.java.firebase.demo.tournament.TournamentService;
 
 public class TournamentAlgoHelper {
 
-    
+    /* 
     public static AlgoRound parseIntoAlgoRound1( Tournament tournament){
 
         final int firstRound = 1; 
@@ -95,15 +96,67 @@ public class TournamentAlgoHelper {
             if (!match.isBye()){
 
                 String player2Name = match.getPlayer2();
-                updatePlayerMatch(tournament, player2Name,generateMatchID(tournament, roundName, match));
+                TournamentService.updatePlayerMatch(tournament.getTournamentName(), player2Name,generateMatchId(tournament.getTournamentName(), roundName, match));
 
             }
 
-            updatePlayerMatch(tournament, player1Name,generateMatchID(tournament, roundName, match));
-            createMatch(tournament, roundName, match);
+            updatePlayerMatch(tournament.getTournamentName(), player1Name,generateMatchId(tournament.getTournamentName(), roundName, match));
+            createMatch(tournament.getTournamentName(), roundName, match);
 
         }
     }
+
+    public static List<AlgoTournamentPlayer> parsePlayersIntoAlgoObjects( Tournament tournament, HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches, HashMap<String , AlgoTournamentPlayer > playerIDToObj){
+
+        List<AlgoTournamentPlayer> algoPlayers = new ArrayList<>();
+        List<String> playerIDs = tournament.getParticipatingPlayers();
+
+        for (String playerName : playerIDs){
+            ParticipatingPlayer playerData = TournamentService.getPlayer(tournament.getTournamentName(), playerName);
+            AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerName, new ArrayList<AlgoMatch>());
+            algoPlayers.add(algoPlayer);
+
+            playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
+            playerIDToObj.put(playerName, algoPlayer);
+        }
+
+        return algoPlayers;
+    }
+
+    public static void parseMatchHistoryIntoPlayerObjs(List<AlgoTournamentPlayer> algoPlayers, Tournament tournament, HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches, HashMap<String , AlgoTournamentPlayer > playerIDToObj){
+
+        for (AlgoTournamentPlayer player : algoPlayers){
+
+            int rdno = 1;
+
+            for ( String matchID : playerToPastMatches.get(player)){
+
+                Match matchData = getMatch(tournament.getTournamentName(),""+rdno++ , matchID);
+                AlgoMatch algoMatchtoAdd;
+
+                if (matchData.isBye()){
+                    algoMatchtoAdd = new AlgoMatch( playerIDToObj.get(matchData.getPlayer1()));
+
+                }else{
+
+                    AlgoTournamentPlayer p1 = playerIDToObj.get(matchData.getPlayer1());
+                    AlgoTournamentPlayer p2 = playerIDToObj.get(matchData.getPlayer2());
+                        
+                    algoMatchtoAdd = new AlgoMatch(p1,p2);
+                    int wins = matchData.getWins();
+                    int losses = matchData.getLosses();
+                    algoMatchtoAdd.update(playerIDToObj.get(matchData.getWinner()), wins, losses );
+
+                }
+
+                player.addMatch(algoMatchtoAdd);
+
+            }
+        }
+
+    }
+
+    */
 
 
 

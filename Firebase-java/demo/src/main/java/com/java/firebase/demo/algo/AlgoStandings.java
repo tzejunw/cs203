@@ -23,6 +23,7 @@ public class AlgoStandings {
 
     public void updateStandings(){
         Collections.sort( TournamentPlayers, new playerComparator());
+        Collections.reverse(TournamentPlayers);
     }
 
     public List<AlgoTournamentPlayer> getStandings(){

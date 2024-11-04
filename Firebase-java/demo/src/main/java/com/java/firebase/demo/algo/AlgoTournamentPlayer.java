@@ -17,6 +17,8 @@ public class AlgoTournamentPlayer{
     private final int gameWinPts = 3;
     private final int drawPts = 1;
     private final double minOMW = 0.33;
+    private final double minOGW = 0.33;
+    private final int gamesPerMatch = 3;
 
     public AlgoTournamentPlayer( String userID, List<AlgoMatch> matches){
         pastMatches = matches;
@@ -31,6 +33,10 @@ public class AlgoTournamentPlayer{
 
     public int getCurMatchPts() {
         return curMatchPts;
+    }
+
+    public int getCurGamePoints(){
+        return curGamePts;
     }
 
     public double getCurOMW() {
@@ -63,7 +69,7 @@ public class AlgoTournamentPlayer{
         // iterate through prev matches and count
 
         for ( AlgoMatch m : pastMatches){
-            if (m.getWinner() == this){
+            if (m.getWinner().equals(this)){
                 matchWins++;
             }
         }
@@ -115,7 +121,10 @@ public class AlgoTournamentPlayer{
     }
 
     public double getCurGW(){
-        return getTotalGamePoints() / ((double)roundsPlayed() * 3);
+        if (roundsPlayed() == 0){
+            return 0.0;
+        }
+        return getTotalGamePoints() / ((double)roundsPlayed() * gameWinPts * gamesPerMatch);
     }
 
     public double getOMW(){
@@ -125,7 +134,7 @@ public class AlgoTournamentPlayer{
         for ( AlgoMatch m : pastMatches){
             if (!m.isBye()){
                 AlgoTournamentPlayer opp = m.getPlayer1().equals(this) ? m.getPlayer2() : m.getPlayer1();
-                double oppOMW = (double)opp.getTotalMatchPoints() / opp.roundsPlayed() > minOMW ? (double)opp.getTotalMatchPoints() / opp.roundsPlayed() : minOMW;  
+                double oppOMW = (double)opp.getTotalMatchPoints() / opp.roundsPlayed() > minOMW ? (double)opp.getTotalMatchPoints() / (opp.roundsPlayed()*matchWinPts) : minOMW;  
                 OMW +=  oppOMW;    
             }
         }
@@ -141,7 +150,7 @@ public class AlgoTournamentPlayer{
             if (!m.isBye()){
                 AlgoTournamentPlayer opp = m.getPlayer1().equals(this) ? m.getPlayer2() : m.getPlayer1();
                 
-                OGW += opp.getCurGW() < minOMW ? minOMW : getCurGW();    
+                OGW += opp.getCurGW() < minOGW ? minOGW : getCurGW();    
             }
         }
 
