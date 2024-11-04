@@ -11,7 +11,6 @@ com\java\firebase\demo\user\EmailConfig$1.class
 com\java\firebase\demo\user\Exceptions\SendEmailVerificationFailedException.class
 com\java\firebase\demo\user\UserService.class
 com\java\firebase\demo\tournament\Standing.class
-com\java\firebase\demo\tournament\TournamentService.class
 com\java\firebase\demo\tournament\Tournament.class
 com\java\firebase\demo\common\FirebaseConfig.class
 com\java\firebase\demo\user\UserController.class
@@ -21,7 +20,6 @@ com\java\firebase\demo\user\Exceptions\TooManyRequestsException.class
 com\java\firebase\demo\user\VerifyEmail.class
 com\java\firebase\demo\algo\AlgoTournamentPlayer.class
 com\java\firebase\demo\tournament\Match.class
-com\java\firebase\demo\tournament\TournamentController.class
 com\java\firebase\demo\algo\AlgoStandings.class
 com\java\firebase\demo\tournament\Round.class
 com\java\firebase\demo\user\Exceptions\RestExceptionHandler.class
@@ -31,4 +29,3 @@ com\java\firebase\demo\algo\AlgoMatch.class
 com\java\firebase\demo\user\UserCredentials.class
 com\java\firebase\demo\image\FirestoreService.class
 com\java\firebase\demo\tournament\TournamentValidator.class
-com\java\firebase\demo\tournament\TournamentAlgoHelper.class

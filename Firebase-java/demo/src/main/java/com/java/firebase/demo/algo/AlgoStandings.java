@@ -3,9 +3,9 @@ import java.util.*;
 
 public class AlgoStandings {
     
-    ArrayList<AlgoTournamentPlayer> TournamentPlayers;
+    List<AlgoTournamentPlayer> TournamentPlayers;
 
-    public AlgoStandings(ArrayList<AlgoTournamentPlayer> TournamentPlayers){
+    public AlgoStandings(List<AlgoTournamentPlayer> TournamentPlayers){
         this.TournamentPlayers= TournamentPlayers;
         updateCurPoints();
         updateStandings();

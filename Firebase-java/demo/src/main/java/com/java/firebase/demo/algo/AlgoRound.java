@@ -7,11 +7,11 @@ public class AlgoRound {
     private ArrayList<AlgoMatch> AlgoMatches;
     private AlgoStandings prevRoundStandings;
     private int roundNumber;
-    private ArrayList<AlgoTournamentPlayer> players;
+    private List<AlgoTournamentPlayer> players;
     private ArrayList<List<AlgoTournamentPlayer>> brackets;
-    private ArrayList<AlgoTournamentPlayer> stillplaying;
+    private List<AlgoTournamentPlayer> stillplaying;
 
-    public AlgoRound(int roundNumber, ArrayList<AlgoTournamentPlayer> AlgoTournamentPlayers){
+    public AlgoRound(int roundNumber, List<AlgoTournamentPlayer> AlgoTournamentPlayers){
         players = AlgoTournamentPlayers;
         stillplaying = players;
         this.roundNumber = roundNumber;

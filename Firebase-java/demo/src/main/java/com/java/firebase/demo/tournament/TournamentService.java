@@ -852,12 +852,10 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
     }
 
     public boolean startTournament(String tournament) throws ExecutionException, InterruptedException{
-        
         if (isTournamentInProgress(tournament)) {
             System.out.println("Tournament already in progress");
             return false;
         }
-        
         
         Tournament tourney = getTournament(tournament);
 
@@ -866,63 +864,22 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
             tourney.setCurrentRound("1");
 
             // parseIntoAlgoRound1
-            
-            List<String> players= tourney.getParticipatingPlayers();
 
-            ArrayList<AlgoTournamentPlayer> playerObjs = new ArrayList<AlgoTournamentPlayer>();
-
-            for (String s : players){
-                playerObjs.add(new AlgoTournamentPlayer(s, new ArrayList<AlgoMatch>()));
-            }
-
-            AlgoRound rd1 = new AlgoRound(1, playerObjs);
+            AlgoRound rd1 = parseIntoAlgoRound1(tourney);
 
             rd1.generateRoundOne();
 
-            
+            List<Match> rd1Matches = parseAlgoRoundMatchesToMatch(rd1);
 
             Round emptyround = new Round();
             emptyround.setMatches(new ArrayList<>());
             emptyround.setRoundName("1");
             createRound(tournament, emptyround);
+
+            updateDataBaseWithMatches(tourney, "1", rd1Matches);
             
-
-            ArrayList<AlgoMatch> Rd1Matches = rd1.getAlgoMatches();
-
-
-            for (AlgoMatch algoMatch : Rd1Matches){
-                
-                // create new match 
-
-                Match match = new Match();
-                String player1Name = algoMatch.getPlayer1().getPlayerID();
-
-                // if is bye
-
-                if (algoMatch.isBye()){
-                    match.setPlayer1(player1Name);
-                    match.setBye(true);
-
-                    //updates player match record
-                    updatePlayerMatch(tournament,player1Name ,generateMatchId(tournament, "1",match));
-                    
-                }else{
-
-                    String player2Name = algoMatch.getPlayer2().getPlayerID();
-                    match.setPlayer1(player1Name);
-                    match.setPlayer2(player2Name);
-                    match.setBye(false);
-
-                    //updates player match record
-                    updatePlayerMatch(tournament,player1Name ,generateMatchId(tournament, "1",match));
-                    updatePlayerMatch(tournament, player2Name, generateMatchId(tournament,"1", match));
-
-                }
-
-                createMatch(tournament, "1", match);
-
-            }
             updateTournament(tourney);
+
             return true;
 
         }   
@@ -930,148 +887,59 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         return false;
 
     }
-    
 
+public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
 
-    public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
-
-        if (!isTournamentInProgress(tournament)) {
-            System.out.println("Tournament is not in progress");
-            return false;
-        }
-        Tournament tourney = getTournament(tournament);
-
-        if (tourney != null){
-
-
-            // input all participating players into algoObjs and put them into the list algoPlayers
-
-            List<String> players= tourney.getParticipatingPlayers();
-            ArrayList<AlgoTournamentPlayer> algoPlayers = new ArrayList<AlgoTournamentPlayer>();
-
-            HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches = new HashMap<AlgoTournamentPlayer , List<String>>();
-            HashMap<String , AlgoTournamentPlayer > playerIDToObj = new HashMap<String , AlgoTournamentPlayer>();
-            
-            for (String playerName : players){
-                ParticipatingPlayer playerData = getPlayer(tournament, playerName);
-                AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerName, new ArrayList<AlgoMatch>());
-                algoPlayers.add(algoPlayer);
-
-                System.out.println("playername : " + playerData.getUserName());
-                System.out.println("playerobj : " + algoPlayer.getPlayerID());
-                playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
-                playerIDToObj.put(playerName, algoPlayer);
-
-            }
-
-            // update all algoMatchObjs with appropriate player objs
-
-            for (AlgoTournamentPlayer player : algoPlayers){
-
-                int rdno = 1;
-
-                for ( String matchID : playerToPastMatches.get(player)){
-
-                    Match matchData = getMatch(tournament,""+rdno++ , matchID);
-                    AlgoMatch algoMatchtoAdd;
-
-                    if (matchData.isBye()){
-                        algoMatchtoAdd = new AlgoMatch( playerIDToObj.get(matchData.getPlayer1()));
-
-                    }else{
-
-                        System.out.println(matchData.getPlayer1());
-                        System.out.println(matchData.getPlayer2());
-
-                        AlgoTournamentPlayer p1 = playerIDToObj.get(matchData.getPlayer1());
-                        AlgoTournamentPlayer p2 = playerIDToObj.get(matchData.getPlayer2());
-
-                        System.out.println("player1 is "+p1);
-                        System.out.println(p2);
-                            
-                        algoMatchtoAdd = new AlgoMatch(p1,p2);
-                        int wins = matchData.getWins();
-                        int losses = matchData.getLosses();
-                        algoMatchtoAdd.update(playerIDToObj.get(matchData.getWinner()), wins, losses );
-
-                    }
-
-                    player.addMatch(algoMatchtoAdd);
-
-                }
-
-                //System.out.println("players inside :" + player.getPlayerID());
-            }
-
-            // generate standings and update DB
-
-            AlgoRound algoRound = new AlgoRound(Integer.parseInt(tourney.getCurrentRound()), algoPlayers);
-            algoRound.generateStandings();
-
-            AlgoStandings prevRoundStandings = algoRound.getStandings();
-
-
-            int rank = 1;
-
-            for (AlgoTournamentPlayer player : prevRoundStandings.getStandings()){
-                
-                Standing playerCurStanding = new Standing();
-                
-                playerCurStanding.setRank(rank++);
-                playerCurStanding.setCurGamePts(player.getCurMatchPts());
-                playerCurStanding.setCurMatchPts(player.getCurMatchPts());
-                playerCurStanding.setCurOGW(player.getCurOGW());
-                playerCurStanding.setCurOMW(player.getCurOMW());
-                playerCurStanding.setPlayerID(player.getPlayerID());
-
-
-                createStanding(tournament, Integer.parseInt(tourney.getCurrentRound())-1 + "", playerCurStanding);
-
-            }
-
-
-            // generate rounds and update DB
-
-            List<Match> roundMatches = new ArrayList<Match>();
-
-            algoRound.generateAlgoMatches();
-
-            for ( AlgoMatch matchObj : algoRound.getAlgoMatches()){
-
-                Match newMatch = new Match();
-
-                String p1name = matchObj.getPlayer1().getPlayerID();
-
-                newMatch.setPlayer1(p1name);
-
-                if (matchObj.isBye()){
-                    newMatch.setBye(true);
-                    newMatch.setWins(2);
-                    newMatch.setWinner(p1name);
-                }else{
-                    newMatch.setPlayer2(matchObj.getPlayer2().getPlayerID());
-                }
-
-                roundMatches.add(newMatch);
-
-            }
-
-            // DB specific functionality to add the round
-
-            Round newRound = new Round();
-            newRound.setMatches(roundMatches);
-            newRound.setRoundName(Integer.parseInt(tourney.getCurrentRound())+ "");
-            createRound(tournament,newRound);
-
-
-            return true;
-
-
-        }
+    if (!isTournamentInProgress(tournament)) {
+        System.out.println("Tournament is not in progress");
         return false;
     }
+    Tournament tourney = getTournament(tournament);
+
+    if (tourney != null){
+
+        // input all participating players into algoObjs and put them into the list algoPlayers
+
+        HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches = new HashMap<AlgoTournamentPlayer , List<String>>();
+        HashMap<String , AlgoTournamentPlayer > playerIDToObj = new HashMap<String , AlgoTournamentPlayer>();
+        
+        List<AlgoTournamentPlayer> algoPlayers = parsePlayersIntoAlgoObjects(tourney, playerToPastMatches,playerIDToObj);
+
+        // update all algoMatchObjs with appropriate player objs
+
+        parseMatchHistoryIntoPlayerObjs(algoPlayers, tourney, playerToPastMatches, playerIDToObj);
+
+        // generate standings and update DB
+
+        AlgoRound algoRound = new AlgoRound(Integer.parseInt(tourney.getCurrentRound()), algoPlayers);
+        algoRound.generateStandings();
+
+        AlgoStandings prevRoundStandings = algoRound.getStandings();
 
 
+        updateStandingsinDB(prevRoundStandings, tournament, tourney);
+
+
+        // generate rounds and update DB
+
+        algoRound.generateAlgoMatches();
+
+        List<Match> roundMatches = parseAlgoRoundMatchesToMatch(algoRound);
+
+        updateDataBaseWithMatches(tourney, tourney.getCurrentRound(), roundMatches);
+        
+        // DB specific functionality to add the round
+
+        Round newRound = new Round();
+        newRound.setMatches(roundMatches);
+        newRound.setRoundName(Integer.parseInt(tourney.getCurrentRound())+ "");
+        createRound(tournament,newRound);
+
+        return true;
+
+    }
+    return false;
+}
 
     // specific getter for specific match
 
@@ -1135,11 +1003,155 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         
     }
 
-    // public List<Match> getRoundMatches( String tournamentName, String roundName){
+/* All helper functions for parsing the AlgoObjects to DB objects and DB creation and updating all below
+ * Functions are solely used in generateRound and StartTournament
+*/
 
-    // }
+    public AlgoRound parseIntoAlgoRound1( Tournament tournament){
+
+        final int firstRound = 1; 
+
+        ArrayList<AlgoTournamentPlayer> playerObjs = new ArrayList<AlgoTournamentPlayer>();
+        
+        List<String> players= tournament.getParticipatingPlayers();
+
+        for (String playerName : players){
+
+            playerObjs.add(new AlgoTournamentPlayer(playerName, new ArrayList<AlgoMatch>()));
+
+        }
+
+        return  new AlgoRound(firstRound, playerObjs);
+
+    }
+
+    public List<Match> parseAlgoRoundMatchesToMatch( AlgoRound roundToParse){
+
+        List<AlgoMatch> matchesToParse = roundToParse.getAlgoMatches();
+
+        List<Match> parsedMatches = new ArrayList<>();
+
+        for (AlgoMatch algoMatch : matchesToParse){
+                
+            // create new match 
+
+            Match match = new Match();
+            String player1Name = algoMatch.getPlayer1().getPlayerID();
+
+            // if is bye
+
+            if (algoMatch.isBye()){
+                match.setPlayer1(player1Name);
+                match.setBye(true);
+                
+            }else{
+
+                String player2Name = algoMatch.getPlayer2().getPlayerID();
+                match.setPlayer1(player1Name);
+                match.setPlayer2(player2Name);
+                match.setBye(false);
+
+            }
+
+            parsedMatches.add(match);
+
+        }
+
+        return parsedMatches;
+
+    }
 
 
+    public void updateDataBaseWithMatches( Tournament tournament, String roundName, List<Match> matchesToupdate) throws ExecutionException, InterruptedException{
+
+        for ( Match match : matchesToupdate){
+
+            String player1Name = match.getPlayer1();
+
+            if (!match.isBye()){
+
+                String player2Name = match.getPlayer2();
+                updatePlayerMatch(tournament.getTournamentName(), player2Name,generateMatchId(tournament.getTournamentName(), roundName, match));
+
+            }
+
+            updatePlayerMatch(tournament.getTournamentName(), player1Name,generateMatchId(tournament.getTournamentName(), roundName, match));
+            createMatch(tournament.getTournamentName(), roundName, match);
+
+        }
+    }
+
+    public List<AlgoTournamentPlayer> parsePlayersIntoAlgoObjects( Tournament tournament, HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches, HashMap<String , AlgoTournamentPlayer > playerIDToObj)throws ExecutionException, InterruptedException{
+
+        List<AlgoTournamentPlayer> algoPlayers = new ArrayList<>();
+        List<String> playerIDs = tournament.getParticipatingPlayers();
+
+        for (String playerName : playerIDs){
+            ParticipatingPlayer playerData = getPlayer(tournament.getTournamentName(), playerName);
+            AlgoTournamentPlayer algoPlayer = new AlgoTournamentPlayer( playerName, new ArrayList<AlgoMatch>());
+            algoPlayers.add(algoPlayer);
+
+            playerToPastMatches.put( algoPlayer, playerData.getPastMatches());
+            playerIDToObj.put(playerName, algoPlayer);
+        }
+
+        return algoPlayers;
+    }
+
+    public void parseMatchHistoryIntoPlayerObjs(List<AlgoTournamentPlayer> algoPlayers, Tournament tournament, HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches, HashMap<String , AlgoTournamentPlayer > playerIDToObj)throws ExecutionException, InterruptedException{
+
+        for (AlgoTournamentPlayer player : algoPlayers){
+
+            int rdno = 1;
+
+            for ( String matchID : playerToPastMatches.get(player)){
+
+                Match matchData = getMatch(tournament.getTournamentName(),""+rdno++ , matchID);
+                AlgoMatch algoMatchtoAdd;
+
+                if (matchData.isBye()){
+                    algoMatchtoAdd = new AlgoMatch( playerIDToObj.get(matchData.getPlayer1()));
+
+                }else{
+
+                    AlgoTournamentPlayer p1 = playerIDToObj.get(matchData.getPlayer1());
+                    AlgoTournamentPlayer p2 = playerIDToObj.get(matchData.getPlayer2());
+                        
+                    algoMatchtoAdd = new AlgoMatch(p1,p2);
+                    int wins = matchData.getWins();
+                    int losses = matchData.getLosses();
+                    algoMatchtoAdd.update(playerIDToObj.get(matchData.getWinner()), wins, losses );
+
+                }
+
+                player.addMatch(algoMatchtoAdd);
+
+            }
+        }
+
+    }
+
+    public void updateStandingsinDB(AlgoStandings algoStandings, String tournament, Tournament tourney) throws ExecutionException, InterruptedException{
+
+        int rank = 1;
+
+        for (AlgoTournamentPlayer player : algoStandings.getStandings()){
+            
+            Standing playerCurStanding = new Standing();
+            
+            playerCurStanding.setRank(rank++);
+            playerCurStanding.setCurGamePts(player.getCurMatchPts());
+            playerCurStanding.setCurMatchPts(player.getCurMatchPts());
+            playerCurStanding.setCurOGW(player.getCurOGW());
+            playerCurStanding.setCurOMW(player.getCurOMW());
+            playerCurStanding.setPlayerID(player.getPlayerID());
+
+
+            createStanding(tournament, Integer.parseInt(tourney.getCurrentRound())-1 + "", playerCurStanding);
+
+        }
+
+    }
 
     
 }
