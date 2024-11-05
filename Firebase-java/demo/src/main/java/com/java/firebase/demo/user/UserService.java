@@ -38,7 +38,7 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.UpdateRequest;
 import com.google.firebase.cloud.FirestoreClient;
-import com.java.firebase.demo.user.Exceptions.TooManyRequestsException;
+import com.java.firebase.demo.Exceptions.TooManyRequestsException;
 
 import io.github.cdimascio.dotenv.Dotenv;
 

@@ -1,4 +1,4 @@
-package com.java.firebase.demo.user.Exceptions;
+package com.java.firebase.demo.Exceptions;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

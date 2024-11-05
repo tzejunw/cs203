@@ -113,7 +113,6 @@ public class TournamentService {
         //     participatingPlayer = new ParticipatingPlayer();
         //     participatingPlayer.setPastMatches(new ArrayList<>());
         // }
-// End of recommended change
 
         // Check if the document exists
         if (!document.exists()) {

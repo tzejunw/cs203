@@ -1,4 +1,4 @@
-package com.java.firebase.demo.user.Security;
+package com.java.firebase.demo.Security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
