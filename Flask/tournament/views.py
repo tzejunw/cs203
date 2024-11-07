@@ -128,6 +128,51 @@ def view_tournament(tournament_name):
     else:
         abort(404)
 
+@tournament.route('/update_match', methods=['POST'])
+def update_match():
+    match_data = json.loads(request.args.get('matches')) # convert to dict, default is string
+    player1 = request.args.get('player1')
+    player2 = request.args.get('player2')
+    tournamentName = request.args.get('tournamentName')
+    round = request.args.get('roundName')
+    wins = request.args.get('wins')
+    losses = request.args.get('losses')
+    winner = request.args.get('winner')
+
+    # print("Match Data:", match_data)
+    # print("player1:", player1)
+    # print("player2:", player2)
+    # print("tournament name:", tournamentName)
+    # print("round:", round)
+    # print("wins:", wins)
+    # print("losses:", losses)
+    # print("winner:", winner)
+
+    jwt_cookie = request.cookies.get('jwt')
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',  
+        'Content-Type': 'application/json'
+    }
+
+    match_data["wins"] = wins
+    match_data["losses"] = losses
+    match_data["winner"] = winner
+    if(winner == "Draw"):
+        match_data["draw"] = True
+    else:
+         match_data["draw"] = False
+    
+
+    api_url = f'http://localhost:8080/tournament/round/match/update?tournamentName={tournamentName}&roundName={round}&player1={player1}&player2={player2}'
+    response = requests.put(api_url, json=match_data, headers=headers)
+
+    if response.status_code == 200:
+        flash("Submitted results!", "success")
+    else:
+        flash("Error submitting results: " + response.text, "danger")
+
+    return redirect(request.referrer)
+
 
 @tournament.route('/pairing')
 def view_pairing():

@@ -68,10 +68,10 @@
                 {% endif %}
             {% endif %}
         </div>
-        
 
-        <!-- Current Pairings -->
-        <div class="col-md-4 mb-4">
+
+          <!-- Current Pairings -->
+          <div class="col-md-4 mb-4">
             <h4 class="admin-manage-tournament-section-title">Current Pairings</h4>
             
             {% if tournament.inProgress %}
@@ -86,8 +86,8 @@
                         </thead>
                         <tbody>
                             {% for match in round.matches %}
-                            <tr class="match-row" style="cursor: pointer;">
-                                <td>{{ match.player1 }} vs {{ match.player2 }}</td>
+                            <tr class="match-row" style="cursor: pointer;" title="Submit match results" data-toggle="modal" data-target="#submitMatch_modal"  data-match-index="{{ loop.index0 }}">
+                                <td >{{ match.player1 }} vs {{ match.player2 }}</td>
                                 <td>
                                     {% if (match.wins is not none) and (match.losses is not none) %}
                                         {{match.wins}} - {{match.losses}}
@@ -111,6 +111,7 @@
                 <p class="admin-manage-tournament-info">No pairings available or tournament has not started.</p>
             {% endif %}
         </div>
+        
 
         
         <!-- Current Players -->
@@ -169,58 +170,89 @@
     <!-- Bootstrap modal(pop-up window) -->
     <div class="modal fade" tabindex="-1" role="dialog" id="submitMatch_modal">
         <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Match Results</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-
-                <div class="form-group">
-                    <label id="player1-label" class="mb-0" > </label>
-                    <input type="text" class="form-control form-control-sm mb-2" placeholder="Enter score">
-
-                    <label id="player2-label" class="mb-0"> </label>
-                    <input type="text" class="form-control form-control-sm mb-2" placeholder="Enter score">
-
-                    <label class="mb-0">Score</label>
-                    <input type="text" class="form-control form-control-sm mb-2" id="score">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title mr-2">{{ tournament.tournamentName ~ ', Round ' ~ tournament.currentRound }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                
+                <form id="matchForm" class="m-2" method="POST">
+                    <input type="hidden" id="matchData"> 
+                    <!-- <p id="matchData"></p> -->
+
+                    <label id="wins-label" class="mb-0">Wins</label>
+                    <input type="text" id="wins_input" class="form-control form-control-sm mb-2" placeholder="Enter score">
+
+                    <label id="losses-label" class="mb-0">Losses</label>
+                    <input type="text" id="losses_input" class="form-control form-control-sm mb-2" placeholder="Enter score">
+
+                    <!-- <label for="isDraw-label" class="mb-0">Draw</label>
+                    <select class="form-control form-control-sm mb-2" id="isDraw-label" name="draw">
+                        <option>True</option>
+                        <option>False</option>
+                    </select> -->
+
+                    <label for="winner-label" class="mb-0">Winner</label>
+                    <select class="form-control form-control-sm mb-2" id="winner_select">
+                        <option id="player1"></option>
+                        <option id="player2"></option>
+                        <option>Draw</option>
+                    </select>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Submit</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
+    
 
-</div>
+    <script>
+        {% if round %}
+            document.querySelectorAll('.match-row').forEach(function(row, index) {
+                row.addEventListener('click', function() {
+                    var matches = {{ round.matches|tojson|safe }};
+
+                    var input = document.getElementById('matchData');
+                    input.value = JSON.stringify(matches[index]);
+
+                    var player1 = document.getElementById('player1');
+                    player1.textContent = matches[index].player1;
+
+                    var player2 = document.getElementById('player2');
+                    player2.textContent = matches[index].player2;
+                });
+            });
+
+            document.getElementById('matchForm').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the form from submitting immediately
+
+                var wins = document.getElementById('wins_input').value || '0';  // Default to 0 if no value
+                var losses = document.getElementById('losses_input').value || '0'; // Default to 0 if no value
+                var winner = document.getElementById('winner_select').value || 'None'; // Default to 'None' if no selection
+
+                var form = document.getElementById('matchForm');
+                var input = document.getElementById('matchData');
+
+                // Update the form action URL with the values from the inputs
+                form.action = "{{ url_for('tournament.update_match') }}?matches=" + encodeURIComponent(input.value) +
+                    "&player1=" + encodeURIComponent(player1.textContent) +
+                    "&player2=" + encodeURIComponent(player2.textContent) +
+                    "&tournamentName=" + encodeURIComponent("{{ tournament.tournamentName }}") +
+                    "&roundName=" + encodeURIComponent("{{ tournament.currentRound }}") +
+                    "&wins=" + encodeURIComponent(wins) +
+                    "&losses=" + encodeURIComponent(losses) +
+                    "&winner=" + encodeURIComponent(winner);
+
+                // Now submit the form
+                form.submit();
+            });
+        {% endif %}
+    </script>
 
 
-<script>
-    // Add event listener to all table rows
-    document.querySelectorAll('.match-row').forEach(function(row) {
-        row.addEventListener('click', function() {
-            // Get content of the clicked row
-            var player1 = row.cells[0].textContent.split(' vs ')[0]; // First player
-            var player2 = row.cells[0].textContent.split(' vs ')[1]; // Second player
-            var score = row.cells[1].innerText; // The score from the second column
-
-            // Populate modal with content
-            document.getElementById('player1-label').textContent = player1 + ':';
-            document.getElementById('player2-label').textContent = player2 + ':';
-            document.getElementById('score').value = score;
-
-            // launch the modal 
-            $('#submitMatch_modal').modal('show');
-        });
-    });
-</script>
-
-
-
+    
 {% endblock %}
