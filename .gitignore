@@ -9,3 +9,5 @@ Flask/tournament/__pycache__
 
 # Ignore any unrelated files
 .DS_Store
+
+Firebase-java/demo/target/
