@@ -230,9 +230,9 @@
             document.getElementById('matchForm').addEventListener('submit', function(event) {
                 event.preventDefault(); // Prevent the form from submitting immediately
 
-                var wins = document.getElementById('wins_input').value || '0';  // Default to 0 if no value
-                var losses = document.getElementById('losses_input').value || '0'; // Default to 0 if no value
-                var winner = document.getElementById('winner_select').value || 'None'; // Default to 'None' if no selection
+                var wins = document.getElementById('wins_input').value;  
+                var losses = document.getElementById('losses_input').value; 
+                var winner = document.getElementById('winner_select').value; 
 
                 var form = document.getElementById('matchForm');
                 var input = document.getElementById('matchData');
