@@ -3,7 +3,6 @@ from . import tournament
 
 from flask import Flask, abort, flash, render_template, request, redirect, session, url_for, Response
 from flask_wtf import FlaskForm 
-from wtforms import StringField, PasswordField ,SubmitField 
 from wtforms.validators import InputRequired
 from werkzeug.security import generate_password_hash 
 import requests
@@ -139,6 +138,19 @@ def update_match():
     losses = request.args.get('losses')
     winner = request.args.get('winner')
 
+    #Validation logic
+    if wins == "" or losses == "":
+        flash('Error! Please fill in all fields', 'danger')
+        return redirect(request.referrer)
+    
+    if winner == 'Draw' and wins != losses:
+        flash('Error! Wins and losses must be equal to declare a draw', 'danger')
+        return redirect(request.referrer)
+        
+    if winner != 'Draw' and wins == losses:
+        flash('Error! Please declare a draw when wins equals losses', 'danger')
+        return redirect(request.referrer)
+    
     # print("Match Data:", match_data)
     # print("player1:", player1)
     # print("player2:", player2)
