@@ -593,10 +593,15 @@ public class TournamentService {
             roundToEnd.setOver(true);
 
             updateRound(tournamentName, roundToEnd);
-            
-            tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
 
-            updateTournament(tournament);
+            if (!isLastRound(tournamentName)) {
+                tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
+
+                updateTournament(tournament);
+            } else {
+                // generate last standings for this round
+            }
+        
 
             return "Round Number Updated";
 
@@ -887,12 +892,31 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
     }
 
+public boolean isLastRound(String tournamentName) throws ExecutionException, InterruptedException {
+    Tournament tournament = getTournament(tournamentName);
+
+    int currentRoundInt = Integer.parseInt(tournament.getCurrentRound());
+
+    if (currentRoundInt == tournament.getExpectedNumRounds()) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
 public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
 
     if (!isTournamentInProgress(tournament)) {
         System.out.println("Tournament is not in progress");
         return false;
     }
+
+    if (isLastRound(tournament)) {
+        System.out.println("The last round of the tournament has already been generated");
+        return false;
+    }
+
     Tournament tourney = getTournament(tournament);
 
     if (tourney != null){
