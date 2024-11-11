@@ -52,9 +52,9 @@
                                 <li><a href="{{url_for('tournament.view_results')}}">View Results</a></li>
                                 <li><a href="{{url_for('tournament.tournament_matches')}}">View tournament matches</a></li> -->
                             </ul>
-                            {% if not is_admin %}
+                            {% if jwt_present %}
                                 <ul>
-                                    <li><a href="{{url_for('tournament.my_tournament')}}">Current Tournament</a></li>
+                                    <li><a href="{{url_for('tournament.my_tournament')}}">Joined Tournaments</a></li>
                                 </ul>
                             {% endif %}
                         </div>
@@ -262,44 +262,26 @@
     <!-- Menu-->
     <ul>
         <li>
-            <a href="#">Home</a>
+            <a href="/">Home</a>
             
         </li>
 
         <li>
-            <a href="teams.html">Tournaments</a>
-            
-        </li>
-
-        <li>
-            <a href="players.html">Players</a>
+            <a href="">Tournaments</a>
             <ul>
                 <li>
-                    <a href="players.html">Players List</a>
+                    <a href="{{url_for('tournament.view_tournaments')}}">View Tournaments</a>
                 </li>
+
+                {% if jwt_present %}
                 <li>
-                    <a href="single-player.html">Single Player</a>
+                    <a href="{{url_for('tournament.my_tournament')}}">Current Tournaments</a>
                 </li>
+                {% endif %}
             </ul>
         </li>
 
-        <li>
-            <a href="fixtures.html">Fixtures</a>
-        </li>
-
-        <li>
-            <a href="results.html">Results</a>
-            <ul>
-                <li>
-                    <a href="results.html">Results List</a>
-                </li>
-                <li>
-                    <a href="single-result.html">Single Result</a>
-                </li>
-            </ul>
-        </li>
-
-       
+     
         <li>
             <li>
                 <a href="{{url_for('user.update_account')}}">Profile</a>
