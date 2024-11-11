@@ -102,26 +102,26 @@ public class TournamentService {
         // Get the document snapshot (representing the player's data)
         DocumentSnapshot document = playerDocRef.get().get();
 // Gary: I recommend this change, so the problem fails early before the frontend starts wondering
-        // ParticipatingPlayer participatingPlayer;
-        // Check if the document exists
-        // if (document.exists()) {
-        //     // Return the document data as a JSON string or formatted output
-        //     System.out.println("Player document found");
-        //     participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
-        // } else {
-        //     System.out.println("player not found");
-        //     participatingPlayer = new ParticipatingPlayer();
-        //     participatingPlayer.setPastMatches(new ArrayList<>());
-        // }
-
-        // Check if the document exists
-        if (!document.exists()) {
-            throw new IllegalArgumentException("The tournament or player does not exists.");
+        ParticipatingPlayer participatingPlayer;
+        //Check if the document exists
+        if (document.exists()) {
+            // Return the document data as a JSON string or formatted output
+            System.out.println("Player document found");
+            participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
+        } else {
+            System.out.println("player not found");
+            participatingPlayer = new ParticipatingPlayer();
+            participatingPlayer.setPastMatches(new ArrayList<>());
         }
 
+        // Check if the document exists
+        // if (!document.exists()) {
+        //     throw new IllegalArgumentException("The tournament or player does not exists.");
+        // }
+
         // Return the document data as a JSON string or formatted output
-        System.out.println("Player document found");
-        ParticipatingPlayer participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
+        //System.out.println("Player document found");
+        //ParticipatingPlayer participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
         
         return participatingPlayer;
     }
