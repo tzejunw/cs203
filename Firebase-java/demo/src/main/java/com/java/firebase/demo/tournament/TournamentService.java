@@ -72,6 +72,10 @@ public class TournamentService {
     
         // Wait for the update to complete
         updateResult.get();
+
+        DocumentReference tournamentDocRef = firestore.collection("tournament").document(tournamentName);
+        ApiFuture<WriteResult> incrementResult = tournamentDocRef.update("numberOfPlayers", FieldValue.increment(1));
+        incrementResult.get();
     
         return "Player with past matches added successfully";
     }
