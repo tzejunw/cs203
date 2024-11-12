@@ -132,12 +132,13 @@ def update_tournament():
         return render_template('errors/403.html', message="Tournament not found"), 403
     
     form = TournamentForm()
-
+    
     if request.method == 'GET':
         tournamentName = request.args.get('tournamentName', type=str)
+       
         api_url = f'http://localhost:8080/tournament/get?tournamentName={tournamentName}'
         response = requests.get(api_url)
-        
+     
         if response.status_code == 200:
             tournament_data = response.json()
             form.tournamentName.data = tournament_data.get('tournamentName')
@@ -151,6 +152,7 @@ def update_tournament():
 
     if form.validate_on_submit():
         # Prepare tournament data without the image URL
+        currentRound = request.form.get('currentRound')  # Get from form data during POST
         tournament_data = {
             "tournamentName": form.tournamentName.data,
             "startDate": form.startDate.data,
@@ -160,7 +162,8 @@ def update_tournament():
             "location": form.location.data,
             "adminList": [],  # You might want to populate this with actual admin data
             "participatingPlayers": [],  # Initially empty
-            "rounds": None  # You might want to handle this appropriately
+            "rounds": None,  # You might want to handle this appropriately
+            "currentRound": currentRound
         }
 
         print(f"Image file: {form.imageUrl.data}")
