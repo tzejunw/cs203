@@ -102,26 +102,26 @@ public class TournamentService {
         // Get the document snapshot (representing the player's data)
         DocumentSnapshot document = playerDocRef.get().get();
 // Gary: I recommend this change, so the problem fails early before the frontend starts wondering
-        // ParticipatingPlayer participatingPlayer;
-        // Check if the document exists
-        // if (document.exists()) {
-        //     // Return the document data as a JSON string or formatted output
-        //     System.out.println("Player document found");
-        //     participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
-        // } else {
-        //     System.out.println("player not found");
-        //     participatingPlayer = new ParticipatingPlayer();
-        //     participatingPlayer.setPastMatches(new ArrayList<>());
-        // }
-
-        // Check if the document exists
-        if (!document.exists()) {
-            throw new IllegalArgumentException("The tournament or player does not exists.");
+        ParticipatingPlayer participatingPlayer;
+        //Check if the document exists
+        if (document.exists()) {
+            // Return the document data as a JSON string or formatted output
+            System.out.println("Player document found");
+            participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
+        } else {
+            System.out.println("player not found");
+            participatingPlayer = new ParticipatingPlayer();
+            participatingPlayer.setPastMatches(new ArrayList<>());
         }
 
+        // Check if the document exists
+        // if (!document.exists()) {
+        //     throw new IllegalArgumentException("The tournament or player does not exists.");
+        // }
+
         // Return the document data as a JSON string or formatted output
-        System.out.println("Player document found");
-        ParticipatingPlayer participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
+        //System.out.println("Player document found");
+        //ParticipatingPlayer participatingPlayer = document.toObject(ParticipatingPlayer.class); // Can be converted to JSON if required
         
         return participatingPlayer;
     }
@@ -593,10 +593,15 @@ public class TournamentService {
             roundToEnd.setOver(true);
 
             updateRound(tournamentName, roundToEnd);
-            
-            tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
 
-            updateTournament(tournament);
+            if (!isLastRound(tournamentName)) {
+                tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
+
+                updateTournament(tournament);
+            } else {
+                // generate last standings for this round
+            }
+        
 
             return "Round Number Updated";
 
@@ -887,12 +892,31 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
     }
 
+public boolean isLastRound(String tournamentName) throws ExecutionException, InterruptedException {
+    Tournament tournament = getTournament(tournamentName);
+
+    int currentRoundInt = Integer.parseInt(tournament.getCurrentRound());
+
+    if (currentRoundInt == tournament.getExpectedNumRounds()) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
 public boolean generateRound(String tournament)throws ExecutionException, InterruptedException{
 
     if (!isTournamentInProgress(tournament)) {
         System.out.println("Tournament is not in progress");
         return false;
     }
+
+    if (isLastRound(tournament)) {
+        System.out.println("The last round of the tournament has already been generated");
+        return false;
+    }
+
     Tournament tourney = getTournament(tournament);
 
     if (tourney != null){
