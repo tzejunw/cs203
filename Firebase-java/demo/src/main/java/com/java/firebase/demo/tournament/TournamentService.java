@@ -407,24 +407,81 @@ public class TournamentService {
     }
 
     // For this Firebase doc, the tournamentName is the documentId.
+    // public String deleteTournament(String tournamentName) throws ExecutionException, InterruptedException {
+    //     // Reference the document in Firestore
+    //     DocumentReference tournamentDocRef = firestore.collection("tournament").document(tournamentName);
+        
+    //     // Check if the document exists
+    //     ApiFuture<DocumentSnapshot> future = tournamentDocRef.get();
+    //     DocumentSnapshot document = future.get();
+        
+    //     if (!document.exists()) {
+    //         return "Tournament not found: " + tournamentName;
+    //     }
+        
+    //     // If the document exists, proceed with the deletion
+    //     ApiFuture<WriteResult> writeResult = tournamentDocRef.delete();
+    //     writeResult.get();  // Wait for the delete operation to complete
+        
+    //     return "Successfully deleted " + tournamentName;
+    // }
+
     public String deleteTournament(String tournamentName) throws ExecutionException, InterruptedException {
-        // Reference the document in Firestore
-        DocumentReference tournamentDocRef = firestore.collection("tournament").document(tournamentName);
+    // Reference the tournament document in Firestore
+    DocumentReference tournamentDocRef = firestore.collection("tournament").document(tournamentName);
+    
+    // Check if the document exists
+    ApiFuture<DocumentSnapshot> future = tournamentDocRef.get();
+    DocumentSnapshot document = future.get();
+    
+    if (!document.exists()) {
+        return "Tournament not found: " + tournamentName;
+    }
+    
+    // Step 1: Delete all participating players in the tournament
+    CollectionReference playersCollection = tournamentDocRef.collection("participatingPlayers");
+    ApiFuture<QuerySnapshot> playersSnapshot = playersCollection.get();
+    for (DocumentSnapshot playerDoc : playersSnapshot.get().getDocuments()) {
+        String playerName = playerDoc.getId();
+        deletePlayer(tournamentName, playerName);
+    }
+    
+    // Step 2: Delete all rounds and their subcollections (matches and standings)
+    CollectionReference roundsCollection = tournamentDocRef.collection("round");
+    ApiFuture<QuerySnapshot> roundsSnapshot = roundsCollection.get();
+    for (DocumentSnapshot roundDoc : roundsSnapshot.get().getDocuments()) {
+        String roundName = roundDoc.getId();
         
-        // Check if the document exists
-        ApiFuture<DocumentSnapshot> future = tournamentDocRef.get();
-        DocumentSnapshot document = future.get();
-        
-        if (!document.exists()) {
-            return "Tournament not found: " + tournamentName;
+        // Delete each match in this round
+        CollectionReference matchesCollection = roundDoc.getReference().collection("match");
+        ApiFuture<QuerySnapshot> matchesSnapshot = matchesCollection.get();
+        for (DocumentSnapshot matchDoc : matchesSnapshot.get().getDocuments()) {
+            String player1 = matchDoc.getString("player1");
+            String player2 = matchDoc.getString("player2");
+            if (player1 != null && player2 != null) {
+                deleteMatch(tournamentName, roundName, player1, player2);
+            }
         }
         
-        // If the document exists, proceed with the deletion
-        ApiFuture<WriteResult> writeResult = tournamentDocRef.delete();
-        writeResult.get();  // Wait for the delete operation to complete
+        // Delete each standing in this round
+        CollectionReference standingsCollection = roundDoc.getReference().collection("standing");
+        ApiFuture<QuerySnapshot> standingsSnapshot = standingsCollection.get();
+        for (DocumentSnapshot standingDoc : standingsSnapshot.get().getDocuments()) {
+            int rank = standingDoc.getLong("rank").intValue();
+            deleteStanding(tournamentName, roundName, rank);
+        }
         
-        return "Successfully deleted " + tournamentName;
+        // Delete the round document itself
+        deleteRound(tournamentName, roundName);
     }
+    
+    // Step 3: Finally, delete the tournament document itself
+    ApiFuture<WriteResult> writeResult = tournamentDocRef.delete();
+    writeResult.get();  // Wait for the delete operation to complete
+    
+    return "Successfully deleted tournament and all associated documents for " + tournamentName;
+}
+
 
     public boolean isTournamentInProgress(String tournamentName) throws InterruptedException, ExecutionException {
         Tournament tournament = getTournament(tournamentName);
