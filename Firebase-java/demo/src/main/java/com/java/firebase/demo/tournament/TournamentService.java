@@ -864,8 +864,11 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         Tournament tourney = getTournament(tournament);
 
         if (tourney != null ){
+            int numberOfPlayers = tourney.getParticipatingPlayers().size();
+            tourney.setNumberOfPlayers(numberOfPlayers);
             tourney.setInProgress(true);
             tourney.setCurrentRound("1");
+            tourney.setExpectedNumRounds(calculateNumberOfRounds(numberOfPlayers));
 
             // parseIntoAlgoRound1
 
@@ -890,6 +893,10 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
 
         return false;
 
+    }
+
+    public int calculateNumberOfRounds(int numberOfPlayers){
+        return (int)(Math.log(numberOfPlayers) / Math.log(2));
     }
 
 public boolean isLastRound(String tournamentName) throws ExecutionException, InterruptedException {
@@ -1066,6 +1073,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
             if (algoMatch.isBye()){
                 match.setPlayer1(player1Name);
                 match.setBye(true);
+                match.setPlayer2("bye");
+                match.setWinner(player1Name);
                 
             }else{
 
@@ -1174,6 +1183,42 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
         }
 
+    }
+
+    public String lastRoundStandingsGenerator(String tournament) throws ExecutionException, InterruptedException{
+        if (!isTournamentInProgress(tournament)) {     
+            return "tournament not in progress yet";
+        }
+        Tournament tourney = getTournament(tournament);
+
+        if (tourney != null){
+
+            // input all participating players into algoObjs and put them into the list algoPlayers
+
+            HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches = new HashMap<AlgoTournamentPlayer , List<String>>();
+            HashMap<String , AlgoTournamentPlayer > playerIDToObj = new HashMap<String , AlgoTournamentPlayer>();
+            
+            List<AlgoTournamentPlayer> algoPlayers = parsePlayersIntoAlgoObjects(tourney, playerToPastMatches,playerIDToObj);
+
+            // update all algoMatchObjs with appropriate player objs
+
+            parseMatchHistoryIntoPlayerObjs(algoPlayers, tourney, playerToPastMatches, playerIDToObj);
+
+            // generate standings and update DB
+
+            AlgoRound algoRound = new AlgoRound(Integer.parseInt(tourney.getCurrentRound()), algoPlayers);
+            algoRound.generateStandings();
+
+            AlgoStandings prevRoundStandings = algoRound.getStandings();
+
+
+            updateStandingsinDB(prevRoundStandings, tournament, tourney);
+
+            return "last round generaeted";
+        }
+
+        return "tournament not found";
+            
     }
 
     
