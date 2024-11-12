@@ -9,6 +9,8 @@
         <form method="POST" action="{{ url_for('admin.update_tournament') }}" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
 
+            <input type="hidden" name="currentRound" value="{{ request.args.get('currentRound') }}">
+
             <div class="form-group p-2">
                 {{ form.tournamentName.label(class="form-label") }}
                 {{ form.tournamentName(class="form-control", readonly=True, style="background-color: #e9ecef;") }}

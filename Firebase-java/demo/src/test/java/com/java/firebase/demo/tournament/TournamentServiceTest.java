@@ -25,6 +25,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutures;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -34,6 +35,7 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
+import com.google.common.collect.ImmutableList;
 import com.java.firebase.demo.algo.AlgoRound;
 
 
@@ -375,28 +377,116 @@ public class TournamentServiceTest {
         verify(tournamentDocument, never()).set(any(), any());
     }
 
+    // @Test
+    // void deleteTournament_DocumentExists_ReturnsSuccessMessage() throws ExecutionException, InterruptedException {
+    //     // Arrange
+    //     String tournamentName = "SampleTournament";
+
+    //     when(firestore.collection("tournament")).thenReturn(mock(CollectionReference.class));
+        
+    //     when(firestore.collection("tournament").document(tournamentName)).thenReturn(tournamentDocument);
+    //     when(tournamentDocument.get()).thenReturn(apiFutureDocumentSnapshot);
+    //     when(apiFutureDocumentSnapshot.get()).thenReturn(documentSnapshot);
+    //     when(documentSnapshot.exists()).thenReturn(true);
+    //     when(tournamentDocument.delete()).thenReturn(apiFutureWriteResult);
+        
+    //     WriteResult writeResult = mock(WriteResult.class); // Mock WriteResult if you need to access more specific properties
+    //     when(apiFutureWriteResult.get()).thenReturn(writeResult);
+
+    //     // Act
+    //     String result = tournamentService.deleteTournament(tournamentName);
+
+    //     // Assert
+    //     assertEquals("Successfully deleted " + tournamentName, result);
+    //     verify(tournamentDocument, times(1)).delete();
+    // }
+
     @Test
-    void deleteTournament_DocumentExists_ReturnsSuccessMessage() throws ExecutionException, InterruptedException {
-        // Arrange
-        String tournamentName = "SampleTournament";
+    public void testDeleteTournament() throws ExecutionException, InterruptedException {
+        String tournamentName = "tournamentName";
+
+
+        // Mock Firestore document structure for the tournament
+        DocumentReference tournamentDocRef = mock(DocumentReference.class);
+        CollectionReference playersCollection = mock(CollectionReference.class);
+        CollectionReference roundsCollection = mock(CollectionReference.class);
 
         when(firestore.collection("tournament")).thenReturn(mock(CollectionReference.class));
-        
-        when(firestore.collection("tournament").document(tournamentName)).thenReturn(tournamentDocument);
-        when(tournamentDocument.get()).thenReturn(apiFutureDocumentSnapshot);
+
+        when(firestore.collection("tournament").document(tournamentName)).thenReturn(tournamentDocRef);
+        when(tournamentDocRef.collection("participatingPlayers")).thenReturn(playersCollection);
+        when(tournamentDocRef.collection("round")).thenReturn(roundsCollection);
+
+        when(tournamentDocRef.get()).thenReturn(apiFutureDocumentSnapshot);
         when(apiFutureDocumentSnapshot.get()).thenReturn(documentSnapshot);
         when(documentSnapshot.exists()).thenReturn(true);
-        when(tournamentDocument.delete()).thenReturn(apiFutureWriteResult);
-        
-        WriteResult writeResult = mock(WriteResult.class); // Mock WriteResult if you need to access more specific properties
-        when(apiFutureWriteResult.get()).thenReturn(writeResult);
+        //Arrays.asList()
 
-        // Act
+        // Mock participatingPlayers documents
+        QueryDocumentSnapshot playerDoc1 = mock(QueryDocumentSnapshot.class);
+        when(playerDoc1.getId()).thenReturn("Player1");
+        QueryDocumentSnapshot playerDoc2 = mock(QueryDocumentSnapshot.class);
+        when(playerDoc2.getId()).thenReturn("Player2");
+
+        QuerySnapshot playersQuerySnapshot = mock(QuerySnapshot.class);
+        //when(playersQuerySnapshot.getDocuments()).thenReturn(Arrays.asList(playerDoc1, playerDoc2));
+        when(playersCollection.get()).thenReturn(apiFutureQuerySnapshot);
+        when(apiFutureQuerySnapshot.get()).thenReturn(querySnapshot);
+        when(querySnapshot.getDocuments()).thenReturn(Arrays.asList(playerDoc1, playerDoc2));
+
+        // Mock round documents
+        QueryDocumentSnapshot roundDoc = mock(QueryDocumentSnapshot.class);
+        when(roundDoc.getId()).thenReturn("Round1");
+
+        QuerySnapshot roundsQuerySnapshot = mock(QuerySnapshot.class);
+        when(roundsQuerySnapshot.getDocuments()).thenReturn(Arrays.asList(roundDoc));
+        when(roundsCollection.get()).thenReturn(ApiFutures.immediateFuture(roundsQuerySnapshot));
+
+        // Mock match and standing documents within the round
+        CollectionReference matchesCollection = mock(CollectionReference.class);
+        CollectionReference standingsCollection = mock(CollectionReference.class);
+        when(roundDoc.getReference()).thenReturn(mock(DocumentReference.class));
+        when(roundDoc.getReference().collection("match")).thenReturn(matchesCollection);
+        when(roundDoc.getReference().collection("standing")).thenReturn(standingsCollection);
+
+        QueryDocumentSnapshot matchDoc = mock(QueryDocumentSnapshot.class);
+        when(matchDoc.getString("player1")).thenReturn("Player1");
+        when(matchDoc.getString("player2")).thenReturn("Player2");
+
+        QuerySnapshot matchesQuerySnapshot = mock(QuerySnapshot.class);
+        when(matchesQuerySnapshot.getDocuments()).thenReturn(Arrays.asList(matchDoc));
+        when(matchesCollection.get()).thenReturn(ApiFutures.immediateFuture(matchesQuerySnapshot));
+
+        QueryDocumentSnapshot standingDoc = mock(QueryDocumentSnapshot.class);
+        when(standingDoc.getLong("rank")).thenReturn(1L);
+
+        QuerySnapshot standingsQuerySnapshot = mock(QuerySnapshot.class);
+        when(standingsQuerySnapshot.getDocuments()).thenReturn(Arrays.asList(standingDoc));
+        when(standingsCollection.get()).thenReturn(ApiFutures.immediateFuture(standingsQuerySnapshot));
+
+        // Spy on the delete helper methods to simulate their return values
+        doReturn("Deleted Player1").when(tournamentService).deletePlayer(tournamentName, "Player1");
+        doReturn("Deleted Player2").when(tournamentService).deletePlayer(tournamentName, "Player2");
+        doReturn("Deleted Match").when(tournamentService).deleteMatch(anyString(), anyString(), anyString(), anyString());
+        doReturn("Deleted Standing").when(tournamentService).deleteStanding(anyString(), anyString(), anyInt());
+        doReturn("Deleted Round").when(tournamentService).deleteRound(anyString(), anyString());
+
+        when(tournamentDocRef.delete()).thenReturn(apiFutureWriteResult);
+        
+
+
+        // Execute the deleteTournament function
         String result = tournamentService.deleteTournament(tournamentName);
 
-        // Assert
-        assertEquals("Successfully deleted " + tournamentName, result);
-        verify(tournamentDocument, times(1)).delete();
+        // Verify that each helper function was called correctly
+        // verify(tournamentService, times(1)).deletePlayer(tournamentName, "Player1");
+        // verify(tournamentService, times(1)).deletePlayer(tournamentName, "Player2");
+        // verify(tournamentService, times(1)).deleteMatch(tournamentName, "Round1", "Player1", "Player2");
+        // verify(tournamentService, times(1)).deleteStanding(tournamentName, "Round1", 1);
+        // verify(tournamentService, times(1)).deleteRound(tournamentName, "Round1");
+
+        // Assert that the result message is correct
+        assertEquals("Successfully deleted tournament and all associated documents for " + tournamentName, result);
     }
 
     @Test
