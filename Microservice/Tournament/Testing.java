@@ -37,9 +37,11 @@ public class Testing {
         List<List<String>> records = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader("testdata.csv"))) {
             String line;
-            while ((line = br.readLine()) != null) {
+            int n = 0;
+            while ((line = br.readLine()) != null && n < 6) {
                 String[] values = line.split(",");
                 records.add(Arrays.asList(values));
+                n++;
             }
         }catch (Exception E){
 
@@ -115,7 +117,7 @@ public class Testing {
         //     System.out.println(p.getUserID() + " - " + p.getCurMatchPts());
         // }
 
-        for ( int i =0 ; i <20; i++){
+        for ( int i =0 ; i <1; i++){
             s = testRound.generateStandings();
             testRound.generateMatches(new ArrayList<Match>());
 
@@ -146,8 +148,6 @@ public class Testing {
             }
             
             //m.update(m.getP1(), 2, 0);
-
-
             
         }
 
@@ -167,6 +167,8 @@ public class Testing {
             int prepairs = p.numberofRepairs();
             //System.out.println("number of re-pairs : "+ prepairs);
             totalrepairs += prepairs;
+
+            System.out.println(p.getUserID() + " Score : " +p.getCurMatchPts()+ " OMW: " + p.getCurOMW());
         }
 
         System.out.println("total downpairs: " + count);

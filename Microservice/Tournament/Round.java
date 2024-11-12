@@ -46,6 +46,8 @@ public class Round {
         
         boolean isMatched;
 
+        
+
         for ( List<TournamentPlayer> bracket : brackets ){
             
             List<TournamentPlayer> bracketcopy = new ArrayList<TournamentPlayer>(bracket);

@@ -140,7 +140,7 @@ public class TournamentPlayer{
         for ( Match m : pastMatches){
             if (!m.isBye()){
                 TournamentPlayer opp = m.getP1().equals(this) ? m.getP2() : m.getP1();
-                double oppOMW = (double)opp.getTotalMatchPoints() / opp.roundsPlayed() > 0.33 ? (double)opp.getTotalMatchPoints() / opp.roundsPlayed() : 0.33;
+                double oppOMW = (double)opp.getTotalMatchPoints() / opp.roundsPlayed() > 0.33 ? (double)opp.getTotalMatchPoints() / (opp.roundsPlayed() * 3.0) : 0.33;
                 OMW +=  oppOMW;    
             }
         }
