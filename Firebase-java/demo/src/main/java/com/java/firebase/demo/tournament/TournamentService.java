@@ -661,11 +661,12 @@ public class TournamentService {
             if (!isLastRound(tournamentName)) {
                 tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
 
-                updateTournament(tournament);
             } else {
                 // generate last standings for this round
                 lastRoundStandingsGenerator(tournamentName);
+                tournament.setInProgress(false);
             }
+            updateTournament(tournament);
         
             return "Round Number Updated";
 
@@ -983,11 +984,6 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
     if (!isTournamentInProgress(tournament)) {
         System.out.println("Tournament is not in progress");
-        return false;
-    }
-
-    if (isLastRound(tournament)) {
-        System.out.println("The last round of the tournament has already been generated");
         return false;
     }
 

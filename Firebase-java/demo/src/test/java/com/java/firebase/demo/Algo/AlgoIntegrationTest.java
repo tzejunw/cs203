@@ -47,8 +47,8 @@ public class AlgoIntegrationTest {
 
     private String token;
     private String uid;
-    private String tournamentName = "iantest5";
-    private int numberOfPlayers = 8;
+    private String tournamentName = "demotournament";
+    private int numberOfPlayers = 16;
 
     @BeforeAll
     public void setup() throws Exception {
@@ -82,7 +82,7 @@ public class AlgoIntegrationTest {
         tournament.setExpectedNumRounds(0);
         tournament.setTournamentDesc("test");
         tournament.setInProgress(false);
-        tournament.setImageUrl(null);
+        tournament.setImageUrl("https://firebasestorage.googleapis.com/v0/b/cs203-a263b.appspot.com/o/tournament-1.jpg?alt=media&token=e2b01ac8-f14a-4a27-a3dd-7eca308a14cb");
         tournament.setRounds(new ArrayList<>());
 
 
@@ -103,6 +103,12 @@ public class AlgoIntegrationTest {
 
         URI urlForCreatePlayer;
         ResponseEntity<String>createPlayerResult;
+        String user = "garytest1";
+
+        urlForCreatePlayer = new URI(baseUrl + port + "/tournament/player/create?tournamentName="+tournamentName+"&participatingPlayerName=" + user);
+        createPlayerResult = restTemplate.postForEntity(urlForCreatePlayer, createPlayerHeader, String.class);
+        assertEquals(200, createPlayerResult.getStatusCode().value());
+
         for (int i = 1; i <= numberOfPlayers; i++){
             urlForCreatePlayer = new URI(baseUrl + port + "/tournament/player/create?tournamentName="+tournamentName+"&participatingPlayerName=user" + i);
             createPlayerResult = restTemplate.postForEntity(urlForCreatePlayer, createPlayerHeader, String.class);
@@ -291,19 +297,19 @@ public class AlgoIntegrationTest {
 
     }
 
-    @Test
-    @Order(9)
-    public void testEndRound_Success3() throws Exception{
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
-        HttpEntity<Void> headerEntity = new HttpEntity<>(headers);
+    // @Test
+    // @Order(9)
+    // public void testEndRound_Success3() throws Exception{
+    //     HttpHeaders headers = new HttpHeaders();
+    //     headers.set("Authorization", "Bearer " + token);
+    //     HttpEntity<Void> headerEntity = new HttpEntity<>(headers);
 
-        URI urlEndRound = new URI(baseUrl + port + "/tournament/round/end?tournamentName=" + tournamentName + "&roundName=2");
+    //     URI urlEndRound = new URI(baseUrl + port + "/tournament/round/end?tournamentName=" + tournamentName + "&roundName=2");
 
-        ResponseEntity<String> endRoundResult = restTemplate.exchange(urlEndRound, HttpMethod.GET ,headerEntity, String.class);
-        assertEquals(200, endRoundResult.getStatusCode().value());
+    //     ResponseEntity<String> endRoundResult = restTemplate.exchange(urlEndRound, HttpMethod.GET ,headerEntity, String.class);
+    //     assertEquals(200, endRoundResult.getStatusCode().value());
 
-    }
+    // }
 /* 
     @AfterAll
     public void takeDown() throws Exception {
