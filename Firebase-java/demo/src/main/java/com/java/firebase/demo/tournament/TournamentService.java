@@ -661,11 +661,12 @@ public class TournamentService {
             if (!isLastRound(tournamentName)) {
                 tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
 
-                updateTournament(tournament);
             } else {
                 // generate last standings for this round
                 lastRoundStandingsGenerator(tournamentName);
+                tournament.setInProgress(false);
             }
+            updateTournament(tournament);
         
             return "Round Number Updated";
 
