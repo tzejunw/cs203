@@ -986,11 +986,6 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
         return false;
     }
 
-    if (isLastRound(tournament)) {
-        System.out.println("The last round of the tournament has already been generated");
-        return false;
-    }
-
     Tournament tourney = getTournament(tournament);
 
     if (tourney != null){
