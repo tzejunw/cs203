@@ -25,7 +25,13 @@ public class ImageController {
     // Endpoint to upload an image to Firebase Storage and save the URL to Firestore DOCUMENT
     @PostMapping("/upload")
     public String uploadImage(@RequestParam("file") MultipartFile file,
-                              @RequestParam("documentId") String documentId) throws IOException {
+                              @RequestParam("documentId") String documentId) throws IOException, IllegalArgumentException {
+        if (file == null) {
+            throw new IllegalArgumentException("File must not be null");
+        }
+        if (documentId == null || documentId.isEmpty()) {
+            throw new IllegalArgumentException("documentId must not be null");
+        }
         // Upload the image and get its URL
         String imageUrl = imageService.uploadImage(file);
 

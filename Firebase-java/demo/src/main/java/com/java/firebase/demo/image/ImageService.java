@@ -17,7 +17,8 @@ import java.nio.charset.StandardCharsets;
 public class ImageService {
 
     // Method to upload an image to Firebase Storage and return the URL
-    public String uploadImage(MultipartFile file) throws IOException {
+    public String uploadImage(MultipartFile file) throws IOException, IllegalArgumentException{
+
         System.out.println("upload file starting"); // Log the URL
         // Get a reference to the default bucket
         Bucket bucket = StorageClient.getInstance().bucket();
