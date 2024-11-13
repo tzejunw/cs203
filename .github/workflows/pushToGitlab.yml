@@ -1,22 +1,26 @@
-name: GitlabSync
+name: Sync to GitLab
 
 on:
-  - push
-  - delete
+  push:
+    branches:
+      - main  # Specify the branch you want to sync
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    name: Git Repo Sync
+
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - uses: tzejunw/cs203.git@v0.1.0
-      with:
-        # Such as https://github.com/tzejunw/git-repo-sync.git
-        target-url: https://github.com/tzejunw/cs203.git
-        # Such as wangchucheng
-        target-username: tzejunw
-          # You can store token in your project's 'Setting > Secrets' and reference the name here. Such as ${{ secrets.ACCESS\_TOKEN }}
-        target-token: ${{ secrets.TOKEN_203 }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "garry014"
+          git config --global user.email "garry014@users.noreply.github.com"
+
+      - name: Push to GitLab
+        env:
+          GITLAB_TOKEN: glpat-NP8qKTVTj2nyujnV-zow # ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          git remote add gitlab https://oauth2:${GITLAB_TOKEN}@gitlab.com/garry014/cs203.git
+          git push -u gitlab main
