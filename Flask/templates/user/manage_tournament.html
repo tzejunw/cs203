@@ -1,0 +1,250 @@
+{% extends "layouts/base.html" %}
+{% block title %}Manage Tournament{% endblock %}
+{% from "macros/form.html" import render_form %}
+
+{% block content %}
+<div class="user-manage-tournament-container container mt-3">
+    
+    <!-- Header Row with Image and Description -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" 
+                 class="img-fluid rounded" alt="{{ tournament.tournamentName }} Banner">
+        </div>
+        <div class="col-md-4 d-flex flex-column justify-content-center">
+            <h3 class="user-manage-tournament-name">{{ tournament.tournamentName }}</h3>
+            <p class="user-manage-tournament-description">{{ tournament.tournamentDesc }}</p>
+            {% if tournament.inProgress %}
+                <h3><span class="badge badge-success p-2">Tournament In Progress</span></h3>
+            {% else %}
+                <h3><span class="badge badge-warning p-2">Pending Start</span></h3>
+            {% endif %}
+           
+            
+        </div>  
+    </div>
+
+    <!-- Row for Current Round, Current Pairings, and Current Players -->
+    <div class="row justify-content-center text-center mt-5">
+
+        <!-- Current Round -->
+        <div class="col-md-4 mb-4">
+            <h4 class="user-manage-tournament-section-title font-weight-bold">Current Round</h4>
+                {% if tournament.inProgress %}
+                    <p class="display-4 font-weight-bold text-dark">
+                        {{ tournament.currentRound }}
+                    </p>
+                {% else %}
+                    <p class="h4 text-secondary">
+                        Tournament has not started
+                    </p>
+                {% endif %}
+            </p>
+        </div>
+
+         <!-- Current Pairings -->
+         <div class="col-md-4 mb-4">
+            <h4 class="user-manage-tournament-section-title font-weight-bold">Current Pairings</h4>
+            
+            {% if tournament.inProgress %}
+                {% if round %}
+                    <table class="table table-hover table-sm bg-white">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Duels</th>
+                                <th class="text-center">Score</th>
+                                <th class="text-center">Winner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for match in round.matches %}
+                            <tr class="match-row" style="cursor: pointer;" title="Submit match results" data-match-index="{{ loop.index0 }}">
+                                <td >{{ match.player1 }} vs {{ match.player2 }}</td>
+                                <td>
+                                    {% if (match.wins is not none) and (match.losses is not none) %}
+                                        {{match.wins}} - {{match.losses}}
+                                    {% endif %}           
+                                </td>
+                                <td>
+                                    {% if match.winner %}
+                                        {{ match.winner }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>     
+                    </table>
+                {% else %}
+                    <!-- Display message if the tournament is in progress but no round data is available -->
+                    <p class="h4 text-secondary">
+                        The round has not started
+                    </p>
+                {% endif %}
+            {% else %}
+                <!-- Display message if the tournament has not started -->
+                <p class="h4 text-secondary">
+                    No pairings available
+                </p>
+            {% endif %}
+        </div>
+
+
+        <!-- Current Players -->
+        <div class="col-md-4 mb-4">
+            <h4 class="admin-manage-tournament-section-title">Current Players</h4>
+            <ul class="list-group admin-manage-tournament-players">
+                {% if tournament.participatingPlayers %}
+                    {% for player in tournament.participatingPlayers %}
+                        <li class="list-group-item admin-manage-tournament-player-item">{{ player }}</li>
+                    {% endfor %}
+                {% else %}
+                    <p class="admin-manage-tournament-info">No players currently participating.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+         <!-- Row for Current Standings -->
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <h4 class="admin-manage-tournament-section-title">Current Standings</h4>
+                {% if standings and standings|length > 0 %}
+                    <table class="table table-striped table-bordered admin-manage-tournament-standings bg-white">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player ID</th>
+                                <th>Match Points</th>
+                                <th>Opponent Match Win %</th>
+                                <th>Game Points</th>
+                                <th>Opponent Game Win %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for player in standings|sort(attribute='rank') %}
+                                <tr>
+                                    <td>{{ player.rank }}</td>
+                                    <td>{{ player.playerID }}</td>
+                                    <td>{{ player.curMatchPts }}</td>
+                                    <td>{{ player.curOMW }}</td>
+                                    <td>{{ player.curGamePts  }}</td>
+                                    <td>{{ player.curOGW }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% elif standings|length == 1 %}
+                    <p class="admin-manage-tournament-info">Tournament has not started or no standings available.</p>
+                {% else %}
+                    <p class="admin-manage-tournament-info">No standings available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+</div>
+
+
+<!-- Bootstrap modal(pop-up window) -->
+<div class="modal fade" tabindex="-1" role="dialog" id="submitMatch_modal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title mr-2">{{ tournament.tournamentName ~ ', Round ' ~ tournament.currentRound }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="matchForm" class="m-2" method="POST">
+                <input type="hidden" id="matchData"> 
+                <!-- <p id="matchData"></p> -->
+
+                <label id="wins-label" class="mb-0">Wins</label>
+                <input type="text" id="wins_input" class="form-control form-control-sm mb-2" placeholder="Enter score">
+
+                <label id="losses-label" class="mb-0">Losses</label>
+                <input type="text" id="losses_input" class="form-control form-control-sm mb-2" placeholder="Enter score">
+
+                <!-- <label for="isDraw-label" class="mb-0">Draw</label>
+                <select class="form-control form-control-sm mb-2" id="isDraw-label" name="draw">
+                    <option>True</option>
+                    <option>False</option>
+                </select> -->
+
+                <label for="winner-label" class="mb-0">Winner</label>
+                <select class="form-control form-control-sm mb-2" id="winner_select">
+                    <option id="player1"></option>
+                    <option id="player2"></option>
+                    <option>Draw</option>
+                </select>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+     {% if round %}
+        document.querySelectorAll('.match-row').forEach(function(row, index) {
+            row.addEventListener('click', function() {
+                var matches = {{ round.matches|tojson|safe }};
+                var currentMatch = matches[index];
+                var currentUser = "{{currentUser}}";
+
+                console.log("Current User:", currentUser);
+                console.log("Player 1:", currentMatch.player1);
+                console.log("Player 2:", currentMatch.player2);
+
+                // row.removeAttribute('data-toggle');
+                // row.removeAttribute('data-target');
+
+                // Only trigger modal if the current user is one of the players in the match
+                if (currentMatch.player1 === currentUser || currentMatch.player2 === currentUser) {
+                    var input = document.getElementById('matchData');
+                    input.value = JSON.stringify(currentMatch);
+
+                    var player1 = document.getElementById('player1');
+                    player1.textContent = currentMatch.player1;
+
+                    var player2 = document.getElementById('player2');
+                    player2.textContent = currentMatch.player2;
+
+                    $('#submitMatch_modal').modal('show'); // Programmatically show the modal
+                }
+
+            });
+        });
+
+        document.getElementById('matchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var wins = document.getElementById('wins_input').value;  
+            var losses = document.getElementById('losses_input').value; 
+            var winner = document.getElementById('winner_select').value; 
+
+            var form = document.getElementById('matchForm');
+            var input = document.getElementById('matchData');
+
+            form.action = "{{ url_for('tournament.update_match') }}?matches=" + encodeURIComponent(input.value) +
+                "&player1=" + encodeURIComponent(player1.textContent) +
+                "&player2=" + encodeURIComponent(player2.textContent) +
+                "&tournamentName=" + encodeURIComponent("{{ tournament.tournamentName }}") +
+                "&roundName=" + encodeURIComponent("{{ tournament.currentRound }}") +
+                "&wins=" + encodeURIComponent(wins) +
+                "&losses=" + encodeURIComponent(losses) +
+                "&winner=" + encodeURIComponent(winner);
+
+            form.submit();
+        });
+    {% endif %}
+</script>
+
+{% endblock %}
