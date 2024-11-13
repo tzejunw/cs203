@@ -47,8 +47,8 @@ public class AlgoIntegrationTest {
 
     private String token;
     private String uid;
-    private String tournamentName = "iantest4";
-    private int numberOfPlayers = 9;
+    private String tournamentName = "iantest5";
+    private int numberOfPlayers = 8;
 
     @BeforeAll
     public void setup() throws Exception {
@@ -187,7 +187,7 @@ public class AlgoIntegrationTest {
         ResponseEntity<String> startRoundResult = restTemplate.exchange(urlStartRound, HttpMethod.GET,headerEntity, String.class);
         assertEquals(200, startRoundResult.getStatusCode().value());
         
-    }/* 
+    }
 
     @Test
     @Order(5)
@@ -288,6 +288,20 @@ public class AlgoIntegrationTest {
             assertEquals(200, updateMatchResult.getStatusCode().value());
             
         }
+
+    }
+
+    @Test
+    @Order(9)
+    public void testEndRound_Success3() throws Exception{
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<Void> headerEntity = new HttpEntity<>(headers);
+
+        URI urlEndRound = new URI(baseUrl + port + "/tournament/round/end?tournamentName=" + tournamentName + "&roundName=2");
+
+        ResponseEntity<String> endRoundResult = restTemplate.exchange(urlEndRound, HttpMethod.GET ,headerEntity, String.class);
+        assertEquals(200, endRoundResult.getStatusCode().value());
 
     }
 /* 

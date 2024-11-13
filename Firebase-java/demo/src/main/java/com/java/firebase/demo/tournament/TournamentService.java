@@ -986,10 +986,10 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
         return false;
     }
 
-    // if (isLastRound(tournament)) {
-    //     System.out.println("The last round of the tournament has already been generated");
-    //     return false;
-    // }
+    if (isLastRound(tournament)) {
+        System.out.println("The last round of the tournament has already been generated");
+        return false;
+    }
 
     Tournament tourney = getTournament(tournament);
 
@@ -1285,6 +1285,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
             algoRound.generateStandings();
 
             AlgoStandings prevRoundStandings = algoRound.getStandings();
+
+            tourney.setCurrentRound(Integer.parseInt(tourney.getCurrentRound()) + 1 + "");
 
             updateStandingsinDB(prevRoundStandings, tournament, tourney);
 
