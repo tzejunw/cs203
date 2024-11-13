@@ -241,7 +241,7 @@ public class AlgoTest {
         
         completeRounds(2);
 
-        //print();
+        print();
 
         // 4 brackets after 3 rounds, 0-3, 1-2, 2-1, 3-0
 

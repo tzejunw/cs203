@@ -1145,6 +1145,7 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
                 match.setBye(true);
                 match.setPlayer2("bye");
                 match.setWinner(player1Name);
+                match.setWins(2);
                 
             }else{
 

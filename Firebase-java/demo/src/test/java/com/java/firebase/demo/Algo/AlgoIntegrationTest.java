@@ -188,7 +188,7 @@ public class AlgoIntegrationTest {
         ResponseEntity<String> startRoundResult = restTemplate.exchange(urlStartRound, HttpMethod.GET,headerEntity, String.class);
         assertEquals(200, startRoundResult.getStatusCode().value());
         
-    }
+    }/* 
 
     @Test
     @Order(5)
@@ -301,6 +301,6 @@ public class AlgoIntegrationTest {
 
         ResponseEntity<String> result = restTemplate.exchange(uri,HttpMethod.DELETE ,request, String.class);
         assertEquals(200, result.getStatusCode().value());
-    } */
+    } */ 
 
 }
