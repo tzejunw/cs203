@@ -15,35 +15,87 @@
 </div>
 
 <div class="container-fluid p-5">
-    <!-- First tournament in larger section below the main banner -->
-    {% if tournaments|length > 0 %}
-    <div class="row mb-5 home-shadow">
-        <div class="col-md-7"> <!-- Adjusted width to col-md-7 -->
-            <img src="{{ tournaments[0].imageUrl if tournaments[0].imageUrl else url_for('static',filename='img/home/default-tournament.jpg') }}" alt="Main Tournament Image" class="img-fluid">
+    <!-- Row containing video and text -->
+    <div class="row">
+        <!-- Local Video Column -->
+        <div class="col-md-8">
+            <div class="video-container">
+                <video width="100%" height="auto" autoplay muted loop>
+                    <!-- Corrected the closing brace for url_for -->
+                    <source src="{{ url_for('static', filename='videos/home_video.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
         </div>
-        <div class="col-md-5 bg-light p-3"> <!-- Kept the width consistent -->
-            <h2>{{ tournaments[0].tournamentName }}</h2>
-            <p>{{ tournaments[0].tournamentDesc if tournaments[0].tournamentDesc else 'Join the upcoming tournament' }}</p>
-            <button type="button" class="btn btn-warning home-button">View Tournament</button>
+
+        <!-- Text Column -->
+        <div class="col-md-4">
+            <p class="home-featured-title">Join the Magic Community</h2>
+            <p class="home-featured-desc">Whether you're looking to sharpen your skills or prove yourself on a global stage, our tournaments offer a variety of formats and prize pools. </p>
+            <p class="home-featured-desc">Our tournaments are open to all levels of players. Whether you're a beginner or an expert, we have a place for you! Gain experience, meet new friends, and enjoy the thrill of competitive Magic. </p>
+            <!-- <p class="home-featured-desc">Sign up now and level up your game. Don't miss your chance to be part of the action. Register today, join a tournament, and see where your skills take you! -->
+
+            </p>
         </div>
     </div>
-    {% endif %}
 
-    <!-- Ongoing Tournaments Section -->
-    <h3>Ongoing Tournaments</h3>
-    <br>
-    <div class="row">
-        {% for tournament in tournaments[1:5] %} <!-- Limit to the next 4 tournaments -->
-        <div class="col-md-3">
-            <div class="card">
-                <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="card-img-top" alt="Tournament Image">
-                <div class="card-body home-card">
-                    <h5 class="card-title">{{ tournament.tournamentName }}</h5>
-                    <p class="card-text">{{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}</p>
+    <div class="container-fluid py-5" >
+        <div class="row text-center">
+            <!-- Compliance -->
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="p-5" style="background-color: black; border-radius: 8px">
+                    <div class="mb-3">
+                        <img src="{{ url_for('static', filename='icons/user.svg') }}" alt="Your Icon" />
+                    </div>
+                    <h4 style="color: white">Register</h4>
+                    <p style="color: grey">Sign up for an Account</p>
+                </div>
+            </div>
+            <!-- Prevention -->
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="p-5" style="background-color: black; border-radius: 8px">
+                    <div class="mb-3">
+                        <img src="{{ url_for('static', filename='icons/magnifying-glass.svg') }}" alt="Your Icon" />
+                    </div>
+                    <h4 style="color: white">View</h4>
+                    <p style="color: grey">View tournaments</p>
+                </div>
+            </div>
+            <!-- Education -->
+            <div class="col-md-4">
+                <div class="p-5" style="background-color: #DC5743; color: white; border-radius: 8px;">
+                    <div class="mb-3">
+                        <img src="{{ url_for('static', filename='icons/check.svg') }}" alt="Your Icon" />
+                    </div>
+                    <h4 style="color: white">Join</h4>
+                    <p style="color: rgb(218, 218, 218)">Join a tournament</p>
                 </div>
             </div>
         </div>
-        {% endfor %}
+
+        <br>
+        <h3>Ongoing Tournaments</h3>
+        <br>
+        <div class="row">
+            {% for tournament in tournaments[0:4] %} <!-- Limit to the next 4 tournaments -->
+                {% if tournament.inProgress %}
+                <div class="col-md-3">
+                    <div class="card">
+                        <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="card-img-top" alt="Tournament Image">
+                        <div class="card-body home-card">
+                            <h5 class="home-card-title">{{ tournament.tournamentName }}</h5>
+                            <p class="home-card-text">{{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
     </div>
+
+    </div>
+    
+
+    
+    
 </div>
 {% endblock %}
