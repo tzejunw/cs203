@@ -13,13 +13,13 @@ import json
 from datetime import datetime, date
 
 firebase_config = {
-    'apiKey': os.getenv('FIREBASE_API_KEY'),
-    'authDomain': os.getenv('FIREBASE_AUTH_DOMAIN'),
-    'projectId': os.getenv('FIREBASE_PROJECT_ID'),
-    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
-    'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
-    'appId': os.getenv('FIREBASE_APP_ID'),
-    'measurementId': os.getenv('FIREBASE_MEASUREMENT_ID'),
+    'apiKey': "AIzaSyCDJEkLkIfEoggaGDKY5TJjrkXsUolIJDk",
+    'authDomain': "https://cs203-a263b.firebaseapp.com/",
+    'projectId': "cs203-a263b",
+    'storageBucket': "cs203-a263b.appspot.com",
+    'messagingSenderId': "28927577611",
+    'appId': "1:28927577611:web:42e3ffc3901ab028e3410e",
+    'measurementId': "G-SSRD2ZW3NS",
 }
 
 def YmdToDmyConverter(date_str):
@@ -189,6 +189,7 @@ def google_login():
     if token is None:
         return jsonify({'status': 'error', 'message': 'Token is missing'}), 400
 
+    print(current_app.config['BACKEND_URL'])
     getUserDetails = requests.get(
         current_app.config['BACKEND_URL'] + "/user", 
         headers = {
