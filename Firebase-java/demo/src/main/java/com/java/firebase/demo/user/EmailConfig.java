@@ -1,19 +1,26 @@
 package com.java.firebase.demo.user;
 
 import java.util.Properties;
+
 import javax.mail.Session;
 
-import io.github.cdimascio.dotenv.Dotenv;
+// import io.github.cdimascio.dotenv.Dotenv;
 
 public class EmailConfig {
+    // @Value("${EMAIL_SENDER_USERNAME}")
+    private static String EMAIL_SENDER_USERNAME = "magicarena431@gmail.com";
+
+    // @Value("${EMAIL_SENDER_PASSWORD}")
+    private static String EMAIL_SENDER_PASSWORD = "szhp bltz wcom bbee";
+
     public static Session getSession() {
 
          // Load environment variables
-        Dotenv dotenv = Dotenv.load();
+        // Dotenv dotenv = Dotenv.load();
 
         // Get the Base64 encoded key from environment variable
-        String EMAIL_SENDER_USERNAME = dotenv.get("EMAIL_SENDER_USERNAME");
-        String EMAIL_SENDER_PASSWORD = dotenv.get("EMAIL_SENDER_PASSWORD");
+        // String EMAIL_SENDER_USERNAME = dotenv.get("EMAIL_SENDER_USERNAME");
+        // String EMAIL_SENDER_PASSWORD = dotenv.get("EMAIL_SENDER_PASSWORD");
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

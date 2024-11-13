@@ -7,9 +7,10 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 public class EmailService {
+    // @Value("${EMAIL_SENDER_USERNAME}")
+    private String EMAIL_SENDER_USERNAME = "magicarena431@gmail.com";
+
     public void sendVerificationEmail(String recipientEmail, String verificationLink) {
         String htmlContent = "<!DOCTYPE html>"
                 + "<html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>"
@@ -35,10 +36,10 @@ public class EmailService {
         try {
 
             // Load environment variables
-            Dotenv dotenv = Dotenv.load();
+            // Dotenv dotenv = Dotenv.load();
 
             // Get the Base64 encoded key from environment variable
-            String EMAIL_SENDER_USERNAME = dotenv.get("EMAIL_SENDER_USERNAME");
+            // String EMAIL_SENDER_USERNAME = dotenv.get("EMAIL_SENDER_USERNAME");
 
             // Obtain the mail session from EmailConfig
             Session session = EmailConfig.getSession();
