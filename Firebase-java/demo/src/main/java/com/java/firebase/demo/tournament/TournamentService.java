@@ -219,7 +219,9 @@ public class TournamentService {
 
         // Update final round standings
 
-        return lastRoundStandingsGenerator(tournamentName);
+        //return lastRoundStandingsGenerator(tournamentName);
+
+        return "tournament ended";
 
         } else {
             return "Tournament was not in progress";
@@ -664,6 +666,7 @@ public class TournamentService {
                 updateTournament(tournament);
             } else {
                 // generate last standings for this round
+                lastRoundStandingsGenerator(tournamentName);
             }
         
             return "Round Number Updated";
@@ -887,7 +890,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         // Generate the documentId based on tournament, round, and rank
         String documentId = updatedStanding.getRank() + "";
         
-        DocumentReference standingDocRef = firestore.collection("tournament")
+        DocumentReference standingDocRef= firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
                                                       .document(roundName)
@@ -1238,22 +1241,18 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     public void updateStandingsinDB(AlgoStandings algoStandings, String tournament, Tournament tourney) throws ExecutionException, InterruptedException{
 
         int rank = 1;
-        int roundStandingsToUpdate = Integer.parseInt(tourney.getCurrentRound());
+        int roundStandingsToUpdate = Integer.parseInt(tourney.getCurrentRound())-1;
 
-        if (tourney.getExpectedNumRounds() != roundStandingsToUpdate){
-            roundStandingsToUpdate--;
-        }
         for (AlgoTournamentPlayer player : algoStandings.getStandings()){
             
             Standing playerCurStanding = new Standing();
             
             playerCurStanding.setRank(rank++);
-            playerCurStanding.setCurGamePts(player.getCurMatchPts());
-            playerCurStanding.setCurMatchPts(player.getCurMatchPts());
+            playerCurStanding.setCurGamePts(player.getTotalGamePoints());
+            playerCurStanding.setCurMatchPts(player.getTotalMatchPoints());
             playerCurStanding.setCurOGW(player.getCurOGW());
             playerCurStanding.setCurOMW(player.getCurOMW());
             playerCurStanding.setPlayerID(player.getPlayerID());
-
 
             createStanding(tournament, ""+roundStandingsToUpdate, playerCurStanding);
 

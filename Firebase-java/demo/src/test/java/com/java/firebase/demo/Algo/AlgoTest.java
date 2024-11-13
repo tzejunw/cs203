@@ -241,12 +241,22 @@ public class AlgoTest {
         
         completeRounds(2);
 
+        //print();
+
         // 4 brackets after 3 rounds, 0-3, 1-2, 2-1, 3-0
 
         ArrayList<List<AlgoTournamentPlayer>> brackets = testRound.getBracket();
 
         assertEquals(4, brackets.size());
 
+    }
+
+    
+    void print(){
+        for (AlgoTournamentPlayer p : players){
+            System.out.println("player : " + p.getPlayerID() + " MatchWinPts : " +p.getTotalMatchPoints() +  " GameWinPts : " +p.getTotalGamePoints());
+            System.out.println();
+        }
     }
 
     

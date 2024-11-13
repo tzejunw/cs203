@@ -35,7 +35,7 @@ public class AlgoTournamentPlayer{
         return curMatchPts;
     }
 
-    public int getCurGamePoints(){
+    public int getCurGamePts(){
         return curGamePts;
     }
 
