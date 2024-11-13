@@ -213,10 +213,13 @@ public class TournamentService {
         // Use arrayUnion to add the matchId to the pastMatches array field
         ApiFuture<WriteResult> updateResult = tournamentDocRef.update("inProgress", false);
 
+
         // Wait for the update to complete
         updateResult.get();
 
-        return "Tournament ended";
+        // Update final round standings
+
+        return lastRoundStandingsGenerator(tournamentName);
 
         } else {
             return "Tournament was not in progress";
@@ -663,7 +666,6 @@ public class TournamentService {
                 // generate last standings for this round
             }
         
-
             return "Round Number Updated";
 
         }else{
@@ -1100,6 +1102,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
     public AlgoRound parseIntoAlgoRound1( Tournament tournament){
 
+        // convert String player names to playerObjs for the algo
+
         final int firstRound = 1; 
 
         ArrayList<AlgoTournamentPlayer> playerObjs = new ArrayList<AlgoTournamentPlayer>();
@@ -1117,6 +1121,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     }
 
     public List<Match> parseAlgoRoundMatchesToMatch( AlgoRound roundToParse){
+
+        // converts algoMatch obj to Match obj to parse into DB
 
         List<AlgoMatch> matchesToParse = roundToParse.getAlgoMatches();
 
@@ -1156,6 +1162,9 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
 
     public void updateDataBaseWithMatches( Tournament tournament, String roundName, List<Match> matchesToupdate) throws ExecutionException, InterruptedException{
+        
+        //parses Match objects into te DB
+
 
         for ( Match match : matchesToupdate){
 
@@ -1175,6 +1184,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     }
 
     public List<AlgoTournamentPlayer> parsePlayersIntoAlgoObjects( Tournament tournament, HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches, HashMap<String , AlgoTournamentPlayer > playerIDToObj)throws ExecutionException, InterruptedException{
+
+        // Differs from parseIntoAlgoRd1 as there is the need to map past match record to player objects
 
         List<AlgoTournamentPlayer> algoPlayers = new ArrayList<>();
         List<String> playerIDs = tournament.getParticipatingPlayers();
@@ -1247,9 +1258,7 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     }
 
     public String lastRoundStandingsGenerator(String tournament) throws ExecutionException, InterruptedException{
-        if (!isTournamentInProgress(tournament)) {     
-            return "tournament not in progress yet";
-        }
+
         Tournament tourney = getTournament(tournament);
 
         if (tourney != null){
@@ -1272,10 +1281,9 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
             AlgoStandings prevRoundStandings = algoRound.getStandings();
 
-
             updateStandingsinDB(prevRoundStandings, tournament, tourney);
 
-            return "last round generaeted";
+            return "last round generated, tournament ended";
         }
 
         return "tournament not found";

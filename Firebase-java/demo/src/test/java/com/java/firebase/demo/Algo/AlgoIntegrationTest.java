@@ -48,6 +48,7 @@ public class AlgoIntegrationTest {
     private String token;
     private String uid;
     private String tournamentName = "iantest4";
+    private int numberOfPlayers = 9;
 
     @BeforeAll
     public void setup() throws Exception {
@@ -90,6 +91,7 @@ public class AlgoIntegrationTest {
         headers.set("Content-Type","application/json");
 
         HttpEntity<Tournament> createTournamentrequest = new HttpEntity<>(tournament, headers);
+
         ResponseEntity<String> createTournamentResult = restTemplate.postForEntity(urlForCreateTournament, createTournamentrequest, String.class);
         assertEquals(200, createTournamentResult.getStatusCode().value());
         
@@ -101,14 +103,14 @@ public class AlgoIntegrationTest {
 
         URI urlForCreatePlayer;
         ResponseEntity<String>createPlayerResult;
-        for (int i = 1; i <= 8; i++){
+        for (int i = 1; i <= numberOfPlayers; i++){
             urlForCreatePlayer = new URI(baseUrl + port + "/tournament/player/create?tournamentName="+tournamentName+"&participatingPlayerName=user" + i);
             createPlayerResult = restTemplate.postForEntity(urlForCreatePlayer, createPlayerHeader, String.class);
 
             assertEquals(200, createPlayerResult.getStatusCode().value());
         }
 
-    }
+    } 
 
     @Test
     @Order(1)
@@ -131,14 +133,15 @@ public class AlgoIntegrationTest {
         HttpEntity<Void> request = new HttpEntity<>(headers);
         URI urlGetMatch;
 
-        for (int i = 1; i <= 8; i++){
+        //update player matches
+
+        for (int i = 1; i <= numberOfPlayers; i++){
 
             urlGetMatch = new URI(baseUrl + port + "/tournament/round/match/player/get?tournamentName=" + tournamentName + "&roundName=1&player=user"+i);
 
             ResponseEntity<Match> matchResponse = restTemplate.exchange(urlGetMatch,HttpMethod.GET,request, Match.class);
             assertEquals(200, matchResponse.getStatusCode().value());
             Match matchToUpdate = matchResponse.getBody();
-
 
             String player1 = matchToUpdate.getPlayer1();
             String player2 = matchToUpdate.getPlayer2();
@@ -186,7 +189,6 @@ public class AlgoIntegrationTest {
         assertEquals(200, startRoundResult.getStatusCode().value());
         
     }
-
 
     @AfterAll
     public void takeDown() throws Exception {
