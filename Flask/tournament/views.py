@@ -10,6 +10,8 @@ from flask import jsonify
 from datetime import datetime
 import json
 
+backend_url = "http://a3595d85b6d2a4ece9eca896e7442874-867041742.us-east-1.elb.amazonaws.com"
+
 @tournament.route('/')
 def index():
     return render_template('frontend/index.html')
@@ -17,7 +19,7 @@ def index():
 # to view all tournaments
 @tournament.route('/view') #/<int:id>
 def view_tournaments():
-    api_url = 'http://localhost:8080/tournament/get/all'
+    api_url = f'{backend_url}/tournament/get/all'
     response = requests.get(api_url) 
     tournaments = response.json() 
 
@@ -93,7 +95,7 @@ def download_ics():
 @tournament.route('/tournament/<string:tournament_name>')
 def view_tournament(tournament_name):
     GOOGLE_MAP_API_KEY = "AIzaSyALm6bzbiFAayZoBcbEOe4QJa3S-8jz74E"
-    api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    api_url = f'{backend_url}/tournament/get?tournamentName={tournament_name}'
     response = requests.get(api_url)
 
     if response.status_code == 200:
@@ -105,7 +107,7 @@ def view_tournament(tournament_name):
             'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
         }
 
-        user_data = requests.get('http://localhost:8080/user', headers=headers)
+        user_data = requests.get(f'{backend_url}/user', headers=headers)
         if user_data.status_code == 200:
             user_name = user_data.json().get('userName')
             current_players = tournament.get('participatingPlayers', [])
@@ -175,7 +177,7 @@ def update_match():
          match_data["draw"] = False
     
 
-    api_url = f'http://localhost:8080/tournament/round/match/update?tournamentName={tournamentName}&roundName={round}&player1={player1}&player2={player2}'
+    api_url = f'{backend_url}/tournament/round/match/update?tournamentName={tournamentName}&roundName={round}&player1={player1}&player2={player2}'
     response = requests.put(api_url, json=match_data, headers=headers)
 
     if response.status_code == 200:
@@ -256,7 +258,7 @@ def join_tournament():
     }
 
     # Fetch username
-    api_url = 'http://localhost:8080/user'
+    api_url = f'{backend_url}/user'
     response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
@@ -269,7 +271,7 @@ def join_tournament():
         return redirect(request.referrer)
 
     # Fetch existing tournament names for the user
-    existing_tournaments_url = f'http://localhost:8080/tournament/get/forplayer?playerName={userName}'
+    existing_tournaments_url = f'{backend_url}/tournament/get/forplayer?playerName={userName}'
     existing_tournaments_response = requests.get(existing_tournaments_url, headers=headers)
 
     if existing_tournaments_response.status_code == 200:
@@ -280,7 +282,7 @@ def join_tournament():
         return redirect(request.referrer)
 
     # Fetch new tournament details
-    new_tournament_url = f'http://localhost:8080/tournament/get?tournamentName={tournamentName}'
+    new_tournament_url = f'{backend_url}/tournament/get?tournamentName={tournamentName}'
     new_tournament_response = requests.get(new_tournament_url, headers=headers)
 
     if new_tournament_response.status_code == 200:
@@ -291,7 +293,7 @@ def join_tournament():
         # Check for overlaps with existing tournaments
         for existing_name in existing_tournament_names:
             # Fetch full details for each existing tournament
-            existing_tournament_url = f'http://localhost:8080/tournament/get?tournamentName={existing_name}'
+            existing_tournament_url = f'{backend_url}/tournament/get?tournamentName={existing_name}'
             existing_tournament_response = requests.get(existing_tournament_url, headers=headers)
 
             if existing_tournament_response.status_code == 200:
@@ -311,7 +313,7 @@ def join_tournament():
         return redirect(request.referrer)
 
     # If no overlap is detected, proceed to join the tournament
-    api_url = f'http://localhost:8080/tournament/player/addSelf?tournamentName={tournamentName}'
+    api_url = f'{backend_url}/tournament/player/addSelf?tournamentName={tournamentName}'
     response = requests.post(api_url, headers=headers)
 
     if response.status_code == 200:
@@ -333,7 +335,7 @@ def leave_tournament():
         'Content-Type': 'application/json'
     }
 
-    api_url = f'http://localhost:8080/tournament/player/removeSelf?tournamentName={tournamentName}'
+    api_url = f'{backend_url}/tournament/player/removeSelf?tournamentName={tournamentName}'
     response = requests.delete(api_url, headers=headers)
 
     print("Response Status Code:", response.status_code)
@@ -343,9 +345,9 @@ def leave_tournament():
     if response.status_code == 200 or response.status_code == 204:
 
         #get existing tournaments for user
-        user_response = requests.get('http://localhost:8080/user', headers=headers)
+        user_response = requests.get(f'{backend_url}/user', headers=headers)
         userName = user_response.json().get('userName')
-        existing_tournaments_url = f'http://localhost:8080/tournament/get/forplayer?playerName={userName}'
+        existing_tournaments_url = f'{backend_url}/tournament/get/forplayer?playerName={userName}'
         existing_tournaments_response = requests.get(existing_tournaments_url, headers=headers).json()
         #print(existing_tournaments_response)
 
@@ -367,13 +369,13 @@ def leave_tournament():
 def fetch_user_and_tournaments(headers):
     try:
         # Fetch user details
-        user_response = requests.get('http://localhost:8080/user', headers=headers)
+        user_response = requests.get(f'{backend_url}/user', headers=headers)
         if user_response.status_code == 200:
             user_data = user_response.json()
             userName = user_data.get('userName')
 
             # Fetch tournament names for the player
-            tournaments_response = requests.get(f'http://localhost:8080/tournament/get/forplayer?playerName={userName}', headers=headers)
+            tournaments_response = requests.get(f'{backend_url}/tournament/get/forplayer?playerName={userName}', headers=headers)
             if tournaments_response.status_code == 200:
                 tournament_names = tournaments_response.json()
                 return user_data, tournament_names
@@ -387,7 +389,7 @@ def fetch_tournament_details(tournament_names, headers):
     tournaments = []
     for name in tournament_names:
         try:
-            tournament_response = requests.get(f'http://localhost:8080/tournament/get?tournamentName={name}', headers=headers)
+            tournament_response = requests.get(f'{backend_url}/tournament/get?tournamentName={name}', headers=headers)
             if tournament_response.status_code == 200:
                 tournaments.append(tournament_response.json()) #append tournament object to list
         except Exception as e:

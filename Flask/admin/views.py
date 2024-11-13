@@ -10,6 +10,8 @@ from flask_wtf.file import FileField
 # Assuming you have defined your admin Blueprint somewhere else
 from . import admin
 
+backend_url = "http://a3595d85b6d2a4ece9eca896e7442874-867041742.us-east-1.elb.amazonaws.com"
+
 class TournamentForm(FlaskForm):
     tournamentName = StringField('Tournament Name', validators=[InputRequired()])
     startDate = StringField('Start Date', validators=[InputRequired()])
@@ -47,7 +49,7 @@ def view_tournaments():
     page = request.args.get('page', 1, type=int)
     page_size = 8
 
-    api_url = 'http://localhost:8080/tournament/get/all'
+    api_url = f'{backend_url}/tournament/get/all'
     response = requests.get(api_url)
     tournaments = response.json()  
 
@@ -86,7 +88,7 @@ def create_tournament():
 
         print(f"Image file: {form.imageUrl.data}")
 
-        api_url = 'http://localhost:8080/tournament/create'
+        api_url = f'{backend_url}/tournament/create'
   
         headers = {
             'Authorization': f'Bearer {jwt_cookie}',
@@ -104,7 +106,7 @@ def create_tournament():
                 file = {'file': (image_file.filename, image_file.stream, image_file.mimetype)}
                 # Assuming the API provides the tournament ID in the response
                 document_id = form.tournamentName.data  # Change if necessary
-                upload_url = 'http://localhost:8080/api/image/upload'
+                upload_url = f'{backend_url}/api/image/upload'
 
                 upload_headers = {
                     'Authorization': f'Bearer {jwt_cookie}'
@@ -136,7 +138,7 @@ def update_tournament():
     if request.method == 'GET':
         tournamentName = request.args.get('tournamentName', type=str)
        
-        api_url = f'http://localhost:8080/tournament/get?tournamentName={tournamentName}'
+        api_url = f'{backend_url}/tournament/get?tournamentName={tournamentName}'
         response = requests.get(api_url)
      
         if response.status_code == 200:
@@ -168,7 +170,7 @@ def update_tournament():
 
         print(f"Image file: {form.imageUrl.data}")
 
-        api_url = 'http://localhost:8080/tournament/update'
+        api_url = f'{backend_url}/tournament/update'
 
         headers = {
             'Authorization': f'Bearer {jwt_cookie}',
@@ -185,7 +187,7 @@ def update_tournament():
                 # Create a multipart form-data request for image upload
                 file = {'file': (image_file.filename, image_file.stream, image_file.mimetype)}
                 document_id = form.tournamentName.data  # Assuming this is the document ID
-                upload_url = 'http://localhost:8080/api/image/upload'
+                upload_url = f'{backend_url}/api/image/upload'
 
                 upload_headers = {
                     'Authorization': f'Bearer {jwt_cookie}'
@@ -208,7 +210,7 @@ def delete_tournament(tournament_name):
 
     jwt_cookie = request.cookies.get('jwt')
 
-    api_url = f'http://localhost:8080/tournament/delete?tournamentName={tournament_name}'
+    api_url = f'{backend_url}/tournament/delete?tournamentName={tournament_name}'
 
     headers = {
         'Authorization': f'Bearer {jwt_cookie}',
@@ -237,7 +239,7 @@ def manage_tournament(tournament_name):
         return redirect(url_for('admin.view_tournaments'))
 
     # First, fetch the tournament details
-    tournament_api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    tournament_api_url = f'{backend_url}/tournament/get?tournamentName={tournament_name}'
     tournament_response = requests.get(tournament_api_url)
 
     if tournament_response.status_code != 200:
@@ -260,7 +262,7 @@ def manage_tournament(tournament_name):
     # Only fetch round data if round_name is valid
     if round_name is not None:
         # Update the round API URL to include the JWT token in the headers
-        round_api_url = f'http://localhost:8080/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
+        round_api_url = f'{backend_url}/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
         round_headers = {
             'Authorization': f'Bearer {jwt_cookie}'  # Include the JWT token in the headers
         }
@@ -288,7 +290,7 @@ def manage_tournament(tournament_name):
     standings_data = None
     round_name_str = str(int(round_name) - 1) if round_name and round_name.isdigit() else None
     if round_name_str is not None:
-        standings_api_url = f'http://localhost:8080/tournament/round/standing/get/all?tournamentName={tournament_name}&roundName={round_name_str}'
+        standings_api_url = f'{backend_url}/tournament/round/standing/get/all?tournamentName={tournament_name}&roundName={round_name_str}'
         standings_response = requests.get(standings_api_url, headers=round_headers)  # Use the same headers
 
         if standings_response.status_code == 200:
@@ -319,7 +321,7 @@ def start_tournament(tournament_name):
         return render_template('errors/403.html', message="You do not have permission to start this tournament."), 403
 
     # Call the Java service to start the tournament
-    api_url = f'http://localhost:8080/tournament/start?tournamentName={tournament_name}'
+    api_url = f'{backend_url}/tournament/start?tournamentName={tournament_name}'
     headers = {
         'Authorization': f'Bearer {jwt_cookie}',
         'Content-Type': 'application/json'
@@ -342,7 +344,7 @@ def end_tournament(tournament_name):
         return render_template('errors/403.html', message="You do not have permission to end this tournament."), 403
 
     # Call the Java service to end the tournament
-    api_url = f'http://localhost:8080/tournament/end?tournamentName={tournament_name}'
+    api_url = f'{backend_url}/tournament/end?tournamentName={tournament_name}'
     headers = {
         'Authorization': f'Bearer {jwt_cookie}',
         'Content-Type': 'application/json'
@@ -364,7 +366,7 @@ def toggle_tournament(tournament_name):
         return render_template('errors/403.html', message="You do not have permission to toggle this tournament."), 403
 
     # Check if the tournament is in progress
-    api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    api_url = f'{backend_url}/tournament/get?tournamentName={tournament_name}'
     response = requests.get(api_url)
 
     if response.status_code == 200:
@@ -390,7 +392,7 @@ def end_round(tournament_name, round_name):
         return render_template('errors/403.html', message="You do not have permission to end this round."), 403
 
     # Call the Java service to end the round
-    api_url = f'http://localhost:8080/tournament/round/end?tournamentName={tournament_name}&roundName={round_name}'
+    api_url = f'{backend_url}/tournament/round/end?tournamentName={tournament_name}&roundName={round_name}'
     headers = {
         'Authorization': f'Bearer {jwt_cookie}',
         'Content-Type': 'application/json'
@@ -414,7 +416,7 @@ def start_round(tournament_name):
         return render_template('errors/403.html', message="You do not have permission to start this round."), 403
 
     # Call the Java service to start a new round
-    api_url = f'http://localhost:8080/tournament/round/start?tournamentName={tournament_name}'
+    api_url = f'{backend_url}/tournament/round/start?tournamentName={tournament_name}'
     headers = {
         'Authorization': f'Bearer {jwt_cookie}',
         'Content-Type': 'application/json'
@@ -436,7 +438,7 @@ def toggle_round(tournament_name):
         return render_template('errors/403.html', message="You do not have permission to toggle this round."), 403
 
     # Fetch the tournament details to check the current round name
-    tournament_api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    tournament_api_url = f'{backend_url}/tournament/get?tournamentName={tournament_name}'
     tournament_response = requests.get(tournament_api_url)
 
     if tournament_response.status_code != 200:
@@ -458,7 +460,7 @@ def toggle_round(tournament_name):
         return redirect(url_for('admin.manage_tournament', tournament_name=tournament_name))
 
     # Fetch the round details to check if it's over
-    get_round_url = f'http://localhost:8080/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
+    get_round_url = f'{backend_url}/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
     headers = {
         'Authorization': f'Bearer {jwt_cookie}',
         'Content-Type': 'application/json'
@@ -482,7 +484,7 @@ def toggle_round(tournament_name):
         # Determine the appropriate action based on the current status
         if is_over:
             # Call the end_round method if the round is already in progress
-            end_round_url = f'http://localhost:8080/tournament/round/end?tournamentName={tournament_name}&roundName={round_name}'
+            end_round_url = f'{backend_url}/tournament/round/end?tournamentName={tournament_name}&roundName={round_name}'
             action_response = requests.get(end_round_url, headers=headers)
             if action_response.status_code == 200:
                 flash("Round ended successfully!", "success")
@@ -490,7 +492,7 @@ def toggle_round(tournament_name):
                 flash("Error ending round: " + action_response.text, "danger")
         else:
             # Call the start_round method if the round is not in progress
-            start_round_url = f'http://localhost:8080/tournament/round/start?tournamentName={tournament_name}&roundName={round_name}'  # Include round_name
+            start_round_url = f'{backend_url}/tournament/round/start?tournamentName={tournament_name}&roundName={round_name}'  # Include round_name
             action_response = requests.get(start_round_url, headers=headers)
             if action_response.status_code == 200 and action_response.json() is True:
                 flash("Round started successfully!", "success")
