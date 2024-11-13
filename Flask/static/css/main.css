@@ -150,7 +150,7 @@ h1, h2, h3, h4, h5, h6 {
 /* line 101, ../sass/bootstrap/_reboot.scss */
 p {
   margin-top: 0;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
 }
 
 /* line 113, ../sass/bootstrap/_reboot.scss */
@@ -19206,10 +19206,51 @@ table.career tr td img {
 }
 
 .home-card {
-  
     height: 125px; /* Set a fixed height */
-   
+}
 
+.home-featured-title {
+  color: #ad4331;
+  font-weight: 500; 
+  font-size: 1.8vw;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+
+.home-featured-desc {
+  font-size: 1.3vw;
+  color: #000000;
+}
+
+/* Media query for tablets (e.g., devices with max-width of 768px) */
+@media (max-width: 768px) {
+  .home-featured-title {
+    font-size: 4vw; /* Adjust as needed */
+  }
+
+  .home-featured-desc {
+    font-size: 2vw; /* Adjust as needed */
+  }
+}
+
+/* Media query for mobile devices (e.g., devices with max-width of 480px) */
+@media (max-width: 480px) {
+  .home-featured-title {
+    font-size: 4vw; /* Adjust for smaller screens */
+  }
+
+  .home-featured-desc {
+    font-size: 3vw; /* Adjust for smaller screens */
+  }
+}
+
+.home-card-text { 
+  overflow: hidden;            /* Hide overflowed text */
+  text-overflow: ellipsis;     /* Show ellipsis (...) when text overflows */
+  display: -webkit-box;        /* Create a box for multiline ellipsis */
+  -webkit-line-clamp: 3;       /* Limit to 3 lines (adjust as needed) */
+  -webkit-box-orient: vertical; /* Set box orientation to vertical */
+  line-height: 1.5em;          /* Adjust line height to control spacing */
+  max-height: 4.5em;           /* Set max height to match the number of lines */
 }
 
 /* CSS for TOURNAMENT PAGE */
@@ -19245,6 +19286,12 @@ table.career tr td img {
     color: #a9a9a9; /* Dark grey text */
     cursor: not-allowed; /* Change cursor to indicate it's disabled */
     pointer-events: none; /* Prevent clicking */
+}
+
+.tournaments-card-title {
+  color: #ad4331;
+  font-weight: 600;
+  font-family: 'Lato'
 }
 
 

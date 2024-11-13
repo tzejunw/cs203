@@ -23,25 +23,20 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" id="tournamentCardsContainer">
         {% for tournament in tournaments %}
-        <div class="col-md-12 mb-4 tournaments-card">
-            <div class="card">
+        <div class="col-md-4 mb-4 tournaments-card">
+            <div class="card h-100">
                 <a href="{{ url_for('tournament.view_tournament', tournament_name=tournament.tournamentName) }}" class="stretched-link"></a>
                 <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="img-fluid rounded-start" alt="{{ tournament.tournamentName }}" style="object-fit: cover; height: 100%; width: 100%;">
+                    <div class="col-12">
+                        <img src="{{ tournament.imageUrl if tournament.imageUrl else url_for('static', filename='img/home/default-tournament.jpg') }}" class="img-fluid rounded-top" alt="{{ tournament.tournamentName }}" style="object-fit: cover; height: 200px; width: 100%;">
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-12">
                         <div class="card-body">
-                            <h5 class="card-title">{{ tournament.tournamentName }}</h5>
-                            <p class="card-text">
-                                <strong>Start Date:</strong> {{ tournament.startDate }}<br>
-                                <strong>End Date:</strong> {{ tournament.endDate }}<br>
-                                <strong>Number of Players:</strong> {{ tournament.participatingPlayers | length }}<br>
-                                <strong>Description:</strong> {{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}<br>
-                                <strong>Location:</strong> {{ tournament.location if tournament.location else 'Location not specified.' }}
-                            </p>
+                            <h5 class="tournaments-card-title">{{ tournament.tournamentName }}</h5>
+                            <p class="card-text">{{ tournament.tournamentDesc if tournament.tournamentDesc else 'No description available.' }}</p>
+                            
                         </div>
                     </div>
                 </div>
@@ -51,20 +46,20 @@
     </div>
 
     <script>
-        function filterTournaments() {
+       function filterTournaments() {
             let input = document.getElementById('searchInput').value.toLowerCase();
             let cards = document.querySelectorAll('.tournaments-card');
 
             cards.forEach(card => {
-                let tournamentName = card.querySelector('.card-title').textContent.toLowerCase();
-                // Check if the tournament name includes the input text
+                let tournamentName = card.querySelector('.tournaments-card-title').textContent.toLowerCase();
                 if (tournamentName.includes(input)) {
-                    card.style.display = ''; // Show the card
+                    card.style.display = '';
                 } else {
-                    card.style.display = 'none'; // Hide the card
+                    card.style.display = 'none';
                 }
             });
         }
     </script>
 </div>
+
 {% endblock %}
