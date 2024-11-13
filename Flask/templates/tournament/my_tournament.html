@@ -35,8 +35,7 @@
                     <td>{{ tournament.participatingPlayers | length }}</td>
                     <td>{{ tournament.location or 'N/A' }}</td>
                     <td class="table-action-buttons" >
-                       
-                        <form action="{{url_for('tournament.leave_tournament', tournamentName=tournament.tournamentName)}}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to leave this tournament?');">
+                        <form onclick="event.stopPropagation()" action="{{url_for('tournament.leave_tournament', tournamentName=tournament.tournamentName)}}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to leave this tournament?');">
                             <button type="submit" class="btn btn-danger btn-sm" title="Delete">
                                 <img src="../../static/icons/trash.svg"/>
                             </button>
@@ -47,6 +46,23 @@
             </tbody>
         </table>
     </div>
+
+
+    <script>
+        function filterTournaments() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let rows = document.querySelectorAll('#tournamentTableBody tr');
+    
+            rows.forEach(row => {
+                let tournamentName = row.querySelector('td').textContent.toLowerCase();
+                if (tournamentName.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
 
 
 {% endblock %}

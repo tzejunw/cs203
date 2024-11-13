@@ -48,7 +48,7 @@
                         <a href="{{url_for('admin.update_tournament', tournamentName=tournament.tournamentName, currentRound=tournament.currentRound) }}" class="btn btn-warning btn-sm" title="Edit" >
                             <img src="../../static/icons/pencil.svg"/>
                         </a>
-                        <form action="{{ url_for('admin.delete_tournament', tournament_name=tournament.tournamentName) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this tournament?');">
+                        <form onclick="event.stopPropagation()" action="{{ url_for('admin.delete_tournament', tournament_name=tournament.tournamentName) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this tournament?');">
                             <button type="submit" class="btn btn-danger btn-sm" title="Delete">
                                 <img src="../../static/icons/trash.svg"/>
                             </button>
