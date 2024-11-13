@@ -47,7 +47,7 @@ public class AlgoIntegrationTest {
 
     private String token;
     private String uid;
-    private String tournamentName = "iantest2";
+    private String tournamentName = "iantest4";
 
     @BeforeAll
     public void setup() throws Exception {
@@ -63,7 +63,7 @@ public class AlgoIntegrationTest {
         assertEquals(200, result.getStatusCode().value());
         token = result.getBody();
     
-    
+ 
         // Create tournament
 
         URI urlForCreateTournament = new URI(baseUrl + port + "/tournament/create");
@@ -101,7 +101,7 @@ public class AlgoIntegrationTest {
 
         URI urlForCreatePlayer;
         ResponseEntity<String>createPlayerResult;
-        for (int i = 1; i <= 9; i++){
+        for (int i = 1; i <= 8; i++){
             urlForCreatePlayer = new URI(baseUrl + port + "/tournament/player/create?tournamentName="+tournamentName+"&participatingPlayerName=user" + i);
             createPlayerResult = restTemplate.postForEntity(urlForCreatePlayer, createPlayerHeader, String.class);
 
@@ -131,7 +131,7 @@ public class AlgoIntegrationTest {
         HttpEntity<Void> request = new HttpEntity<>(headers);
         URI urlGetMatch;
 
-        for (int i = 1; i <= 9; i++){
+        for (int i = 1; i <= 8; i++){
 
             urlGetMatch = new URI(baseUrl + port + "/tournament/round/match/player/get?tournamentName=" + tournamentName + "&roundName=1&player=user"+i);
 
@@ -139,13 +139,14 @@ public class AlgoIntegrationTest {
             assertEquals(200, matchResponse.getStatusCode().value());
             Match matchToUpdate = matchResponse.getBody();
 
+
             String player1 = matchToUpdate.getPlayer1();
             String player2 = matchToUpdate.getPlayer2();
 
             matchToUpdate.setWinner(player1);
             matchToUpdate.setWins(2);
 
-            URI urlUpdateMatch = new URI(baseUrl + port + "/tournament/round/match/update?tournamentName=" + tournamentName + "&roundName=1&player1=" + player1 + "&player1=" + player2);
+            URI urlUpdateMatch = new URI(baseUrl + port + "/tournament/round/match/update?tournamentName=" + tournamentName + "&roundName=1&player1=" + player1 + "&player2=" + player2);
             HttpHeaders headersForUpdating = new HttpHeaders();
             headersForUpdating.set("Authorization", "Bearer " + token);
             headersForUpdating.set("Content-Type","application/json");
@@ -165,9 +166,9 @@ public class AlgoIntegrationTest {
         headers.set("Authorization", "Bearer " + token);
         HttpEntity<Void> headerEntity = new HttpEntity<>(headers);
 
-        URI urlEndRound = new URI(baseUrl + port + "/tournament/round/end?tournamentName=" + tournamentName);
+        URI urlEndRound = new URI(baseUrl + port + "/tournament/round/end?tournamentName=" + tournamentName + "&roundName=1");
 
-        ResponseEntity<String> endRoundResult = restTemplate.postForEntity(urlEndRound, headerEntity, String.class);
+        ResponseEntity<String> endRoundResult = restTemplate.exchange(urlEndRound, HttpMethod.GET ,headerEntity, String.class);
         assertEquals(200, endRoundResult.getStatusCode().value());
 
     }
@@ -181,13 +182,13 @@ public class AlgoIntegrationTest {
 
         URI urlStartRound = new URI(baseUrl + port + "/tournament/round/start?tournamentName=" + tournamentName);
 
-        ResponseEntity<String> startRoundResult = restTemplate.postForEntity(urlStartRound, headerEntity, String.class);
+        ResponseEntity<String> startRoundResult = restTemplate.exchange(urlStartRound, HttpMethod.GET,headerEntity, String.class);
         assertEquals(200, startRoundResult.getStatusCode().value());
         
     }
 
 
-    @AfterTestClass
+    @AfterAll
     public void takeDown() throws Exception {
         URI uri = new URI(baseUrl + port + "/tournament/delete?tournamentName=" + tournamentName);
         HttpHeaders headers = new HttpHeaders();
