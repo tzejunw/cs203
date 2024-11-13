@@ -40,8 +40,6 @@ import com.google.firebase.auth.UserRecord.UpdateRequest;
 import com.google.firebase.cloud.FirestoreClient;
 import com.java.firebase.demo.Exceptions.TooManyRequestsException;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 
 @Service
 public class UserService {
@@ -156,8 +154,11 @@ public class UserService {
         return firebaseAuth.verifyIdToken(idToken);
     }
 
-    Dotenv dotenv = Dotenv.load();
-    private final String FIREBASE_API_KEY = dotenv.get("FIREBASE_API_KEY");
+    // Dotenv dotenv = Dotenv.load();
+    // private final String FIREBASE_API_KEY = dotenv.get("FIREBASE_API_KEY");
+
+    // @Value("${FIREBASE_API_KEY}")
+    private String FIREBASE_API_KEY = "AIzaSyBItH-UkQG9U1UfRILfioF7K_VeEw_Zbjo";
 
     /**
      * Parses a JSON response and extracts the specified field.

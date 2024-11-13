@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,8 +17,6 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreException;
 import com.google.common.base.Strings;
-
-import io.github.cdimascio.dotenv.Dotenv;
 
 @Service
 public class TournamentValidator {
@@ -64,8 +63,10 @@ public class TournamentValidator {
         }
     }
 
+    @Value("${GOOGLE_MAP_API_KEY}")
+    private String GOOGLE_MAP_API_KEY;
     public boolean isValidAddress(String address) {
-        final String GOOGLE_MAP_API_KEY = loadApiKey();
+        
         // Build the URL for the Google Maps Geocoding API request
         String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + GOOGLE_MAP_API_KEY;
     
@@ -80,11 +81,11 @@ public class TournamentValidator {
         return false;
     }
 
-    private String loadApiKey() {
-        // Load the Google Maps API key from environment variables
-        Dotenv dotenv = Dotenv.load();
-        return dotenv.get("GOOGLE_MAP_API_KEY");
-    }
+    // private String loadApiKey() {
+    //     // Load the Google Maps API key from environment variables
+    //     Dotenv dotenv = Dotenv.load();
+    //     return dotenv.get("GOOGLE_MAP_API_KEY");
+    // }
     
     private ResponseEntity<String> fetchGeocodeResponse(String url) {
         // Use RestTemplate to send a GET request to the provided URL and retrieve the response
