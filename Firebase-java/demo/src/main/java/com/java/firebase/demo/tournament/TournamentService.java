@@ -204,7 +204,7 @@ public class TournamentService {
 
     public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
         
-        if(isTournamentInProgress(tournamentName) && isLastRound(tournamentName)){
+        if(isTournamentInProgress(tournamentName)){
 
         // Get the reference to the participatingPlayer's document
         DocumentReference tournamentDocRef = firestore.collection("tournament")
@@ -216,6 +216,8 @@ public class TournamentService {
 
         // Wait for the update to complete
         updateResult.get();
+
+        lastRoundStandingsGenerator(tournamentName);
 
         // Update final round standings
 
@@ -653,20 +655,17 @@ public class TournamentService {
             if (roundToEnd == null){
                 return "Round not found";
             }
+
+            if (isLastRound(tournamentName)){
+                return "Lastround reached";
+            }
             
             roundToEnd.setOver(true);
-
             updateRound(tournamentName, roundToEnd);
-
-            if (!isLastRound(tournamentName)) {
-                tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
-
-            } else {
-                // generate last standings for this round
-                lastRoundStandingsGenerator(tournamentName);
-                tournament.setInProgress(false);
-            }
+            tournament.setCurrentRound(Integer.parseInt(curRound) + 1 + "");
             updateTournament(tournament);
+
+            System.out.println("round number updated");
         
             return "Round Number Updated";
 
@@ -964,7 +963,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
     }
 
     public int calculateNumberOfRounds(int numberOfPlayers){
-        return (int)(Math.log(numberOfPlayers) / Math.log(2));
+        return (int)(Math.log(numberOfPlayers) / Math.log(2)) +1 ;
     }
 
 public boolean isLastRound(String tournamentName) throws ExecutionException, InterruptedException {
@@ -990,6 +989,10 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     Tournament tourney = getTournament(tournament);
 
     if (tourney != null){
+
+        if (isLastRound(tournament)){
+            return false;
+        }
 
         // input all participating players into algoObjs and put them into the list algoPlayers
 
@@ -1262,6 +1265,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
         Tournament tourney = getTournament(tournament);
 
+        System.out.println("last round standings generated");
+
         if (tourney != null){
 
             // input all participating players into algoObjs and put them into the list algoPlayers
@@ -1281,8 +1286,6 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
             algoRound.generateStandings();
 
             AlgoStandings prevRoundStandings = algoRound.getStandings();
-
-            tourney.setCurrentRound(Integer.parseInt(tourney.getCurrentRound()) + 1 + "");
 
             updateStandingsinDB(prevRoundStandings, tournament, tourney);
 
