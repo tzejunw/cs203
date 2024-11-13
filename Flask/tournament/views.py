@@ -92,7 +92,7 @@ def download_ics():
 
 @tournament.route('/tournament/<string:tournament_name>')
 def view_tournament(tournament_name):
-    GOOGLE_MAP_API_KEY = os.getenv('GOOGLE_MAP_API_KEY')
+    GOOGLE_MAP_API_KEY = "AIzaSyALm6bzbiFAayZoBcbEOe4QJa3S-8jz74E"
     api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
     response = requests.get(api_url)
 

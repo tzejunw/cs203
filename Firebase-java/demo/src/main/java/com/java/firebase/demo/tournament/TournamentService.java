@@ -204,7 +204,7 @@ public class TournamentService {
 
     public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
         
-        if(isTournamentInProgress(tournamentName)){
+        if(isTournamentInProgress(tournamentName) && isLastRound(tournamentName)){
 
         // Get the reference to the participatingPlayer's document
         DocumentReference tournamentDocRef = firestore.collection("tournament")
@@ -213,10 +213,15 @@ public class TournamentService {
         // Use arrayUnion to add the matchId to the pastMatches array field
         ApiFuture<WriteResult> updateResult = tournamentDocRef.update("inProgress", false);
 
+
         // Wait for the update to complete
         updateResult.get();
 
-        return "Tournament ended";
+        // Update final round standings
+
+        //return lastRoundStandingsGenerator(tournamentName);
+
+        return "tournament ended";
 
         } else {
             return "Tournament was not in progress";
@@ -438,7 +443,7 @@ public class TournamentService {
         return "Tournament not found: " + tournamentName;
     }
     
-    // Step 1: Delete all participating players in the tournament
+    // Step 1: Delete all participating splayers in the tournament
     CollectionReference playersCollection = tournamentDocRef.collection("participatingPlayers");
     ApiFuture<QuerySnapshot> playersSnapshot = playersCollection.get();
     for (DocumentSnapshot playerDoc : playersSnapshot.get().getDocuments()) {
@@ -640,8 +645,6 @@ public class TournamentService {
         
         Tournament tournament = getTournament(tournamentName);
         
-
-
         if (tournament != null){
 
             String curRound = tournament.getCurrentRound();
@@ -661,9 +664,9 @@ public class TournamentService {
                 updateTournament(tournament);
             } else {
                 // generate last standings for this round
+                lastRoundStandingsGenerator(tournamentName);
             }
         
-
             return "Round Number Updated";
 
         }else{
@@ -835,27 +838,30 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         ApiFuture<WriteResult> standingResult = standingDocRef.set(standing);
         standingResult.get(); // Wait for completion
     
-        return "One standing created in " + tournamentName + ", " + roundName + " at " + standingResult.get().getUpdateTime().toString();
+        return "One standing created in " + tournamentName + ", " + roundName;
     }
 
     public Standing getStanding(String tournamentName, String roundName, int rank) throws ExecutionException, InterruptedException {
-        String documentId = String.valueOf(rank); // Use rank as the document ID
-        DocumentReference standingDocRef = firestore.collection("tournament")
-                                                      .document(tournamentName)
-                                                      .collection("round")
-                                                      .document(roundName)
-                                                      .collection("standing")
-                                                      .document(documentId);
+        CollectionReference standingsCollectionRef = firestore.collection("tournament")
+                                                              .document(tournamentName)
+                                                              .collection("round")
+                                                              .document(roundName)
+                                                              .collection("standing");
     
-        ApiFuture<DocumentSnapshot> future = standingDocRef.get();
-        DocumentSnapshot document = future.get();
+        // Query for the document where the rank field matches the specified rank
+        ApiFuture<QuerySnapshot> queryFuture = standingsCollectionRef.whereEqualTo("rank", rank).get();
+        List<QueryDocumentSnapshot> documents = queryFuture.get().getDocuments();
     
-        if (document.exists()) {
-            return document.toObject(Standing.class);
+        // Check if the document was found
+        if (!documents.isEmpty()) {
+            // Convert the first matching document to a Standing object and return it
+            return documents.get(0).toObject(Standing.class);
         } else {
-            return null; // Or handle error
+            // Throw an exception if no matching document was found
+            throw new NoSuchElementException("Standing with rank " + rank + " not found in round " + roundName + " of tournament " + tournamentName);
         }
     }
+    
 
     public List<Standing> getAllStanding(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
         // Retrieve all documents from the "tournament" collection
@@ -885,7 +891,7 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         // Generate the documentId based on tournament, round, and rank
         String documentId = updatedStanding.getRank() + "";
         
-        DocumentReference standingDocRef = firestore.collection("tournament")
+        DocumentReference standingDocRef= firestore.collection("tournament")
                                                       .document(tournamentName)
                                                       .collection("round")
                                                       .document(roundName)
@@ -1100,6 +1106,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
     public AlgoRound parseIntoAlgoRound1( Tournament tournament){
 
+        // convert String player names to playerObjs for the algo
+
         final int firstRound = 1; 
 
         ArrayList<AlgoTournamentPlayer> playerObjs = new ArrayList<AlgoTournamentPlayer>();
@@ -1117,6 +1125,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     }
 
     public List<Match> parseAlgoRoundMatchesToMatch( AlgoRound roundToParse){
+
+        // converts algoMatch obj to Match obj to parse into DB
 
         List<AlgoMatch> matchesToParse = roundToParse.getAlgoMatches();
 
@@ -1136,6 +1146,7 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
                 match.setBye(true);
                 match.setPlayer2("bye");
                 match.setWinner(player1Name);
+                match.setWins(2);
                 
             }else{
 
@@ -1156,6 +1167,9 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
 
     public void updateDataBaseWithMatches( Tournament tournament, String roundName, List<Match> matchesToupdate) throws ExecutionException, InterruptedException{
+        
+        //parses Match objects into te DB
+
 
         for ( Match match : matchesToupdate){
 
@@ -1175,6 +1189,8 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     }
 
     public List<AlgoTournamentPlayer> parsePlayersIntoAlgoObjects( Tournament tournament, HashMap<AlgoTournamentPlayer , List<String>> playerToPastMatches, HashMap<String , AlgoTournamentPlayer > playerIDToObj)throws ExecutionException, InterruptedException{
+
+        // Differs from parseIntoAlgoRd1 as there is the need to map past match record to player objects
 
         List<AlgoTournamentPlayer> algoPlayers = new ArrayList<>();
         List<String> playerIDs = tournament.getParticipatingPlayers();
@@ -1227,29 +1243,27 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     public void updateStandingsinDB(AlgoStandings algoStandings, String tournament, Tournament tourney) throws ExecutionException, InterruptedException{
 
         int rank = 1;
+        int roundStandingsToUpdate = Integer.parseInt(tourney.getCurrentRound())-1;
 
         for (AlgoTournamentPlayer player : algoStandings.getStandings()){
             
             Standing playerCurStanding = new Standing();
             
             playerCurStanding.setRank(rank++);
-            playerCurStanding.setCurGamePts(player.getCurMatchPts());
-            playerCurStanding.setCurMatchPts(player.getCurMatchPts());
+            playerCurStanding.setCurGamePts(player.getTotalGamePoints());
+            playerCurStanding.setCurMatchPts(player.getTotalMatchPoints());
             playerCurStanding.setCurOGW(player.getCurOGW());
             playerCurStanding.setCurOMW(player.getCurOMW());
             playerCurStanding.setPlayerID(player.getPlayerID());
 
-
-            createStanding(tournament, Integer.parseInt(tourney.getCurrentRound())-1 + "", playerCurStanding);
+            createStanding(tournament, ""+roundStandingsToUpdate, playerCurStanding);
 
         }
 
     }
 
     public String lastRoundStandingsGenerator(String tournament) throws ExecutionException, InterruptedException{
-        if (!isTournamentInProgress(tournament)) {     
-            return "tournament not in progress yet";
-        }
+
         Tournament tourney = getTournament(tournament);
 
         if (tourney != null){
@@ -1272,10 +1286,11 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
 
             AlgoStandings prevRoundStandings = algoRound.getStandings();
 
+            tourney.setCurrentRound(Integer.parseInt(tourney.getCurrentRound()) + 1 + "");
 
             updateStandingsinDB(prevRoundStandings, tournament, tourney);
 
-            return "last round generaeted";
+            return "last round generated, tournament ended";
         }
 
         return "tournament not found";

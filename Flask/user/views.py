@@ -13,13 +13,13 @@ import json
 from datetime import datetime, date
 
 firebase_config = {
-    'apiKey': os.getenv('FIREBASE_API_KEY'),
-    'authDomain': os.getenv('FIREBASE_AUTH_DOMAIN'),
-    'projectId': os.getenv('FIREBASE_PROJECT_ID'),
-    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
-    'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
-    'appId': os.getenv('FIREBASE_APP_ID'),
-    'measurementId': os.getenv('FIREBASE_MEASUREMENT_ID'),
+    'apiKey': "AIzaSyCDJEkLkIfEoggaGDKY5TJjrkXsUolIJDk",
+    'authDomain': "https://cs203-a263b.firebaseapp.com/",
+    'projectId': "cs203-a263b",
+    'storageBucket': "cs203-a263b.appspot.com",
+    'messagingSenderId': "28927577611",
+    'appId': "1:28927577611:web:42e3ffc3901ab028e3410e",
+    'measurementId': "G-SSRD2ZW3NS",
 }
 
 def YmdToDmyConverter(date_str):
@@ -189,6 +189,7 @@ def google_login():
     if token is None:
         return jsonify({'status': 'error', 'message': 'Token is missing'}), 400
 
+    print(current_app.config['BACKEND_URL'])
     getUserDetails = requests.get(
         current_app.config['BACKEND_URL'] + "/user", 
         headers = {
@@ -368,3 +369,93 @@ def delete_user():
 @user.route('/<string:id>/', methods=['GET', 'POST'])
 def view_player_profile(id):
     return render_template('user/view_player_profile.html')
+
+
+@user.route('/manage_tournament/<string:tournament_name>')
+def manage_tournament(tournament_name):
+    jwt_cookie = request.cookies.get('jwt')  # Retrieve the JWT token
+    headers = {
+        'Authorization': f'Bearer {jwt_cookie}',  # Add the JWT token to the header
+    }
+
+    # First, fetch the tournament details
+    tournament_api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    tournament_response = requests.get(tournament_api_url, headers=headers)
+
+    if tournament_response.status_code != 200:
+        flash("Error going to tournament management page: " + tournament_response.text, "danger")
+        return redirect(url_for('admin.view_tournaments'))
+
+    tournament = tournament_response.json()
+
+    currentUser_api_url =  'http://localhost:8080/user'
+    currentUser_response = requests.get(currentUser_api_url, headers=headers)
+    currentUser = currentUser_response.json().get('userName')
+
+
+    # Fetch the current round name
+    round_name = tournament.get('currentRound')  # Retrieve the current round
+
+    if tournament.get('currentRound') == str(tournament.get('expectedNumRounds')):
+        round_name = str(int(round_name) + 1)
+
+    print(tournament_name, round_name)
+
+    # Initialize round_data
+    round_data = None
+
+    # Only fetch round data if round_name is valid
+    if round_name is not None:
+        # Update the round API URL to include the JWT token in the headers
+        round_api_url = f'http://localhost:8080/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
+        round_headers = {
+            'Authorization': f'Bearer {jwt_cookie}'  # Include the JWT token in the headers
+        }
+        round_response = requests.get(round_api_url, headers=round_headers)  # Pass the headers
+
+        if round_response.status_code == 200:
+            # Check if the response content is empty
+            if round_response.text.strip() == "":  # Check for empty response body
+                round_data = None
+            else:
+                try:
+                    round_data = round_response.json()  # Attempt to parse JSON
+                    if round_data is None:
+                        flash("Round data is null.", "warning")
+                    elif not isinstance(round_data, dict):  # Adjust based on expected structure
+                        flash("Invalid round data received.", "warning")
+                        round_data = None  # Set round_data to None
+                except requests.exceptions.JSONDecodeError:
+                    flash("Error decoding round data response: Invalid JSON", "danger")
+        else:
+            flash("Error fetching round data: " + round_response.text, "danger")
+            print('####' + round_response.text)
+
+
+     # Fetch standings for the previous round if round_name is valid
+    standings_data = None
+    round_name_str = str(int(round_name) - 1) if round_name and round_name.isdigit() else None
+    if round_name_str is not None:
+        standings_api_url = f'http://localhost:8080/tournament/round/standing/get/all?tournamentName={tournament_name}&roundName={round_name_str}'
+        standings_response = requests.get(standings_api_url, headers=round_headers)  # Use the same headers
+
+        if standings_response.status_code == 200:
+            standings_data = standings_response.json()
+            print("STANDINGS DATA: ")
+            print(standings_data)
+        else:
+            flash("Error fetching standings data: " + standings_response.text, "danger")
+    
+    # round_over = round_data.get('over') if round_data else None
+
+   
+    # Render the page with tournament, round, and standings data
+    return render_template(
+        'user/manage_tournament.html', 
+        tournament=tournament, 
+        round=round_data,  # round_data may be None if no round is available
+        currentUser=currentUser,
+        standings=standings_data,  # Pass the standings data to the template
+        current_round=tournament.get('currentRound')
+       # round_over=round_over # Pass in over to the template as well 
+    )
