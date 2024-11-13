@@ -173,7 +173,6 @@ public class AlgoIntegrationTest {
 
         ResponseEntity<String> endRoundResult = restTemplate.exchange(urlEndRound, HttpMethod.GET ,headerEntity, String.class);
         assertEquals(200, endRoundResult.getStatusCode().value());
-
     }
     @Test
     @Order(4)

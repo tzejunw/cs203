@@ -204,7 +204,7 @@ public class TournamentService {
 
     public String endTournament(String tournamentName) throws InterruptedException, ExecutionException {
         
-        if(isTournamentInProgress(tournamentName)){
+        if(isTournamentInProgress(tournamentName) && isLastRound(tournamentName)){
 
         // Get the reference to the participatingPlayer's document
         DocumentReference tournamentDocRef = firestore.collection("tournament")
@@ -645,8 +645,6 @@ public class TournamentService {
         
         Tournament tournament = getTournament(tournamentName);
         
-
-
         if (tournament != null){
 
             String curRound = tournament.getCurrentRound();
@@ -840,27 +838,30 @@ public void processRoundData(String tournamentName, Round round) throws Interrup
         ApiFuture<WriteResult> standingResult = standingDocRef.set(standing);
         standingResult.get(); // Wait for completion
     
-        return "One standing created in " + tournamentName + ", " + roundName + " at " + standingResult.get().getUpdateTime().toString();
+        return "One standing created in " + tournamentName + ", " + roundName;
     }
 
     public Standing getStanding(String tournamentName, String roundName, int rank) throws ExecutionException, InterruptedException {
-        String documentId = String.valueOf(rank); // Use rank as the document ID
-        DocumentReference standingDocRef = firestore.collection("tournament")
-                                                      .document(tournamentName)
-                                                      .collection("round")
-                                                      .document(roundName)
-                                                      .collection("standing")
-                                                      .document(documentId);
+        CollectionReference standingsCollectionRef = firestore.collection("tournament")
+                                                              .document(tournamentName)
+                                                              .collection("round")
+                                                              .document(roundName)
+                                                              .collection("standing");
     
-        ApiFuture<DocumentSnapshot> future = standingDocRef.get();
-        DocumentSnapshot document = future.get();
+        // Query for the document where the rank field matches the specified rank
+        ApiFuture<QuerySnapshot> queryFuture = standingsCollectionRef.whereEqualTo("rank", rank).get();
+        List<QueryDocumentSnapshot> documents = queryFuture.get().getDocuments();
     
-        if (document.exists()) {
-            return document.toObject(Standing.class);
+        // Check if the document was found
+        if (!documents.isEmpty()) {
+            // Convert the first matching document to a Standing object and return it
+            return documents.get(0).toObject(Standing.class);
         } else {
-            return null; // Or handle error
+            // Throw an exception if no matching document was found
+            throw new NoSuchElementException("Standing with rank " + rank + " not found in round " + roundName + " of tournament " + tournamentName);
         }
     }
+    
 
     public List<Standing> getAllStanding(String tournamentName, String roundName) throws ExecutionException, InterruptedException {
         // Retrieve all documents from the "tournament" collection
