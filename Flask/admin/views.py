@@ -248,6 +248,10 @@ def manage_tournament(tournament_name):
 
     # Fetch the current round name
     round_name = tournament.get('currentRound')  # Retrieve the current round
+    
+    if tournament.get('currentRound') == str(tournament.get('expectedNumRounds')):
+        round_name = str(int(round_name) + 1)
+
     print(tournament_name, round_name)
 
     # Initialize round_data
