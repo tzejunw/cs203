@@ -81,4 +81,4 @@ if __name__ == '__main__':
 if application.debug:
     application.config['BACKEND_URL'] = 'http://localhost:8080'
 else:
-    application.config['BACKEND_URL'] = 'http://a3595d85b6d2a4ece9eca896e7442874-867041742.us-east-1.elb.amazonaws.com' # TODO: Change with cloud address
+    application.config['BACKEND_URL'] = 'http://a3595d85b6d2a4ece9eca896e7442874-867041742.us-east-1.elb.amazonaws.com'

@@ -64,7 +64,7 @@ def register():
 
         if response.status_code == 200:
             flash("Account created. Please verify your email to proceed.", 'success')
-            return redirect(url_for('user.verify_email', email=form.email.data, **request.args))
+            return redirect(url_for('user.verify_email'))
         else:
             handleErrorResponses(response)
         
@@ -72,10 +72,7 @@ def register():
 
 @user.route('/verify_email')
 def verify_email():
-    if request.args.get('email'):
-        return render_template('user/register_confirm_email.html', email = request.args.get('email'))
-    
-    return redirect(url_for('index'))
+    return render_template('user/register_confirm_email.html')
 
 @user.route('/register/profile', methods=['GET', 'POST'])
 def register_profile():
@@ -285,7 +282,7 @@ def update_account():
         }
 
         response = requests.put(
-            "http://localhost:8080/user", 
+            f"{current_app.config['BACKEND_URL']}/user", 
             json=data,
             headers = {
                 "Authorization": f"Bearer {jwt_cookie}",
@@ -324,7 +321,7 @@ def update_password():
         }
 
         response = requests.put(
-            "http://localhost:8080/user/password", 
+            f"{current_app.config['BACKEND_URL']}/user/password", 
             json=data,
             headers = {
                 "Authorization": f"Bearer {jwt_cookie}",
@@ -348,7 +345,7 @@ def update_password():
 def delete_user():
     jwt_cookie = request.cookies.get('jwt')
     response = requests.delete(
-        "http://localhost:8080/user", 
+        f"{current_app.config['BACKEND_URL']}/user", 
         headers = {
             "Authorization": f"Bearer {jwt_cookie}",
             "Content-Type": "application/json"
@@ -379,7 +376,7 @@ def manage_tournament(tournament_name):
     }
 
     # First, fetch the tournament details
-    tournament_api_url = f'http://localhost:8080/tournament/get?tournamentName={tournament_name}'
+    tournament_api_url = f'{current_app.config['BACKEND_URL']}/tournament/get?tournamentName={tournament_name}'
     tournament_response = requests.get(tournament_api_url, headers=headers)
 
     if tournament_response.status_code != 200:
@@ -388,7 +385,7 @@ def manage_tournament(tournament_name):
 
     tournament = tournament_response.json()
 
-    currentUser_api_url =  'http://localhost:8080/user'
+    currentUser_api_url =  f'{current_app.config['BACKEND_URL']}/user'
     currentUser_response = requests.get(currentUser_api_url, headers=headers)
     currentUser = currentUser_response.json().get('userName')
 
@@ -407,7 +404,7 @@ def manage_tournament(tournament_name):
     # Only fetch round data if round_name is valid
     if round_name is not None:
         # Update the round API URL to include the JWT token in the headers
-        round_api_url = f'http://localhost:8080/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
+        round_api_url = f'{current_app.config['BACKEND_URL']}/tournament/round/get?tournamentName={tournament_name}&roundName={round_name}'
         round_headers = {
             'Authorization': f'Bearer {jwt_cookie}'  # Include the JWT token in the headers
         }
@@ -436,7 +433,7 @@ def manage_tournament(tournament_name):
     standings_data = None
     round_name_str = str(int(round_name) - 1) if round_name and round_name.isdigit() else None
     if round_name_str is not None:
-        standings_api_url = f'http://localhost:8080/tournament/round/standing/get/all?tournamentName={tournament_name}&roundName={round_name_str}'
+        standings_api_url = f'{current_app.config['BACKEND_URL']}/tournament/round/standing/get/all?tournamentName={tournament_name}&roundName={round_name_str}'
         standings_response = requests.get(standings_api_url, headers=round_headers)  # Use the same headers
 
         if standings_response.status_code == 200:
