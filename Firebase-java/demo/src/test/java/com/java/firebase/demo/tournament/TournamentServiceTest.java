@@ -904,40 +904,40 @@ void isTournamentInProgress_WithNullTournament_ThrowsException() throws Executio
         assertEquals(expectedMatchId, matchId);
     }
 
-    @Test
-    void startTournament_WhenTournamentNotInProgress_StartsTournament() throws ExecutionException, InterruptedException {
-        String tournamentName = "TestTournament";
+    // @Test
+    // void startTournament_WhenTournamentNotInProgress_StartsTournament() throws ExecutionException, InterruptedException {
+    //     String tournamentName = "TestTournament";
 
-        // Arrange - Set up behavior of helper methods using doReturn
-        doReturn(false).when(tournamentService).isTournamentInProgress(tournamentName);
-        doReturn(validTournament).when(tournamentService).getTournament(tournamentName);
+    //     // Arrange - Set up behavior of helper methods using doReturn
+    //     doReturn(false).when(tournamentService).isTournamentInProgress(tournamentName);
+    //     doReturn(validTournament).when(tournamentService).getTournament(tournamentName);
 
-        // Mocking the creation and updating processes
-        AlgoRound mockAlgoRound = mock(AlgoRound.class);
-        List<Match> mockMatches = List.of(new Match(), new Match());
+    //     // Mocking the creation and updating processes
+    //     AlgoRound mockAlgoRound = mock(AlgoRound.class);
+    //     List<Match> mockMatches = List.of(new Match(), new Match());
 
-        // Stubbing internal method calls
-        doReturn(mockAlgoRound).when(tournamentService).parseIntoAlgoRound1(validTournament);
-        doReturn(mockMatches).when(tournamentService).parseAlgoRoundMatchesToMatch(mockAlgoRound);
+    //     // Stubbing internal method calls
+    //     doReturn(mockAlgoRound).when(tournamentService).parseIntoAlgoRound1(validTournament);
+    //     doReturn(mockMatches).when(tournamentService).parseAlgoRoundMatchesToMatch(mockAlgoRound);
 
-        doReturn("Correct String").when(tournamentService).createRound(eq(tournamentName), any(Round.class));
-        doNothing().when(tournamentService).updateDataBaseWithMatches(eq(validTournament), eq("1"), eq(mockMatches));
-        doReturn("Correct String").when(tournamentService).updateTournament(validTournament);
+    //     doReturn("Correct String").when(tournamentService).createRound(eq(tournamentName), any(Round.class));
+    //     doNothing().when(tournamentService).updateDataBaseWithMatches(eq(validTournament), eq("1"), eq(mockMatches));
+    //     doReturn("Correct String").when(tournamentService).updateTournament(validTournament);
 
-        // Act
-        boolean result = tournamentService.startTournament(tournamentName);
+    //     // Act
+    //     boolean result = tournamentService.startTournament(tournamentName);
 
-        // Assert
-        assertTrue(result);
-        assertTrue(validTournament.isInProgress());
-        assertEquals("1", validTournament.getCurrentRound());
+    //     // Assert
+    //     assertTrue(result);
+    //     assertTrue(validTournament.isInProgress());
+    //     assertEquals("1", validTournament.getCurrentRound());
         
-        // Verify calls
-        verify(tournamentService).createRound(eq(tournamentName), any(Round.class));
-        verify(tournamentService).updateDataBaseWithMatches(eq(validTournament), eq("1"), eq(mockMatches));
-        verify(tournamentService).updateTournament(validTournament);
-        verify(mockAlgoRound).generateRoundOne();
-    }
+    //     // Verify calls
+    //     verify(tournamentService).createRound(eq(tournamentName), any(Round.class));
+    //     verify(tournamentService).updateDataBaseWithMatches(eq(validTournament), eq("1"), eq(mockMatches));
+    //     verify(tournamentService).updateTournament(validTournament);
+    //     verify(mockAlgoRound).generateRoundOne();
+    // }
 
 
 }

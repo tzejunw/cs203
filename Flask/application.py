@@ -36,11 +36,13 @@ def inject_login_status():
         try:
             # Decode without verifying the signature
             decoded_jwt = jwt.decode(jwt_cookie, options={"verify_signature": False})
-            print("Decoded JWT:", decoded_jwt)  # Print the decoded JWT for debugging
+            if application.debug:
+                print("Decoded JWT:", decoded_jwt)  # Print the decoded JWT for debugging
             
             # Check if the 'admin' key is present and set is_admin accordingly
             is_admin = decoded_jwt.get('admin', False)
-            print("Is admin:", is_admin)  # Print the admin status for debugging
+            if application.debug:
+                print("Is admin:", is_admin)  # Print the admin status for debugging
         except:
             print("Invalid token")  # Handle decoding error
 
@@ -51,7 +53,7 @@ def inject_login_status():
 @application.route('/')
 def index():
 
-    api_url = 'http://localhost:8080/tournament/get/all'
+    api_url = 'http://a3595d85b6d2a4ece9eca896e7442874-867041742.us-east-1.elb.amazonaws.com/tournament/get/all'
     response = requests.get(api_url) 
     tournaments = response.json() 
 
@@ -74,9 +76,9 @@ def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 if __name__ == '__main__':  
-   application.run(debug=True) # remove debug=True for production
+   application.run() # remove debug=True for production
 
 if application.debug:
     application.config['BACKEND_URL'] = 'http://localhost:8080'
 else:
-    application.config['BACKEND_URL'] = 'b' # TODO: Change with cloud address
+    application.config['BACKEND_URL'] = 'http://a3595d85b6d2a4ece9eca896e7442874-867041742.us-east-1.elb.amazonaws.com' # TODO: Change with cloud address
