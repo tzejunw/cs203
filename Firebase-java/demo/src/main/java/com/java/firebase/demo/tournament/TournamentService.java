@@ -441,7 +441,7 @@ public class TournamentService {
         return "Tournament not found: " + tournamentName;
     }
     
-    // Step 1: Delete all participating players in the tournament
+    // Step 1: Delete all participating splayers in the tournament
     CollectionReference playersCollection = tournamentDocRef.collection("participatingPlayers");
     ApiFuture<QuerySnapshot> playersSnapshot = playersCollection.get();
     for (DocumentSnapshot playerDoc : playersSnapshot.get().getDocuments()) {
@@ -982,10 +982,10 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
         return false;
     }
 
-    if (isLastRound(tournament)) {
-        System.out.println("The last round of the tournament has already been generated");
-        return false;
-    }
+    // if (isLastRound(tournament)) {
+    //     System.out.println("The last round of the tournament has already been generated");
+    //     return false;
+    // }
 
     Tournament tourney = getTournament(tournament);
 
@@ -1238,7 +1238,11 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
     public void updateStandingsinDB(AlgoStandings algoStandings, String tournament, Tournament tourney) throws ExecutionException, InterruptedException{
 
         int rank = 1;
+        int roundStandingsToUpdate = Integer.parseInt(tourney.getCurrentRound());
 
+        if (tourney.getExpectedNumRounds() != roundStandingsToUpdate){
+            roundStandingsToUpdate--;
+        }
         for (AlgoTournamentPlayer player : algoStandings.getStandings()){
             
             Standing playerCurStanding = new Standing();
@@ -1251,7 +1255,7 @@ public boolean generateRound(String tournament)throws ExecutionException, Interr
             playerCurStanding.setPlayerID(player.getPlayerID());
 
 
-            createStanding(tournament, Integer.parseInt(tourney.getCurrentRound())-1 + "", playerCurStanding);
+            createStanding(tournament, ""+roundStandingsToUpdate, playerCurStanding);
 
         }
 

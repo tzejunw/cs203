@@ -190,6 +190,108 @@ public class AlgoIntegrationTest {
         
     }
 
+    @Test
+    @Order(5)
+    public void testUpdateMatches_Success2() throws Exception{
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        URI urlGetMatch;
+
+        //update player matches
+
+        for (int i = 1; i <= numberOfPlayers; i++){
+
+            urlGetMatch = new URI(baseUrl + port + "/tournament/round/match/player/get?tournamentName=" + tournamentName + "&roundName=2&player=user"+i);
+
+            ResponseEntity<Match> matchResponse = restTemplate.exchange(urlGetMatch,HttpMethod.GET,request, Match.class);
+            assertEquals(200, matchResponse.getStatusCode().value());
+            Match matchToUpdate = matchResponse.getBody();
+
+            String player1 = matchToUpdate.getPlayer1();
+            String player2 = matchToUpdate.getPlayer2();
+
+            matchToUpdate.setWinner(player1);
+            matchToUpdate.setWins(2);
+
+            URI urlUpdateMatch = new URI(baseUrl + port + "/tournament/round/match/update?tournamentName=" + tournamentName + "&roundName=2&player1=" + player1 + "&player2=" + player2);
+            HttpHeaders headersForUpdating = new HttpHeaders();
+            headersForUpdating.set("Authorization", "Bearer " + token);
+            headersForUpdating.set("Content-Type","application/json");
+
+            HttpEntity<Match> updateMatchRequest = new HttpEntity<>(matchToUpdate, headers);
+            ResponseEntity<String> updateMatchResult = restTemplate.exchange(urlUpdateMatch, HttpMethod.PUT, updateMatchRequest, String.class);
+            assertEquals(200, updateMatchResult.getStatusCode().value());
+            
+        }
+
+    }
+    @Test
+    @Order(6)
+    public void testEndRound_Success2() throws Exception{
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<Void> headerEntity = new HttpEntity<>(headers);
+
+        URI urlEndRound = new URI(baseUrl + port + "/tournament/round/end?tournamentName=" + tournamentName + "&roundName=2");
+
+        ResponseEntity<String> endRoundResult = restTemplate.exchange(urlEndRound, HttpMethod.GET ,headerEntity, String.class);
+        assertEquals(200, endRoundResult.getStatusCode().value());
+
+    }
+
+    @Test
+    @Order(7)
+    public void testBeginRound_Sucess2() throws Exception{
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<Void> headerEntity = new HttpEntity<>(headers);
+
+        URI urlStartRound = new URI(baseUrl + port + "/tournament/round/start?tournamentName=" + tournamentName);
+
+        ResponseEntity<String> startRoundResult = restTemplate.exchange(urlStartRound, HttpMethod.GET,headerEntity, String.class);
+        assertEquals(200, startRoundResult.getStatusCode().value());
+        
+    }
+
+    @Test
+    @Order(8)
+    public void testUpdateMatches_Success3() throws Exception{
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        URI urlGetMatch;
+
+        //update player matches
+
+        for (int i = 1; i <= numberOfPlayers; i++){
+
+            urlGetMatch = new URI(baseUrl + port + "/tournament/round/match/player/get?tournamentName=" + tournamentName + "&roundName=3&player=user"+i);
+
+            ResponseEntity<Match> matchResponse = restTemplate.exchange(urlGetMatch,HttpMethod.GET,request, Match.class);
+            assertEquals(200, matchResponse.getStatusCode().value());
+            Match matchToUpdate = matchResponse.getBody();
+
+            String player1 = matchToUpdate.getPlayer1();
+            String player2 = matchToUpdate.getPlayer2();
+
+            matchToUpdate.setWinner(player1);
+            matchToUpdate.setWins(2);
+
+            URI urlUpdateMatch = new URI(baseUrl + port + "/tournament/round/match/update?tournamentName=" + tournamentName + "&roundName=3&player1=" + player1 + "&player2=" + player2);
+            HttpHeaders headersForUpdating = new HttpHeaders();
+            headersForUpdating.set("Authorization", "Bearer " + token);
+            headersForUpdating.set("Content-Type","application/json");
+
+            HttpEntity<Match> updateMatchRequest = new HttpEntity<>(matchToUpdate, headers);
+            ResponseEntity<String> updateMatchResult = restTemplate.exchange(urlUpdateMatch, HttpMethod.PUT, updateMatchRequest, String.class);
+            assertEquals(200, updateMatchResult.getStatusCode().value());
+            
+        }
+
+    }
+/* 
     @AfterAll
     public void takeDown() throws Exception {
         URI uri = new URI(baseUrl + port + "/tournament/delete?tournamentName=" + tournamentName);
@@ -199,6 +301,6 @@ public class AlgoIntegrationTest {
 
         ResponseEntity<String> result = restTemplate.exchange(uri,HttpMethod.DELETE ,request, String.class);
         assertEquals(200, result.getStatusCode().value());
-    } 
+    } */
 
 }
