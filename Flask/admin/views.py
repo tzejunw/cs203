@@ -10,7 +10,7 @@ from flask_wtf.file import FileField
 # Assuming you have defined your admin Blueprint somewhere else
 from . import admin
 
-backend_url = "http://a3595d85b6d2a4ece9eca896e7442874-867041742.us-east-1.elb.amazonaws.com"
+backend_url = "http://localhost:8080"
 
 class TournamentForm(FlaskForm):
     tournamentName = StringField('Tournament Name', validators=[InputRequired()])
