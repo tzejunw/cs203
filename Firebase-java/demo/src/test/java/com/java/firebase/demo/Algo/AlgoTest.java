@@ -65,9 +65,9 @@ public class AlgoTest {
 
     }
 
-    void completeRounds(int roundsToComplete){
+    // Helper function that simulates round finishing and generating the new round with match results updated
 
-        //simulates round finishing and generating the new round with match results updated
+    void completeRounds(int roundsToComplete){
 
         for ( int i = 0; i < roundsToComplete; i++){
 
@@ -241,8 +241,6 @@ public class AlgoTest {
         
         completeRounds(2);
 
-        print();
-
         // 4 brackets after 3 rounds, 0-3, 1-2, 2-1, 3-0
 
         ArrayList<List<AlgoTournamentPlayer>> brackets = testRound.getBracket();
@@ -251,13 +249,6 @@ public class AlgoTest {
 
     }
 
-    
-    void print(){
-        for (AlgoTournamentPlayer p : players){
-            System.out.println("player : " + p.getPlayerID() + " MatchWinPts : " +p.getTotalMatchPoints() +  " GameWinPts : " +p.getTotalGamePoints());
-            System.out.println();
-        }
-    }
 
     
     

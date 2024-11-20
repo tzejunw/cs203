@@ -137,7 +137,7 @@ public class TournamentController {
 
     @GetMapping("/tournament/round/end")
     public String roundEnd(@RequestParam String tournamentName, @RequestParam String roundName) throws InterruptedException, ExecutionException{
-        return tournamentService.roundEnd(tournamentName, roundName) ;
+        return tournamentService.roundEnd(tournamentName, roundName);
     }
 
     @GetMapping("/tournament/round/start")
