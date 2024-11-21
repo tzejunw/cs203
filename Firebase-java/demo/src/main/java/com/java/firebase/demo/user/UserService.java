@@ -326,12 +326,6 @@ public class UserService {
             return null;
         }
     }
-    
-
-    // public String getUserEmail(String userId) throws ExecutionException, InterruptedException, FirebaseAuthException {
-    //     UserRecord userRecord = firebaseAuth.getUser(userId);
-    //     return userRecord.getEmail();
-    // }
 
     // User only allowed to update gender, birthday and name 
     public String updateUser(User user, String userId) throws ExecutionException, InterruptedException {

@@ -16,40 +16,63 @@ import jakarta.servlet.Filter;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // FirebaseTokenFilter is a custom filter for validating Firebase tokens.
     private final FirebaseTokenFilter firebaseTokenFilter;
 
+    // Constructor for dependency injection of FirebaseTokenFilter.
     public SecurityConfig(FirebaseTokenFilter firebaseTokenFilter) {
         this.firebaseTokenFilter = firebaseTokenFilter;
     }
 
+    /**
+     * Configures the security filter chain for the application.
+     *
+     * @param http the HttpSecurity object for configuring HTTP security.
+     * @return the configured SecurityFilterChain.
+     * @throws Exception if an error occurs during configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // Disable Cross-Origin Resource Sharing (CORS) and CSRF protection.
             .cors(AbstractHttpConfigurer::disable)
             .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterAfter((Filter) firebaseTokenFilter, BasicAuthenticationFilter.class)
-            .authorizeHttpRequests(
-                authorizeRequests -> authorizeRequests
-// For easy testing purposes, uncomment this for all tournaments routes to be permitted.
-                    //.requestMatchers("/tournament/**").permitAll()    
 
-                    // User Route
-                    .requestMatchers(HttpMethod.POST, "/user", "/login", "/user/resendVerification", "/user/verifyEmail", "/user/masscreate").permitAll()
+            // Set session management to stateless as the application uses token-based authentication.
+            .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            // Add the FirebaseTokenFilter after the BasicAuthenticationFilter.
+            .addFilterAfter((Filter) firebaseTokenFilter, BasicAuthenticationFilter.class)
+
+            // Configure authorization rules for different HTTP requests.
+            .authorizeHttpRequests(
+                authorizeRequests -> authorizeRequests    
+
+                    // Allow unauthenticated access to user-related routes for account creation and login.
+                    .requestMatchers(HttpMethod.POST, "/user", "/login", "/user/resendVerification", "/user/verifyEmail").permitAll()
+                    
+                    // Require authentication for other user-related routes.
                     .requestMatchers("/user", "/user/**").authenticated()
                     
-                    // Tournament Route
-                    .requestMatchers(HttpMethod.GET, "/tournament/get/all", "/tournament/get/**","/tournament/round/get/**", "/tournament/round/standing/get/**").permitAll()
-                    .requestMatchers(HttpMethod.PUT, "/tournament/round/match/update/**").authenticated() // allow users to update match results
-                    .requestMatchers(HttpMethod.POST,"/tournament/player/addSelf").authenticated() //allow users to join tournament themselves
-                    .requestMatchers(HttpMethod.DELETE,"/tournament/player/removeSelf").authenticated()
+                    // Allow unauthenticated access to view tournament data.
+                    .requestMatchers(HttpMethod.GET, "/tournament/get/all", "/tournament/get/**", "/tournament/round/get/**", "/tournament/round/standing/get/**").permitAll()
+
+                    // Require authentication for updating match results and joining/removing oneself from a tournament.
+                    .requestMatchers(HttpMethod.PUT, "/tournament/round/match/update/**").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/tournament/player/addSelf").authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/tournament/player/removeSelf").authenticated()
+
+                    // Require admin role for all other tournament-related routes.
                     .requestMatchers("/tournament/**").hasRole("ADMIN")
 
-                    // Image Route
+                    // Require authentication for uploading images.
                     .requestMatchers(HttpMethod.POST, "/api/image/upload").authenticated()
-                    .requestMatchers("/api/image/**").hasRole("ADMIN") // Only admins can access other image-related routes
 
+                    // Restrict all other image-related routes to admin users only.
+                    .requestMatchers("/api/image/**").hasRole("ADMIN")
             );
+        
+        // Build and return the configured SecurityFilterChain.
         return http.build();
     }
 }

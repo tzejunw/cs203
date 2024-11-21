@@ -3,13 +3,15 @@ POST http://localhost:8080/user
 Content-Type: application/json
 
 {
-    "userName": "garychia14",
-    "name": "gary",
-    "birthday": "10/10/2010",
-    "email": "gary1@gmail.com",
-    "gender": "male",
+    "email": "gary1935+integrationTest@hotmail.co.uk",
     "password": "1@Secured"
 }
+
+
+    # "name": "gary",
+    # "birthday": "10/10/2010",
+    # "email": "gary1@gmail.com",
+    # "gender": "male",
 
 ### Admin Login - Please avoid changing the pw
 POST http://localhost:8080/login
